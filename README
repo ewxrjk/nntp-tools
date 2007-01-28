@@ -1,0 +1,98 @@
+newstools
+=========
+
+This package contains tools to post various things to a newsgroup.  It
+depends on libpthread, libcurl, libexpat and libgcrypt.  It runs on
+Linux but should not be too hard to get going on other UNIX platforms.
+
+
+Installation
+------------
+
+  ./configure
+  make
+  make install
+
+(as ever see INSTALL for more info.)
+
+
+lj2news
+-------
+
+lj2news reads the RSS feed provided by Livejournal, formats it to
+plain text, and posts it to a newsgroup.
+
+See "man lj2news" for documentation.
+
+I suggest that you start by posting to a test newsgroup and setting
+the -x option to something (any nonempty string will do).  Adjust the
+command line until you are happy.  For each test (that posts anything)
+you will need a fresh -x value.
+
+When you are happy remove the -x option and set the -n option to point
+to the newsgroup you really want to post to.
+
+You can run the command manually or put it in a cronjob to run
+e.g. once a day.
+
+Be careful with cronjobs, sometimes their environment differs from the
+interactive environment.  For instance you may need to explicitly set
+NNTPAUTH and NNTPSERVER (though you can use the -s option instead of
+the latter.)
+
+For instance, I have the following in a script, which I execute from a
+cron job:
+
+  #!/bin/bash
+  set -e
+  export NNTPAUTH="md5cookie1way richard"
+  lj2news \
+    -a "http://www.greenend.org.uk/rjk/;richard+ljua@sfere.greenend.org.uk" \
+    -t ewx \
+    -f "Richard Kettlewell <rjk@greenend.org.uk>" \
+    -n chiark.journals \
+    -s chiark-tunnel \
+    http://www.livejournal.com/users/ewx/rss
+
+
+tla2news
+--------
+
+tla2news posts Arch changelog entries to a newsgroup.  See "man
+tla2news" for documentation.  It's quite similar to lj2news in
+operation.
+
+
+Reporting Bugs
+--------------
+
+Please check http://www.greenend.org.uk/rjk/2006/newstools.html for new
+versions before reporting a bug.
+
+Please report bugs to sgo-software-discuss@greenend.org.uk if you are
+subscribed to it, or to rjk@greenend.org.uk otherwise.
+
+If you send a patch, use 'diff -u' format.
+
+
+Copyright
+---------
+
+Copyright (C) 2005, 2006 Richard Kettlewell
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+USA
+
+# arch-tag:hmSeIqBbZhezotQ+TuTDwQ

@@ -1,0 +1,115 @@
+.\"
+.\" Copyright (C) 2005, 2006 Richard Kettlewell
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+.\" USA
+.\"
+.TH lj2news 1
+.SH NAME
+lj2news \- gateway livejournal RSS feed to a newsgroup
+.SH SYNOPSIS
+.B lj2news
+.RI [OPTIONS]
+.IR URL ...
+.SH DESCRIPTION
+.B lj2news
+fetches livejournal articles via RSS and posts them to a newsgroup.
+.PP
+.I URL
+should be the URL of the RSS feed of your journal.
+.SH OPTIONS
+.SS "Mandatory Options"
+.TP
+.B -a\fR, \fB--user-agent \fIUSERAGENT\fR
+Specify the user agent to use when fetching the RSS.  If you are
+querying livejournal then this should confrom to the livejournal bot
+policy.
+.TP
+.B -f\fR, \fB--from \fIFROMLINE\fR
+The contents of the From: field (e.g. "your name <address@domain>")
+.TP
+.B -n\fR, \fB--newsgroup \fINEWSGROUP\fR
+The newsgroup to post to.
+.SS "Optional Options"
+.TP
+.B -o\fR, \fB--organization \fIORGANIZATION\fR
+Specify the organization field.
+.TP
+.B -S\fR, \fB--signature \fISIGFILE\fR
+Specify the sigfile to append.
+.TP
+.B -s\fR, \fB--server \fISERVER\fR
+Specify the news server to post to.  The default is from the
+environment variable \fBNNTPSERVER\fR.
+.TP
+.B -t\fR, \fB--tag \fITAG\fR
+Specify the tag to use in the Subject: header.  The default is your
+login name.
+.TP
+.B -T\fR, \fB--no-tag
+Do not use a tag in the Subject: header.
+.TP
+.B -V\fR, \fB--version
+Display a version string and terminate.
+.TP
+.B -h\fR, \fB--help
+Display a usage message and terminate.
+.SS "Rarely-Used Options"
+.TP
+.B -m\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
+The message-ID domain.  Normally need not be specified.
+.TP
+.B -p\fR, \fB--port \fIPORT\fR
+Specify the news server port number.  The default is the standard NNTP
+port.
+.TP
+.B -x\fR, \fB--salt \fISALT\fR
+Include \fISALT\fR in the calculation of message IDs.
+.TP
+.B -4
+Use only IPv4 addresses.
+.TP
+.B -6
+Use only IPv6 addresses.
+.TP
+.B -d\fR, \fB--debug
+Enable debugging.
+.SH NOTES
+.SS Salt
+The
+.B -x
+option is useful in testing your setup.
+.PP
+.B lj2news
+relies on the news server to keep track of which messages have been
+sent and which not, so if you post all your articles in a test group
+but then want to repost them to a "real" group then the message IDs
+will clash and the articles will be silently rejected.  In this case
+you should change the salt value when switching between the test and
+live groups.
+.PP
+The suggested approach is to use a nontrivial salt in testing and
+remove it when going live.
+.SS "NNTP Authentication"
+Currently only AUTHINFO GENERIC is supported.
+.SS "IPv6 Support"
+This has not actually been tested!
+.SH AUTHOR
+(c) 2005, 2006 Richard Kettlewell.
+.SH "SEE ALSO"
+Livejournal bot policy: http://www.livejournal.com/bots/
+.PP
+lj2news home page: http://www.greenend.org.uk/rjk/2005/lj2news.html
+.\" arch-tag:aOJCgbqUUUTy01nFF4xFBg
