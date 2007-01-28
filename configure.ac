@@ -90,4 +90,3 @@ AH_BOTTOM([#ifdef __GNUC__
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
-# arch-tag:1BfheYuYwrhjWrK3qSZkMA

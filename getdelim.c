@@ -56,8 +56,6 @@ ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
   return -1;
 }
 
-/* arch-tag:n6PMeGMgC3Kw7F4oWFFtLQ */
-
 /*
 Local Variables:
 c-basic-offset:2

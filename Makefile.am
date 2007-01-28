@@ -29,5 +29,3 @@ man_MANS=lj2news.1 tla2news.1
 
 EXTRA_DIST=$(man_MANS)
 ACLOCAL_AMFLAGS=-I aclocal
-
-# arch-tag:JwWbxKy1YFhCISGsb0sSOQ

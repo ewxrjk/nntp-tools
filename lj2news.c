@@ -511,8 +511,6 @@ Rarely used options:\n\
 
 /* --- elvis has left the building ----------------------------------------- */
 
-/* arch-tag:W+fpMzBvIBsx36J351yP1Q */
-
 /*
 Local Variables:
 c-basic-offset:2

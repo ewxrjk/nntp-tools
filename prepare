@@ -42,5 +42,3 @@ automake -a || true		# for INSTALL
 automake --foreign -a
 cd "$here"
 $srcdir/configure "$@" --sysconfdir=/etc --localstatedir=/var
-
-# arch-tag:ww7oRpBUSa8N3ELbH2mKjw

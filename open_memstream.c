@@ -86,8 +86,6 @@ FILE *open_memstream(char **ptr, size_t *sizeloc) {
 }
 #endif
 
-/* arch-tag:9ipbpXrcZNwfLKpNFQFiUA */
-
 /*
 Local Variables:
 c-basic-offset:2
