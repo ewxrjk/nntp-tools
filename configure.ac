@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 #
-# Copyright (C) 2005, 2006 Richard Kettlewell
+# Copyright (C) 2005, 2006, 2007 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 # USA
 #
 
-AC_INIT([newstools], [0.5], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([newstools], [0.6], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([newstools], [0.5])
+AM_INIT_AUTOMAKE([newstools], [0.6])
 AC_CONFIG_SRCDIR([lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
