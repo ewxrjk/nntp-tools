@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
       exit(0);
     case 'h':
       printf("Usage:\n\
-  tla2news -a USER-AGENT -f FROM -n GROUP [OPTIONS] URL\n\
+  tla2news -n GROUP [OPTIONS]\n\
 \n\
 Mandatory options:\n\
   -n, --newgroup GROUP               Newsgroup\n\
