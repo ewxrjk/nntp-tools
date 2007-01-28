@@ -1,0 +1,89 @@
+.\"
+.\" Copyright (C) 2007 Richard Kettlewell
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+.\" USA
+.\"
+.TH bzr2news 1
+.SH NAME
+bzr2news \- post Arch revision history to a newsgroup
+.SH SYNOPSIS
+.B bzr2news
+.RI [OPTIONS]
+.SH DESCRIPTION
+.B bzr2news
+posts recent changes to an Bazaar archive to a newsgroup.
+.SH OPTIONS
+.SS "Mandatory Options"
+.TP
+.B -n \fINEWSGROUP\fR, \fB--newsgroup \fINEWSGROUP\fR
+The newsgroup to post to.
+.SS "Optional Options"
+.TP
+.B -s \fISERVER\fR, \fB--server \fISERVER\fR
+Specify the news server to post to.  The default is from the
+environment variable \fBNNTPSERVER\fR.
+.TP
+.B -V, \fB--version
+Display a version string and terminate.
+.TP
+.B -h\fR, \fB--help
+Display a usage message and terminate.
+.SS "Rarely-Used Options"
+.TP
+.B -a \fISECONDS\fR, \fB--age \fISECONDS\fR
+The maximum age of changes to post.  The default is 1 week (604800
+seconds).
+.TP
+.B -m \fIMSGIDDOMjAIN\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
+The message-ID domain.  Normally need not be specified.
+.TP
+.B -p \fIPORT\fR, \fB--port \fIPORT\fR
+Specify the news server port number.  The default is the standard NNTP
+port.
+.TP
+.B -x \fISALT\fR, \fB--salt \fISALT\fR
+Include \fISALT\fR in the calculation of message IDs.
+.TP
+.B -4
+Use only IPv4 addresses.
+.TP
+.B -6
+Use only IPv6 addresses.
+.TP
+.B -d, \fB--debug
+Enable debugging.
+.SH NOTES
+.SS Salt
+The
+.B -x
+option is useful in testing your setup.
+.PP
+.B bzr2news
+relies on the news server to keep track of which messages have been
+sent and which not, so if you post all your articles in a test group
+but then want to repost them to a "real" group then the message IDs
+will clash and the articles will be silently rejected.  In this case
+you should change the salt value when switching between the test and
+live groups.
+.PP
+The suggested approach is to use a nontrivial salt in testing and
+remove it when going live.
+.SS "NNTP Authentication"
+Currently only AUTHINFO GENERIC is supported.
+.SS "IPv6 Support"
+This has not actually been tested!
+.SH AUTHOR
+(c) 2007 Richard Kettlewell.

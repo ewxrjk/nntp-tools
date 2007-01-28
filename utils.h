@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Richard Kettlewell
+ * Copyright (C) 2006, 2007 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 /* Utility functions */
 
 void error(int errno_value, const char *msg, ...);
-void fatal(int errno_value, const char *msg, ...);
+void fatal(int errno_value, const char *msg, ...) attribute((noreturn));
 void *xmalloc(size_t n);
 void *xrealloc(void *ptr, size_t n) ;
 char *xstrdup(const char *s);
@@ -32,6 +32,8 @@ pid_t xfork(void);
 void lock(pthread_mutex_t *m);
 void unlock(pthread_mutex_t *m);
 const char *w3date_to_822date(const char *w3date);
+time_t bzrdate_to_time_t(const char *bzrdate);
+const char *time_t_to_822date(time_t when);
 
 /* Debugging */
 

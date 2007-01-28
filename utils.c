@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2007 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "utils.h"
 
 /* --- utilities ----------------------------------------------------------- */
 
-static void (*exitfn)(int) = exit;
+static void (*exitfn)(int) attribute((noreturn)) = exit;
 
 /* report a non-fatal error */
 void error(int errno_value, const char *msg, ...) {
@@ -253,7 +254,7 @@ static time_t w3date_to_time_t(const char *w3date) {
   return t - tz;                        /* Correct for timezone */
 }
 
-static const char *time_t_to_822date(time_t when) {
+const char *time_t_to_822date(time_t when) {
   struct tm utc;
   char tbuf[64];
 
@@ -265,6 +266,66 @@ static const char *time_t_to_822date(time_t when) {
 
 const char *w3date_to_822date(const char *w3date) {
   return time_t_to_822date(w3date_to_time_t(w3date));
+}
+
+/* --- convert a bzr date to a time_t -------------------------------------- */
+
+/* bzr dates look like 'Sun 2007-01-28 13:19:43 +0000' */
+time_t bzrdate_to_time_t(const char *bzrdate) {
+  int year, mon, day, hour, min, sec, tz, tzs;
+  const char *ptr = bzrdate;
+  struct tm bdt;
+  time_t t;
+
+  if(!isalpha((unsigned char)ptr[0])
+     || !isalpha((unsigned char)ptr[1])
+     || !isalpha((unsigned char)ptr[2])
+     || ptr[3] != ' ')
+    fatal(0, "unexpected date format: %s", bzrdate);
+  ptr += 4;
+  year = do_strtol(&ptr);
+  if(year < 1900) fatal(0, "year too early: %s", bzrdate);
+  if(*ptr++ != '-') fatal(0, "expected '-' after year: %s", bzrdate);
+  mon = do_strtol(&ptr);
+  if(mon < 1 || mon > 12) fatal(0, "month out of range: %s", bzrdate);
+  if(*ptr++ != '-') fatal(0, "expected '-' after month: %s", bzrdate);
+  day = do_strtol(&ptr);
+  if(day < 1 || day > 31) fatal(0, "day out of range: %s", bzrdate);
+  if(*ptr++ != ' ') fatal(0, "expected ' ' after month: %s", bzrdate);
+  hour = do_strtol(&ptr);
+  if(hour < 0 || hour > 23) fatal(0, "hour out of range: %s", bzrdate);
+  if(*ptr++ != ':') fatal(0, "expected ':' after day: %s", bzrdate);
+  min = do_strtol(&ptr);
+  if(min < 0 || min > 59) fatal(0, "minute out of range: %s", bzrdate);
+  if(*ptr++ != ':') fatal(0, "expected ':' after day: %s", bzrdate);
+  sec = do_strtol(&ptr);
+  if(min < 0 || min > 61) fatal(0, "second out of range: %s", bzrdate);
+  if(*ptr++ != ' ') fatal(0, "expected ' ' after day: %s", bzrdate);
+  switch(*ptr++) {
+  case '+': tzs = 60; break;
+  case '-': tzs = -60; break;
+  default:
+    fatal(0, "expected sign at start of timezone: %s", bzrdate);
+  }
+  tz = do_strtol(&ptr);
+  if(tz < 0 || tz / 100 > 23 || tz % 100 > 59)
+    fatal(0, "timezone out of range: %s", bzrdate);
+  tz = tzs * (tz % 100 + 60 * (tz / 100)); /* convert to seconds */
+  while(isspace((unsigned char)*ptr))
+    ++ptr;
+  if(*ptr) fatal(0, "junk at end of timestamp: %s", bzrdate);
+  memset(&bdt, 0, sizeof bdt);
+  bdt.tm_year = year - 1900;
+  bdt.tm_mon = mon - 1;
+  bdt.tm_mday = day;
+  bdt.tm_hour = hour;
+  bdt.tm_min = min;
+  bdt.tm_sec = sec;
+  bdt.tm_isdst = 0;
+  /* We clobbered TZ in main() so mktime() should give us UTC */
+  if((t = mktime(&bdt)) == (time_t)-1)
+    fatal(errno, "error calling mktime");
+  return t - tz;                        /* Correct for timezone */
 }
 
 /* --- debugging support --------------------------------------------------- */

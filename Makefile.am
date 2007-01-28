@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005, 2006 Richard Kettlewell
+# Copyright (C) 2005, 2006, 2007 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # USA
 #
 
-bin_PROGRAMS=lj2news tla2news
+bin_PROGRAMS=lj2news tla2news bzr2news
 
 lj2news_SOURCES=lj2news.c lj2news.h utils.c utils.h nntp.c nntp.h
 lj2news_LDADD=$(LIBOBJS) $(LIBEXPAT) $(LIBGCRYPT) $(LIBCURL) $(LIBPTHREAD)
@@ -25,7 +25,10 @@ lj2news_LDADD=$(LIBOBJS) $(LIBEXPAT) $(LIBGCRYPT) $(LIBCURL) $(LIBPTHREAD)
 tla2news_SOURCES=tla2news.c utils.c utils.h nntp.c nntp.h
 tla2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
 
-man_MANS=lj2news.1 tla2news.1
+bzr2news_SOURCES=bzr2news.c utils.c utils.h nntp.c nntp.h
+bzr2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
+
+man_MANS=lj2news.1 tla2news.1 bzr2news.1
 
 EXTRA_DIST=$(man_MANS)
 ACLOCAL_AMFLAGS=-I aclocal

@@ -17,3 +17,4 @@ tla2news
 config.aux/depcomp
 config.aux/install-sh
 config.aux/missing
+bzr2news
