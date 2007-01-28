@@ -35,7 +35,6 @@
 #include <assert.h>
 #include <getopt.h>
 
-#include "lj2news.h"
 #include "utils.h"
 #include "nntp.h"
 

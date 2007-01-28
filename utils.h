@@ -20,6 +20,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stdio.h>
+#include <pthread.h>
+#include <sys/types.h>
+
 /* Utility functions */
 
 void error(int errno_value, const char *msg, ...);
@@ -41,8 +45,19 @@ void do_debug(const char *s, ...);
 extern int debug;                       /* debug output */
 #define D(x) do { if(debug) do_debug x ; } while(0)
 
-#endif /* UTILS_H */
+#if ! HAVE_OPEN_MEMSTREAM
+FILE *open_memstream(char **ptr, size_t *sizeloc);
+#endif
 
+#if ! HAVE_GETLINE
+ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+#endif
+
+#if ! HAVE_GETDELIM
+ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
+#endif
+
+#endif /* UTILS_H */
 
 /*
 Local Variables:

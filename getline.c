@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 
-#include "lj2news.h"
+#include "utils.h"
 
 /* reimplementation of GNU getline */
 

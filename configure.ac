@@ -34,6 +34,19 @@ missing_functions=""
 
 AC_DEFINE(_GNU_SOURCE, 1, [required for e.g. strsignal])
 
+AC_CACHE_CHECK([for fink],[rjk_cv_fink],[
+  if test -d /sw; then
+    rjk_cv_fink=/sw
+  else
+    rjk_cv_fink=no
+  fi
+])
+
+if test "$rjk_cv_fink" != no; then
+  CPPFLAGS="${CPPFLAGS} -I${rjk_cv_fink}/include"
+  LDFLAGS="${LDFLAGS} -L${rjk_cv_fink}/lib"
+fi
+
 # Checks for libraries.
 # We save up a list of missing libraries that we can't do without
 # and report them all at once.

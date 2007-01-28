@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "lj2news.h"
+#include "utils.h"
 
 /* portable reimplementation of GNU getdelim */
 

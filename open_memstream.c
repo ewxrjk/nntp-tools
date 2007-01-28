@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "lj2news.h"
+#include "utils.h"
 
 /* BSD-compatible implementation of open_memstream */
 
