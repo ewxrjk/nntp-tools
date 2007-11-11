@@ -44,6 +44,9 @@ struct logentry {
   char *committer;
   char *message;
   char *added;
+  char *removed;
+  char *modified;
+  char *renamed;
 };
 
 /* --- options ------------------------------------------------------------- */
@@ -55,7 +58,8 @@ const struct option options[] = {
   { "msggid-domain", required_argument, 0, 'M' },
   { "server",  required_argument, 0, 's' },
   { "port", required_argument, 0,  'p' },
-  { "debug", no_argument,  0, 'd' },
+  { "debug", no_argument, 0, 'd' },
+  { "preview", no_argument, 0, 'P' },
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
  { 0, 0, 0, 0 }
@@ -65,6 +69,7 @@ static long maxage = 86400 * 7;         /* = a week */
 static const char *newsgroup = 0;
 static const char *msgiddomain = "tylerdurden.greenend.org.uk";
 static const char *salt = "";
+static int preview;
 
 /* --- parsing ------------------------------------------------------------- */
 
@@ -82,6 +87,12 @@ static void header(const char *name, char *text, struct logentry *l) {
     l->committer = xstrdup(text);
   else if(!strcmp(name, "added"))
     l->added = xstrdup(text);
+  else if(!strcmp(name, "removed"))
+    l->removed = xstrdup(text);
+  else if(!strcmp(name, "modified"))
+    l->modified = xstrdup(text);
+  else if(!strcmp(name, "renamed"))
+    l->renamed = xstrdup(text);
   else if(!strcmp(name, "revno"))
     l->revno = atoi(text);
   else if(!strcmp(name, "timestamp"))
@@ -164,6 +175,26 @@ error:
 
 /* --- main program -------------------------------------------------------- */
 
+#if 0
+/* post a list of files */
+static void list(FILE *output, const char *heading, const char *files) {
+  if(!files || !*files)
+    return;
+  if(fprintf(output, "\n%s:\n  ", heading) < 0)
+    fatal(errno, "error constructing article");
+  while(*files) {
+    if(putc(*files, output) < 0)
+      fatal(errno, "error constructing article");
+    if(*files == '\n')
+      if(fputs("  ", output) < 0)
+        fatal(errno, "error constructing article");
+    ++files;
+  }
+  if(putc('\n', output) < 0)
+    fatal(errno, "error constructing article");
+}
+#endif
+
 /* post a change */
 static void post_log(const char *dir, const struct logentry *l) {
   gcry_error_t gerr;
@@ -205,7 +236,7 @@ static void post_log(const char *dir, const struct logentry *l) {
              "Message-ID: %s\n",
              newsgroup,
              l->committer,
-             dir, l->revno,
+             l->branch, l->revno,
              date822,
              msgid) < 0)
     fatal(errno, "error constructing article");
@@ -215,9 +246,20 @@ static void post_log(const char *dir, const struct logentry *l) {
   /* The body */
   if(fprintf(output, "%s\n", l->message) < 0)
     fatal(errno, "error constructing article");
+#if 0
+  /* Doesn't work properly - we get merge logs too */
+  list(output, "Modified", l->modified);
+  list(output, "Renamed", l->removed);
+  list(output, "Added", l->added);
+  list(output, "Removed", l->removed);
+#endif
   /* That's it */
   if(fclose(output) < 0) fatal(errno, "error constructing article");
-  post(msgid, article);
+  if(preview) {
+    if(printf("%s------------------------------------------------------------------------\n\n", article) < 0)
+      fatal(errno, "error writing to stdout");
+  } else
+    post(msgid, article);
 }
 
 /* scan an archive's logs, posting new changes */
@@ -232,12 +274,14 @@ static void process_archive(const char *dir) {
     fatal(errno, "cannot open .");
   time(&now);
   if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
-  if(!(fp = popen("bzr log --timezone=utc --forward", "r")))
+  if(!(fp = popen("bzr log --timezone=utc --forward --verbose", "r")))
     fatal(errno, "cannot popen bzr log");
   while(!read_log(fp, &l)) {
     D(("got revision %d", l.revno));
-    if(now - l.timestamp <= maxage)
+    if(!maxage || now - l.timestamp <= maxage)
       post_log(dir, &l);
+    else
+      D(("too old"));
     free_log(&l);
   }
   if(ferror(fp)) fatal(errno, "error reading from bzr log pipe");
@@ -257,7 +301,7 @@ int main(int argc, char **argv) {
 
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
-  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:h", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hP", options, 0)) >= 0) {
     switch(n) {
     case 'x':
       salt = optarg;
@@ -286,6 +330,9 @@ int main(int argc, char **argv) {
     case 'M':
       if(*optarg) msgiddomain = optarg;
       break;
+    case 'P':
+      preview = 1;
+      break;
     case 'V':
       printf("bzr2news from newstools version " VERSION "\n");
       exit(0);
@@ -303,6 +350,7 @@ Rarely used options:\n\
   -m, --msggid-domain DOMAIN         Message-ID domain\n\
   -x, --salt SALT                    Salt for ID calculation\n\
   -4, -6                             Use IPv4/IPv6 (latter untested)\n\
+  -P, --preview                      Preview only, don't post\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
     default:
