@@ -47,6 +47,13 @@ if test "$rjk_cv_fink" != no; then
   LDFLAGS="${LDFLAGS} -L${rjk_cv_fink}/lib"
 fi
 
+case `uname -s` in
+FreeBSD )
+  CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
+  LDFLAGS="${LDFLAGS} -L/usr/local/lib"
+  ;;
+esac  
+
 # Checks for libraries.
 # We save up a list of missing libraries that we can't do without
 # and report them all at once.
