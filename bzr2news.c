@@ -1,6 +1,6 @@
 /*
  * bzr2news - post bzr change logs to a news server
- * Copyright (C) 2007 Richard Kettlewell
+ * Copyright (C) 2007, 2008 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ const struct option options[] = {
   { "port", required_argument, 0,  'p' },
   { "debug", no_argument, 0, 'd' },
   { "preview", no_argument, 0, 'P' },
+  { "first", required_argument, 0, 'f' },
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
  { 0, 0, 0, 0 }
@@ -169,7 +170,8 @@ error:
   free(name);
   if(rc)
     free_log(l);
-  D(("read_log failed"));
+  if(rc)
+    D(("read_log failed"));
   return rc;
 }
 
@@ -209,6 +211,7 @@ static void post_log(const char *dir, const struct logentry *l) {
   int n;
 
   D(("posting revision %d", l->revno));
+  D(("message: %s", l->message));
   /* Knock up a message ID */
   if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
     fatal(0, "error calling gcry_md_open: %s/%s",
@@ -246,13 +249,6 @@ static void post_log(const char *dir, const struct logentry *l) {
   /* The body */
   if(fprintf(output, "%s\n", l->message) < 0)
     fatal(errno, "error constructing article");
-#if 0
-  /* Doesn't work properly - we get merge logs too */
-  list(output, "Modified", l->modified);
-  list(output, "Renamed", l->removed);
-  list(output, "Added", l->added);
-  list(output, "Removed", l->removed);
-#endif
   /* That's it */
   if(fclose(output) < 0) fatal(errno, "error constructing article");
   if(preview) {
@@ -263,18 +259,27 @@ static void post_log(const char *dir, const struct logentry *l) {
 }
 
 /* scan an archive's logs, posting new changes */
-static void process_archive(const char *dir) {
+static void process_archive(const char *dir, int first) {
   FILE *fp;
   struct logentry l;
   int rc;
   time_t now;
   int olddir;
+  char *cmd;
 
   if((olddir = open(".", O_RDONLY, 0)) < 0)
     fatal(errno, "cannot open .");
   time(&now);
   if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
-  if(!(fp = popen("bzr log --timezone=utc --forward --verbose", "r")))
+  if(first >= 0) {
+    if(asprintf(&cmd, "bzr log --timezone=utc --forward -r %d..",
+                first) < 0)
+      fatal(errno, "asprintf");
+  } else {
+    if(asprintf(&cmd, "bzr log --timezone=utc --forward") < 0)
+      fatal(errno, "asprintf");
+  }
+  if(!(fp = popen(cmd, "r")))
     fatal(errno, "cannot popen bzr log");
   while(!read_log(fp, &l)) {
     D(("got revision %d", l.revno));
@@ -298,10 +303,12 @@ int main(int argc, char **argv) {
   const char *server = 0;
   const char *port = 0;
   int pf = PF_UNSPEC;
+  int first = -1;
 
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
-  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hP", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hPf:",
+                         options, 0)) >= 0) {
     switch(n) {
     case 'x':
       salt = optarg;
@@ -333,6 +340,9 @@ int main(int argc, char **argv) {
     case 'P':
       preview = 1;
       break;
+    case 'f':
+      first = atoi(optarg);
+      break;
     case 'V':
       printf("bzr2news from newstools version " VERSION "\n");
       exit(0);
@@ -351,6 +361,7 @@ Rarely used options:\n\
   -x, --salt SALT                    Salt for ID calculation\n\
   -4, -6                             Use IPv4/IPv6 (latter untested)\n\
   -P, --preview                      Preview only, don't post\n\
+  -l, --limit N                      Limit to first N revisions\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
     default:
@@ -359,9 +370,11 @@ Rarely used options:\n\
   }
   if(!newsgroup)
     fatal(0, "no -n option");
-  create_postthread(pf, server, port);
+  if(!preview)
+    create_postthread(pf, server, port);
   for(n = optind; n < argc; ++n)
-    process_archive(argv[n]);
+    process_archive(argv[n], first);
+  if(!preview)
     join_postthread();
   return 0;
 }
