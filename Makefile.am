@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005, 2006, 2007 Richard Kettlewell
+# Copyright (C) 2005-2008 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 bin_PROGRAMS=lj2news tla2news bzr2news
 
-lj2news_SOURCES=lj2news.c lj2news.h utils.c utils.h nntp.c nntp.h
+lj2news_SOURCES=lj2news.c utils.c utils.h nntp.c nntp.h
 lj2news_LDADD=$(LIBOBJS) $(LIBEXPAT) $(LIBGCRYPT) $(LIBCURL) $(LIBPTHREAD)
 
 tla2news_SOURCES=tla2news.c utils.c utils.h nntp.c nntp.h
