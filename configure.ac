@@ -97,9 +97,22 @@ if test "x$GCC" = xyes; then
   # a reasonable default set of warnings
   CC="${CC} -Wall -W -Wpointer-arith -Wbad-function-cast \
 	-Wwrite-strings -Wmissing-prototypes \
-	-Wmissing-declarations -Wnested-externs -Wshadow -Wredundant-decls \
-	-Werror"
+	-Wmissing-declarations -Wnested-externs -Wshadow -Wredundant-decls"
 
+  AC_CACHE_CHECK([whether -Werror is usable],[rjk_cv_werror],[
+    old_CC="${CC}"
+    CC="${CC} -Werror"
+    AC_TRY_COMPILE([#include <unistd.h>
+		    #include <stdio.h>
+		    #include <getopt.h>],
+                   [],
+ 		   [rjk_cv_werror=yes],
+ 		   [rjk_cv_werror=no])
+    CC="${old_CC}"
+  ])
+  if test $rjk_cv_werror = yes; then
+    CC="${CC} -Werror"
+  fi    
 fi
 
 AH_BOTTOM([#ifdef __GNUC__
