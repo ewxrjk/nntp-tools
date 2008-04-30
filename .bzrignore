@@ -19,3 +19,9 @@ config.aux/install-sh
 config.aux/missing
 bzr2news
 TAGS
+debian/newstools
+newstools-*.tar.gz
+debian/files
+debian/substvars.newstools
+./newstools-*
+newstools_*

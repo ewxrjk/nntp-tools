@@ -18,9 +18,9 @@
 # USA
 #
 
-AC_INIT([newstools], [0.7], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([newstools], [0.7.1], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([newstools], [0.7])
+AM_INIT_AUTOMAKE([newstools], [0.7.1])
 AC_CONFIG_SRCDIR([lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
@@ -121,5 +121,5 @@ AH_BOTTOM([#ifdef __GNUC__
 # define attribute(x)
 #endif])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile debian/Makefile])
 AC_OUTPUT

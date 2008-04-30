@@ -1,0 +1,17 @@
+Source: newstools
+Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
+Section: news
+Priority: optional
+Standards-Version: 3.7.2.2
+Build-Depends: libgcrypt-dev, libcurl-dev, libexpat-dev, 
+
+Package: newstools
+Architecture: any
+Section: news
+Priority: optional
+Depends: ${shlibs:Depends}
+Recommends: lynx,bzr
+Description: Miscellanous Usenet news tools
+ lj2news: post Livejournal articles fetched by RSS to news
+ bzr2news: post bzr changelog entries to news
+ tla2news: post Arch changelog entries to news (obsolete, may be removed)
