@@ -38,6 +38,7 @@ void unlock(pthread_mutex_t *m);
 const char *w3date_to_822date(const char *w3date);
 time_t bzrdate_to_time_t(const char *bzrdate);
 const char *time_t_to_822date(time_t when);
+time_t rfc822date_to_time_t(const char *rfc822date);
 
 /* Debugging */
 

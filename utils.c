@@ -268,6 +268,18 @@ const char *w3date_to_822date(const char *w3date) {
   return time_t_to_822date(w3date_to_time_t(w3date));
 }
 
+time_t rfc822date_to_time_t(const char *rfc822date) {
+  struct tm bdt;
+  time_t t;
+
+  /* strptime doesn't handle timezones usefully, so must use GMT */
+  if (!strptime(rfc822date, "%a, %d %b %Y %H:%M:%S", &bdt))
+    fatal(0, "RFC822 date not understood: %s", rfc822date);
+  if((t = mktime(&bdt)) == (time_t)-1)
+    fatal(errno, "error calling mktime");
+  return t;
+}
+
 /* --- convert a bzr date to a time_t -------------------------------------- */
 
 /* bzr dates look like 'Sun 2007-01-28 13:19:43 +0000' */

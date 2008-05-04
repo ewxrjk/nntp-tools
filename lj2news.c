@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2005, 2006 Richard Kettlewell
+ * Copyright (C) 2008 Colin Watson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,12 +59,14 @@ static int urlpipe[2];
 static const char *tag, *newsgroup, *organization, *sigfile;
 static const char *msgiddomain = "tylerdurden.greenend.org.uk";
 static const char *fromline;
+static time_t start_date;
 
 /* --- options ------------------------------------------------------------- */
 
 const struct option options[] = {
   { "salt", required_argument, 0, 'x' },
   { "user-agent", required_argument, 0, 'a' },
+  { "start-date", required_argument, 0, 'D' },
   { "tag", required_argument, 0, 't' },
   { "no-tag", no_argument, 0, 'T' },
   { "newsgroup", required_argument, 0, 'n' },
@@ -163,6 +166,16 @@ static void process(const struct element *ehead) {
       date = w3date_to_822date(dcdate);
     } else
       date = 0;
+  }
+  if(start_date) {
+    if(!date) {
+      D(("skipping dateless article"));
+      return;
+    }
+    if(rfc822date_to_time_t(date) < start_date) {
+      D(("\"%s\" too early", date));
+      return;
+    }
   }
   if(!(url = find_element(ehead, "link"))) url = 0;
   /* output the header */
@@ -388,7 +401,7 @@ int main(int argc, char **argv) {
   /* Tag default to login name */
   if((tag = getenv("LOGNAME")))
     tag = xstrdup(tag);
-  while((n = getopt_long(argc, argv, "x:a:t:n:S:o:M:s:p:46df:VT",
+  while((n = getopt_long(argc, argv, "x:a:D:t:n:S:o:M:s:p:46df:VT",
                          options, 0)) >= 0) {
     switch(n) {
     case 'x':
@@ -396,6 +409,9 @@ int main(int argc, char **argv) {
       break;
     case 'a':
       useragent = optarg;
+      break;
+    case 'D':
+      start_date = rfc822date_to_time_t(optarg);
       break;
     case 't':
       tag = optarg;
@@ -450,6 +466,8 @@ Optional options:\n\
   -o, --organization ORGANIZATION    Organization line\n\
   -S, --signature PATH               Signature file\n\
   -s, --server HOSTNAME              NNTP server (default $NNTPSERVER)\n\
+  -D, --start-date DATE              Ignore articles before DATE\n\
+                (DATE takes the format 'Mon, 28 Apr 2008 00:00:00 GMT'.)\n\
 Rarely used options:\n\
   -p, --port PORT                    Port number (default 119)\n\
   -m, --msggid-domain DOMAIN         Message-ID domain\n\

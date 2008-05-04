@@ -44,6 +44,12 @@ The contents of the From: field (e.g. "your name <address@domain>")
 The newsgroup to post to.
 .SS "Optional Options"
 .TP
+.B -D\fR, \fB--start-date \fIDATE\fR
+Do not post articles before this date.
+.I DATE
+must be an RFC822-style date-time string in GMT, e.g. "Sat, 01 Jan 2000 00:00:00 GMT".
+The default is to post all articles.
+.TP
 .B -o\fR, \fB--organization \fIORGANIZATION\fR
 Specify the organization field.
 .TP
@@ -106,8 +112,10 @@ remove it when going live.
 Currently only AUTHINFO GENERIC is supported.
 .SS "IPv6 Support"
 This has not actually been tested!
-.SH AUTHOR
-(c) 2005, 2006 Richard Kettlewell.
+.SH AUTHORS
+(c) 2005, 2006, 2008 Richard Kettlewell
+.nf
+(c) 2008 Colin Watson
 .SH "SEE ALSO"
 Livejournal bot policy: http://www.livejournal.com/bots/
 .PP
