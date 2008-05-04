@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2008 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <getopt.h>
+#include <ctype.h>
 
 #include "utils.h"
 #include "nntp.h"
@@ -144,6 +145,7 @@ static void process(const struct element *ehead) {
   size_t articlesize = 0;
   pthread_t writedescription_id;
   struct writedescription_state wds[1];
+  char buffer[4096], *s;
 
   /* compute itemid as the hash of the guid and the salt (-x option) */
   guid = need_element(ehead, "guid");
@@ -212,6 +214,9 @@ static void process(const struct element *ehead) {
   if(nkeywords)
     if(fprintf(output, "\n") < 0)
       fatal(errno, "error writing article");
+  /* End of header */
+  if(fprintf(output, "\n") < 0)
+    fatal(errno, "error writing article");
   /* use lynx to construct the body */
   if(pipe(lynxinpipe) < 0) fatal(errno, "error calling pipe");
   if(pipe(lynxoutpipe) < 0) fatal(errno, "error calling pipe");
@@ -235,13 +240,37 @@ static void process(const struct element *ehead) {
   if((err = pthread_create(&writedescription_id, 0,
                            writedescriptionthread, wds)))
     fatal(err, "error calling pthread_create");
-  /* catch the output */
+  /* Catch the output.  It seems that some versions of Lynx send an initial
+   * blank line and others do not.  Therefore we eat any initial blank lines
+   * Lynx sends and introduce our own single blank line (above). */
   D(("reading lynx output"));
   if(!(fp = fdopen(lynxoutpipe[0], "r")))
     fatal(errno, "error calling fdopen");
-  while((c = getc(fp)) >= 0) {
-    if(putc(c, output) < 0)
+  while((s = fgets(buffer, sizeof buffer, fp)) != 0) {
+    if(!strchr(buffer, '\n'))
+      /* First line is ridiculously long */
+      continue;
+    /* See if there's any nonblank characters on this line */
+    for(s = buffer; *s; ++s)
+      if(!isspace((unsigned char)*s))
+        break;
+    /* If there are then we escape */
+    if(*s)
+      break;
+    /* This is a leading blank line, so we ignore it. */
+  }
+  /* s can be NULL here if we ran out of input before finding a nonblank
+   * line */
+  if(s) {
+    /* Send the first nonblank line (might hypothetically be an unreasonably
+     * long blank line) */
+    if(fputs(buffer, output) < 0)
       fatal(errno, "error writing article");
+    /* Send everything else */
+    while((c = getc(fp)) >= 0) {
+      if(putc(c, output) < 0)
+        fatal(errno, "error writing article");
+    }
   }
   if(ferror(fp)) fatal(errno, "error reading from pipe from lynx");
   fclose(fp);
