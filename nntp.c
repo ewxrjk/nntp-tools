@@ -211,6 +211,9 @@ static int pts_stat(struct postthreadstate *pts, const char *msgid) {
   case 423:
   case 430:
     break;
+  case 480:
+    pts_auth(pts);
+    return pts_stat(pts, msgid);
   default:
     error(0, "STAT %s failed: %s", msgid, pts->line);
     break;
