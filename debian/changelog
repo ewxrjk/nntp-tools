@@ -1,3 +1,11 @@
+newstools (0.8) unstable; urgency=low
+
+  * lj2news: New --start-date option
+  * lj2news: Cope with different versions of Lynx 
+  * Fix NNTP authorization support
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Tue,  6 May 2008 20:29:54 +0100
+
 newstools (0.7.1) unstable; urgency=low
 
   * Debianization
