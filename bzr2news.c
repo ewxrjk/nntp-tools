@@ -1,6 +1,6 @@
 /*
  * bzr2news - post bzr change logs to a news server
- * Copyright (C) 2007, 2008 Richard Kettlewell
+ * Copyright (C) 2007-2009 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ struct logentry {
   char *removed;
   char *modified;
   char *renamed;
+  char *diff;
 };
 
 /* --- options ------------------------------------------------------------- */
@@ -61,6 +62,8 @@ const struct option options[] = {
   { "debug", no_argument, 0, 'd' },
   { "preview", no_argument, 0, 'P' },
   { "first", required_argument, 0, 'f' },
+  { "diff", no_argument, 0, 'D' },
+  { "diffs", no_argument, 0, 'D' },     /* in case of typos */
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
  { 0, 0, 0, 0 }
@@ -71,6 +74,7 @@ static const char *newsgroup = 0;
 static const char *msgiddomain = "tylerdurden.greenend.org.uk";
 static const char *salt = "";
 static int preview;
+static int diffs;
 
 /* --- parsing ------------------------------------------------------------- */
 
@@ -117,7 +121,7 @@ static void free_log(struct logentry *l) {
 }
 
 /* read one log entry; return 0 on success, -ve on error. */
-static int read_log(FILE *fp, struct logentry *l) {
+static int read_log(FILE *fp, struct logentry *l, time_t now) {
   size_t nline = 0, ntext = 0;
   ssize_t rc;
   char *line = 0, *text = 0, *name = 0;
@@ -162,6 +166,42 @@ static int read_log(FILE *fp, struct logentry *l) {
   if(!l->timestamp) fatal(0, "no timestamp found");
   if(!l->branch) fatal(0, "no branch found");
   if(!l->message) fatal(0, "no message found");
+  /* Collecting the diff is expensive so only do so if we were asked for it and
+   * it's within the age limit */
+  if(diffs && (!maxage || now - l->timestamp <= maxage)) {
+    char *cmd;
+    FILE *dfp, *mfp;
+    int c, w;
+    size_t diffsize;
+
+    /* The diff command */
+    if(asprintf(&cmd, "bzr diff -c%d", l->revno) < 0)
+      fatal(errno, "error calling asprintf");
+    /* Copy the output into a buffer */
+    D(("popen %s", cmd));
+    if(!(dfp = popen(cmd, "r")))
+      fatal(errno, "error calling popen");
+    if(!(mfp = open_memstream(&l->diff, &diffsize)))
+      fatal(errno, "error calling open_memstream");
+    while((c = fgetc(dfp)) != EOF)
+      fputc(c, mfp);
+    /* Check for error */
+    w = pclose(dfp);
+    /* -1 = could not wait for child */
+    if(w < 0)
+      fatal(errno, "error calling pclose: %s", strerror(errno));
+    /* 0 = no change, 1/2 = changes, other = error */
+    if(!WIFEXITED(w) || (WIFEXITED(w) && WEXITSTATUS(w) > 2))
+      fatal(0, "command '%s' failed: wstat=%#x", cmd, w);
+    /* Update diffsize */ 
+    if(fflush(mfp) < 0)
+      fatal(errno, "error calling fflush on memory stream");
+    /* Make sure there's a final newline if nonempty */
+    if(c != '\n' && diffsize)
+      fputc('\n', mfp);
+    if(fclose(mfp) < 0)
+      fatal(errno, "error callng fflush on memory stream");
+  }
   /* l->added might be 0 and that's ok with us */
   rc = 0;
 error:
@@ -249,6 +289,10 @@ static void post_log(const char *dir, const struct logentry *l) {
   /* The body */
   if(fprintf(output, "%s\n", l->message) < 0)
     fatal(errno, "error constructing article");
+  if(diffs && l->diff)
+    if(fprintf(output, "\n* Changes --------------------------------------------------------------\n\n%s",
+               l->diff) < 0)
+      fatal(errno, "error constructing article");
   /* That's it */
   if(fclose(output) < 0) fatal(errno, "error constructing article");
   if(preview) {
@@ -281,7 +325,7 @@ static void process_archive(const char *dir, int first) {
   }
   if(!(fp = popen(cmd, "r")))
     fatal(errno, "cannot popen bzr log");
-  while(!read_log(fp, &l)) {
+  while(!read_log(fp, &l, now)) {
     D(("got revision %d", l.revno));
     if(!maxage || now - l.timestamp <= maxage)
       post_log(dir, &l);
@@ -343,6 +387,9 @@ int main(int argc, char **argv) {
     case 'f':
       first = atoi(optarg);
       break;
+    case 'D':
+      diffs = 1;
+      break;
     case 'V':
       printf("bzr2news from newstools version " VERSION "\n");
       exit(0);
@@ -362,6 +409,7 @@ Rarely used options:\n\
   -4, -6                             Use IPv4/IPv6 (latter untested)\n\
   -P, --preview                      Preview only, don't post\n\
   -l, --limit N                      Limit to first N revisions\n\
+  -D, --diff                         Show diffs\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
     default:
