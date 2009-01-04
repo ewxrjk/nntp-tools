@@ -1,3 +1,9 @@
+newstools (0.9.1) unstable; urgency=low
+
+  * Fix stupid option parsing mistake in bzr2news
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 04 Jan 2009 16:12:39 +0000
+
 newstools (0.9) unstable; urgency=low
 
   * bzr2news: New --diff option.

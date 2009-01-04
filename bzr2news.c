@@ -351,7 +351,7 @@ int main(int argc, char **argv) {
 
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
-  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hPf:",
+  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hPf:D",
                          options, 0)) >= 0) {
     switch(n) {
     case 'x':
