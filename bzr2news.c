@@ -391,7 +391,7 @@ int main(int argc, char **argv) {
       diffs = 1;
       break;
     case 'V':
-      printf("bzr2news from newstools version " VERSION "\n");
+      printf("bzr2news from rjk-nntp-tools version " VERSION "\n");
       exit(0);
     case 'h':
       printf("Usage:\n\

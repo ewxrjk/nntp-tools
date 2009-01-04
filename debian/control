@@ -1,11 +1,11 @@
-Source: newstools
+Source: rjk-nntp-tools
 Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
 Section: news
 Priority: optional
 Standards-Version: 3.7.2.2
 Build-Depends: libgcrypt-dev, libcurl-dev, libexpat-dev, 
 
-Package: newstools
+Package: rjk-nntp-tools
 Architecture: any
 Section: news
 Priority: optional

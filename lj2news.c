@@ -479,7 +479,7 @@ int main(int argc, char **argv) {
       if(*optarg) fromline = optarg;
       break;
     case 'V':
-      printf("lj2news from newstools version " VERSION "\n");
+      printf("lj2news from rjk-nntp-tools version " VERSION "\n");
       exit(0);
     case 'h':
       printf("Usage:\n\

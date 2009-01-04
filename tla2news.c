@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
       if(*optarg) msgiddomain = optarg;
       break;
     case 'V':
-      printf("tla2news from newstools version " VERSION "\n");
+      printf("tla2news from rjk-nntp-tools version " VERSION "\n");
       exit(0);
     case 'h':
       printf("Usage:\n\

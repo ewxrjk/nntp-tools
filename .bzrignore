@@ -20,8 +20,10 @@ config.aux/missing
 bzr2news
 TAGS
 debian/newstools
+debian/rjk-nntp-tools
 newstools-*.tar.gz
+rjk-nntp-tools-*.tar.gz
 debian/files
-debian/substvars.newstools
+debian/substvars.*
 ./newstools-*
 newstools_*

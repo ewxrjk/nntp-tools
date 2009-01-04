@@ -1,5 +1,5 @@
-newstools
-=========
+rjk-nntp-tools
+==============
 
 This package contains tools to post various things to a newsgroup.  It
 depends on libpthread, libcurl, libexpat and libgcrypt.  It runs on
