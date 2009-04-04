@@ -78,6 +78,9 @@ pkg-rjk-nntp-tools:
 	  fi;\
 	done
 	$(MAKE) DESTDIR=`pwd`/debian/rjk-nntp-tools install
+	strip --remove-section=.comment debian/rjk-nntp-tools/bin/bzr2news \
+					debian/rjk-nntp-tools/bin/tla2news \
+					debian/rjk-nntp-tools/bin/lj2news
 	dpkg-shlibdeps -Tdebian/substvars.rjk-nntp-tools \
 		debian/rjk-nntp-tools/usr/bin/*
 	$(INSTALL_DATA) README debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
