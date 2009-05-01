@@ -19,8 +19,8 @@ Installation
 lj2news
 -------
 
-lj2news reads the RSS feed provided by Livejournal, formats it to
-plain text, and posts it to a newsgroup.
+lj2news reads the RSS feed provided by Livejournal (or Dreamwidth),
+formats it to plain text, and posts it to a newsgroup.
 
 See "man lj2news" for documentation.
 
@@ -51,7 +51,8 @@ cron job:
     -t ewx \
     -f "Richard Kettlewell <rjk@greenend.org.uk>" \
     -n chiark.journals \
-    -s chiark-tunnel \
+    -s chiark-tunnel.greenend.org.uk \
+    -S $HOME/.lj2news-sig.txt \
     http://www.livejournal.com/users/ewx/rss
 
 
@@ -60,6 +61,9 @@ tla2news and bzr2news
 
 tla2news and bzr2news post Arch and Bazaar changelog entries to a
 newsgroup.  See "man tla2news" or "man bzr2news" for documentation.
+
+tla2news is essentially obsolete and may be removed in future
+releases.
 
 
 Reporting Bugs
