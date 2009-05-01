@@ -1,3 +1,10 @@
+rjk-nntp-tools (0.10) unstable; urgency=low
+
+  * Separate Keywords: with commas rather than spaces.
+  * Documentation updates.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Fri, 01 May 2009 20:30:02 +0100
+
 rjk-nntp-tools (0.9.3) unstable; urgency=low
 
   * Fix Lintian warnings.
