@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006, 2008 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2008, 2009 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -204,10 +204,14 @@ static void process(const struct element *ehead) {
   nkeywords = 0;
   for(e = ehead; e; e = e->next)
     if(!strcmp(e->name, "category")) {
-      if(!nkeywords) 
-	if(fprintf(output, "Keywords:") < 0)
+      if(!nkeywords) {
+	if(fprintf(output, "Keywords: ") < 0)
 	  fatal(errno, "error writing article");
-      if(fprintf(output, " %s", e->value) < 0)
+      } else {
+	if(fprintf(output, ",") < 0)
+	  fatal(errno, "error writing article");
+      }
+      if(fprintf(output, "%s", e->value) < 0)
 	fatal(errno, "error writing article");
       ++nkeywords;
     }
