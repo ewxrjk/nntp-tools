@@ -28,3 +28,4 @@ debian/substvars.*
 ./newstools-*
 newstools_*
 config.aux/mkinstalldirs
+*.deb
