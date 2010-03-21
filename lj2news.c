@@ -233,7 +233,8 @@ static void process(const struct element *ehead) {
       fatal(errno, "error calling dup2");
     close(lynxinpipe[0]);
     close(lynxoutpipe[1]);
-    execlp("lynx", "lynx", "-force_html", "-dump", "-stdin", (char *)0);
+    execlp("lynx", "lynx", "-force_html", "-dump", "-stdin",
+           "-assume_charset=UTF-8", "-display_charset=UTF-8", (char *)0);
     fatal(errno, "error executing lynx");
   }
   close(lynxinpipe[0]);
