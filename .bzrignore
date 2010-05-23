@@ -29,3 +29,4 @@ debian/substvars.*
 newstools_*
 config.aux/mkinstalldirs
 *.deb
+spoolstats

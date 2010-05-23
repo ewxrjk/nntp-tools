@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 #
-# Copyright (C) 2005-2008 Richard Kettlewell
+# Copyright (C) 2005-2008, 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AC_SET_MAKE
 
 missing_libraries=""
@@ -113,6 +114,12 @@ if test "x$GCC" = xyes; then
   if test $rjk_cv_werror = yes; then
     CC="${CC} -Werror"
   fi    
+fi
+
+if test "x$GXX" = xtye; then
+  CXX="${CXX} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
+-Wmissing-declarations -Wmissing-noreturn -Wredundant-decls"
+  CXX="${CXX} -Werror"
 fi
 
 AH_BOTTOM([#ifdef __GNUC__

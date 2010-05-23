@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Richard Kettlewell
+ * Copyright (C) 2006, 2007, 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,10 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Utility functions */
 
@@ -56,6 +60,10 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 
 #if ! HAVE_GETDELIM
 ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* UTILS_H */

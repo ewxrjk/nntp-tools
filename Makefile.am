@@ -18,7 +18,7 @@
 # USA
 #
 
-bin_PROGRAMS=lj2news tla2news bzr2news
+bin_PROGRAMS=lj2news tla2news bzr2news spoolstats
 
 lj2news_SOURCES=lj2news.c utils.c utils.h nntp.c nntp.h
 lj2news_LDADD=$(LIBOBJS) $(LIBEXPAT) $(LIBGCRYPT) $(LIBCURL) $(LIBPTHREAD)
@@ -28,6 +28,9 @@ tla2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
 
 bzr2news_SOURCES=bzr2news.c utils.c utils.h nntp.c nntp.h
 bzr2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
+
+spoolstats_SOURCES=spoolstats.cc utils.c Article.h Article.cc Group.h	\
+Group.cc timezones.h timezones.cc
 
 man_MANS=lj2news.1 tla2news.1 bzr2news.1
 
