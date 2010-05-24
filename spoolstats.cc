@@ -162,7 +162,7 @@ Options:\n\
   -8, --big8             Analyse the Big 8\n\
   -q, --quiet            Quieter operation\n\
   -h, --help             Display usage message\n\
-  -V, --version          Display verison number\n");
+  -V, --version          Display version number\n");
       exit(0);
     case 'V':
       printf("spoolstats from rjk-nntp-tools version " VERSION "\n");
