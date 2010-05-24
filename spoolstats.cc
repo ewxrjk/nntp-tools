@@ -64,18 +64,18 @@ static void report() {
   cout << "<html>\n";
   cout << "<head><title>Spool Report</title>\n";
   // TODO stylesheet
-  // TODO sortable.js
+  cout << "<script src=\"sorttable.js\"></script>\n";
   cout << "<body>\n";
   cout << "<h1>Spool Report</h1>\n";
 
   cout << "<h2>Group Report</h2>\n";
-  cout << "<table>\n";
+  cout << "<table class=sortable>\n";
   cout << "<thead>\n";
   cout << "<tr>\n";
   cout << "<th>Group</th>\n";
   cout << "<th>Articles</th>\n";
   cout << "<th>Bytes</th>\n";
-  cout << "<th>Readers</th>\n";
+  cout << "<th>Posters</th>\n";
   cout << "</tr>\n";
   cout << "</thead>\n";
 

@@ -54,10 +54,10 @@ void Group::report() {
   cout << "<tr>\n";
   cout << "<td>";
   html_quote(cout, name) << "</td>\n";
-  cout << "<td>" << articles << "</td>\n";
-  cout << "<td>";
+  cout << "<td sorttable_customkey=\"-" << articles << "\">" << articles << "</td>\n";
+  cout << "<td sorttable_customkey=\"-" << bytes << "\">";
   format_bytes(cout, bytes) << "</td>\n";
-  cout << "<td>" << senders.size() << "</td>\n";
+  cout << "<td sorttable_customkey=\"-" << senders.size() << "\">" << senders.size() << "</td>\n";
   cout << "</tr>\n";
 }
 
