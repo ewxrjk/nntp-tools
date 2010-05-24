@@ -15,6 +15,8 @@ public:
   int articles;                 // count of articles
   long long bytes;              // count of bytes
 
+  std::map<std::string,int> senders;    // sender -> article count
+
   Group(const std::string &name_);
   static void article(const Article *a);
   void report();

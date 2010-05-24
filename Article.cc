@@ -22,14 +22,6 @@ void Article::visit(const string &text) {
       delete a;
 }
 
-const string &Article::mid() const {
-  return headers.find("message-id")->second;
-}
-
-size_t Article::get_size() const {
-  return bytes;
-}
-
 void Article::get_groups(list<string> &groups) const {
   split(groups, ',', headers.find("newsgroups")->second);
 }

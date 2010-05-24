@@ -25,6 +25,11 @@ void Group::article(const Article *a) {
       Group *g = groups[groupname];
       g->articles += 1;
       g->bytes += a->get_size();
+      const string &sender = a->sender();
+      if(g->senders.find(sender) == g->senders.end())
+        g->senders[sender] = 1;
+      else
+        ++g->senders[sender];
     }
   }
 }
@@ -47,8 +52,9 @@ bool Group::group_matches(const string &groupname) {
 
 void Group::report() {
   cout << name << endl
-       << "  articles: " << articles << endl
-       << "  bytes:    " << bytes << endl;
+       << "  articles:       " << articles << endl
+       << "  bytes:          " << bytes << endl
+       << "  unique senders: " << senders.size() << endl;
 }
 
 map<string,Group *> Group::groups;

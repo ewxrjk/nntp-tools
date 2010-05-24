@@ -11,10 +11,21 @@ public:
 
   Article(const std::string &text);
   static void visit(const std::string &text);
-  const std::string &mid() const;
-  size_t get_size() const;
+
   void get_groups(std::list<std::string> &groups) const;
   time_t date() const;
+
+  inline const std::string &mid() const {
+    return headers.find("message-id")->second;
+  }
+
+  inline size_t get_size() const {
+    return bytes;
+  }
+
+  inline const std::string &sender() const {
+    return headers.find("from")->second;
+  }
 
 private:
   void parse(const std::string &text);
