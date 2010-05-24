@@ -60,6 +60,25 @@ static bool terminal;
 static void report() {
   vector<string> grouplist;
 
+  cout << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n";
+  cout << "<html>\n";
+  cout << "<head><title>Spool Report</title>\n";
+  // TODO stylesheet
+  // TODO sortable.js
+  cout << "<body>\n";
+  cout << "<h1>Spool Report</h1>\n";
+
+  cout << "<h2>Group Report</h2>\n";
+  cout << "<table>\n";
+  cout << "<thead>\n";
+  cout << "<tr>\n";
+  cout << "<th>Group</th>\n";
+  cout << "<th>Articles</th>\n";
+  cout << "<th>Bytes</th>\n";
+  cout << "<th>Readers</th>\n";
+  cout << "</tr>\n";
+  cout << "</thead>\n";
+
   grouplist.reserve(Group::groups.size());
   for(map<string,Group *>::const_iterator it = Group::groups.begin();
       it != Group::groups.end();
@@ -70,6 +89,11 @@ static void report() {
     Group *g = Group::groups[grouplist[n]];
     g->report();
   }
+
+  cout << "</table>\n";
+
+  cout << "</body>\n";
+  cout << "</html>\n";
 }
 
 /* --- spool processing ---------------------------------------------------- */

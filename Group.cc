@@ -51,10 +51,14 @@ bool Group::group_matches(const string &groupname) {
 }
 
 void Group::report() {
-  cout << name << endl
-       << "  articles:       " << articles << endl
-       << "  bytes:          " << bytes << endl
-       << "  unique senders: " << senders.size() << endl;
+  cout << "<tr>\n";
+  cout << "<td>";
+  html_quote(cout, name) << "</td>\n";
+  cout << "<td>" << articles << "</td>\n";
+  cout << "<td>";
+  format_bytes(cout, bytes) << "</td>\n";
+  cout << "<td>" << senders.size() << "</td>\n";
+  cout << "</tr>\n";
 }
 
 map<string,Group *> Group::groups;
