@@ -3,6 +3,7 @@
 #include "Group.h"
 #include "timezones.h"
 #include "utils.h"
+#include "cpputils.h"
 #include <iostream>
 #include <cstring>
 
@@ -14,8 +15,8 @@ Article::Article(const string &text) {
 
 void Article::visit(const string &text) {
   Article *a = new Article(text);
-  if(articles.find(a->mid()) == articles.end()) {
-    articles[a->mid()] = a;
+  if(seen.find(a->mid()) == seen.end()) {
+    seen[a->mid()] = true;
     Group::article(a);
   } else
       delete a;
@@ -30,19 +31,7 @@ size_t Article::get_size() const {
 }
 
 void Article::get_groups(list<string> &groups) const {
-  const string newsgroups = headers.find("newsgroups")->second;
-  string::size_type pos = 0;
-  groups.clear();
-  while(pos < newsgroups.size()) {
-    string::size_type comma = newsgroups.find(',', pos);
-    if(comma != string::npos) {
-      groups.push_back(string(newsgroups, pos, comma - pos));
-      pos = comma + 1
-    } else  {
-      groups.push_back(string(newsgroups, pos, string::npos));
-      break;
-    }
-  }
+  split(groups, ',', headers.find("newsgroups")->second);
 }
 
 time_t Article::date() const {
@@ -274,7 +263,8 @@ bool Article::parse_int(const string &s, string::size_type &pos, int &n) {
   return good;
 }
 
-map<string,Article *> Article::articles;
+//map<string,Article *> Article::articles;
+map<string,bool> Article::seen;
 
 /*
 Local Variables:

@@ -30,6 +30,7 @@ private:
 
   size_t bytes;
   std::map<std::string, std::string> headers;
+  static std::map<std::string, bool> seen;
 };
 
 #endif /* ARTICLE_H */

@@ -43,12 +43,17 @@ using namespace std;
 /* --- options ------------------------------------------------------------- */
 
 const struct option options[] = {
-  { "debug", no_argument, 0, 'd' },
+  { "debug", no_argument, 0, 'D' },
   { "spool", required_argument, 0, 'S' },
+  { "groups", required_argument, 0, 'G' },
+  { "big8", no_argument, 0, '8' },
   { "help", no_argument, 0, 'h' },
+  { "quiet", no_argument, 0, 'Q' },
   { "version", no_argument, 0, 'V' },
  { 0, 0, 0, 0 }
 };
+
+static bool terminal;
 
 /* --- reporting ----------------------------------------------------------- */
 
@@ -88,6 +93,9 @@ static void visit_article(const std::string &path) {
   if(debug)
     cerr << "article " << path << endl;
   Article::visit(buffer);
+  static int count;
+  if(terminal && ++count % 10 == 0)
+    cerr << count << "\r";
 }
 
 static void visit_spool(const std::string &path) {
@@ -126,22 +134,35 @@ int main(int argc, char **argv) {
   int n;
 
   init_timezones();
-  while((n = getopt_long(argc, argv, "dS:hV", options, 0)) >= 0) {
+  terminal = !!isatty(2);
+  while((n = getopt_long(argc, argv, "DS:QhG:8V", options, 0)) >= 0) {
     switch(n) {
-    case 'd':
+    case 'D':
       debug = 1;
       break;
     case 'S':
       spool = optarg;
+      break;
+    case 'Q':
+      terminal = false;
+      break;
+    case 'G':
+      Group::set_patterns(optarg);
+      break;
+    case '8':
+      Group::set_patterns("comp.*,talk.*,misc.*,news.*,soc.*,sci.*,humanities.*,rec.*");
       break;
     case 'h':
       printf("Usage:\n\
   spoolstats [OPTIONS]\n\
 \n\
 Options:\n\
-  -S, --spool PATH      Path to spool\n\
-  -h, -help             Display usage message\n\
-  -V, --version         Display verison number\n");
+  -S, --spool PATH       Path to spool\n\
+  -G, --groups PATTERNS  Groups to analyse\n\
+  -8, --big8             Analyse the Big 8\n\
+  -q, --quiet            Quieter operation\n\
+  -h, --help             Display usage message\n\
+  -V, --version          Display verison number\n");
       exit(0);
     case 'V':
       printf("spoolstats from rjk-nntp-tools version " VERSION "\n");
@@ -151,6 +172,8 @@ Options:\n\
     }
   }
   visit_spool(spool);
+  if(terminal)
+    cerr << "                    \r";
   report();
   return 0;
 }

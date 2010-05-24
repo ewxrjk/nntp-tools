@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <list>
 
 class Article;
 
@@ -17,6 +18,11 @@ public:
   Group(const std::string &name_);
   static void article(const Article *a);
   void report();
+
+  static void set_patterns(const std::string &pattern);
+private:
+  static std::list<std::string> patterns;
+  static bool group_matches(const std::string &groupname);
 };
 
 

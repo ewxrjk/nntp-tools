@@ -1,5 +1,8 @@
+#include <config.h>
 #include "Group.h"
 #include "Article.h"
+#include "cpputils.h"
+#include <fnmatch.h>
 #include <iostream>
 
 using namespace std;
@@ -16,14 +19,30 @@ void Group::article(const Article *a) {
       it != groupnames.end();
       ++it) {
     const string &groupname = *it;
-    if(groups.find(groupname) == groups.end())
-      groups[groupname] = new Group(groupname);
-    Group *g = groups[groupname];
-    g->articles += 1;
-    g->bytes += a->get_size();
+    if(group_matches(groupname)) {
+      if(groups.find(groupname) == groups.end())
+        groups[groupname] = new Group(groupname);
+      Group *g = groups[groupname];
+      g->articles += 1;
+      g->bytes += a->get_size();
+    }
   }
-  static int count;
-  cerr << count++ << "\r";
+}
+
+void Group::set_patterns(const std::string &patternlist) {
+  split(patterns, ',', patternlist);
+}
+
+bool Group::group_matches(const string &groupname) {
+  if(patterns.size()) {
+    for(list<string>::const_iterator it = patterns.begin();
+        it != patterns.end();
+        ++it)
+      if(fnmatch(it->c_str(), groupname.c_str(), 0) == 0)
+        return true;
+    return false;
+  } else
+    return true;
 }
 
 void Group::report() {
@@ -33,6 +52,7 @@ void Group::report() {
 }
 
 map<string,Group *> Group::groups;
+list<string> Group::patterns;
 
 /*
 Local Variables:
