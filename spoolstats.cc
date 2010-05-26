@@ -47,6 +47,7 @@ const struct option options[] = {
   { "spool", required_argument, 0, 'S' },
   { "groups", required_argument, 0, 'G' },
   { "big8", no_argument, 0, '8' },
+  { "days", required_argument, 0, 'N' },
   { "help", no_argument, 0, 'h' },
   { "quiet", no_argument, 0, 'Q' },
   { "version", no_argument, 0, 'V' },
@@ -54,10 +55,12 @@ const struct option options[] = {
 };
 
 static bool terminal;
+static time_t start_time, end_time;
+static int days;
 
 /* --- reporting ----------------------------------------------------------- */
 
-static void report() {
+static void report(int days) {
   vector<string> grouplist;
 
   cout << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n";
@@ -73,8 +76,8 @@ static void report() {
   cout << "<thead>\n";
   cout << "<tr>\n";
   cout << "<th>Group</th>\n";
-  cout << "<th>Articles</th>\n";
-  cout << "<th>Bytes</th>\n";
+  cout << "<th>Articles/day</th>\n";
+  cout << "<th>Bytes/day</th>\n";
   cout << "<th>Posters</th>\n";
   cout << "</tr>\n";
   cout << "</thead>\n";
@@ -87,7 +90,7 @@ static void report() {
   sort(grouplist.begin(), grouplist.end());
   for(size_t n = 0; n < grouplist.size(); ++n) {
     Group *g = Group::groups[grouplist[n]];
-    g->report();
+    g->report(days);
   }
 
   cout << "</table>\n";
@@ -98,7 +101,9 @@ static void report() {
 
 /* --- spool processing ---------------------------------------------------- */
 
-static void visit_article(const std::string &path) {
+static void visit_article(const std::string &path,
+                        time_t start_time,
+                        time_t end_time) {
   int fd;
   string buffer;
   struct stat sb;
@@ -116,13 +121,17 @@ static void visit_article(const std::string &path) {
   close(fd);
   if(debug)
     cerr << "article " << path << endl;
-  Article::visit(buffer);
-  static int count;
-  if(terminal && ++count % 10 == 0)
-    cerr << count << "\r";
+  int r = Article::visit(buffer, start_time, end_time);
+  static int count, included;
+  included += r;
+  count += 1;
+  if(terminal && count % 10 == 0)
+    cerr << included << "/" << count << "\r";
 }
 
-static void visit_spool(const std::string &path) {
+static void visit_spool(const std::string &path,
+                        time_t start_time,
+                        time_t end_time) {
   DIR *dp;
   struct dirent *de;
   string nodepath;
@@ -139,10 +148,12 @@ static void visit_spool(const std::string &path) {
       nodepath += de->d_name;
       if(stat(nodepath.c_str(), &sb) < 0)
         fatal(errno, "stat %s", nodepath.c_str());
+      // TODO if possible limit directory traversal to ones that can match some pattern
+      // failing that limit article analysis!
       if(S_ISDIR(sb.st_mode))
-        visit_spool(nodepath);
+        visit_spool(nodepath, start_time, end_time);
       else if(S_ISREG(sb.st_mode))
-        visit_article(nodepath);
+        visit_article(nodepath, start_time, end_time);
     }
     errno = 0;
   }
@@ -156,10 +167,12 @@ static void visit_spool(const std::string &path) {
 int main(int argc, char **argv) {
   const char *spool = "/var/spool/news/articles";
   int n;
+  time_t start_time, end_time;
+  int days = 7;
 
   init_timezones();
   terminal = !!isatty(2);
-  while((n = getopt_long(argc, argv, "DS:QhG:8V", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "DS:QhG:8VN:", options, 0)) >= 0) {
     switch(n) {
     case 'D':
       debug = 1;
@@ -176,15 +189,21 @@ int main(int argc, char **argv) {
     case '8':
       Group::set_patterns("comp.*,talk.*,misc.*,news.*,soc.*,sci.*,humanities.*,rec.*");
       break;
+    case 'N':
+      days = atoi(optarg);
+      if(days <= 0)
+        fatal(0, "--days must be positive");
+      break;
     case 'h':
       printf("Usage:\n\
   spoolstats [OPTIONS]\n\
 \n\
 Options:\n\
+  -N, --days DAYS        Number of days to analyse\n\
   -S, --spool PATH       Path to spool\n\
   -G, --groups PATTERNS  Groups to analyse\n\
   -8, --big8             Analyse the Big 8\n\
-  -q, --quiet            Quieter operation\n\
+  -Q, --quiet            Quieter operation\n\
   -h, --help             Display usage message\n\
   -V, --version          Display version number\n");
       exit(0);
@@ -195,10 +214,12 @@ Options:\n\
       exit(1);
     }
   }
-  visit_spool(spool);
+  time(&end_time);
+  start_time = end_time - 86400 * days;
+  visit_spool(spool, start_time, end_time);
   if(terminal)
     cerr << "                    \r";
-  report();
+  report(days);
   return 0;
 }
 

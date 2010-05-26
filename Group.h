@@ -18,8 +18,8 @@ public:
   std::map<std::string,int> senders;    // sender -> article count
 
   Group(const std::string &name_);
-  static void article(const Article *a);
-  void report();
+  static int article(const Article *a);
+  void report(int days);
 
   static void set_patterns(const std::string &pattern);
 private:

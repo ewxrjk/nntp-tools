@@ -4,6 +4,7 @@
 #include "cpputils.h"
 #include <fnmatch.h>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -12,7 +13,8 @@ Group::Group(const string &name_): name(name_),
                                    bytes(0) {
 }
 
-void Group::article(const Article *a) {
+int Group::article(const Article *a) {
+  int r = 0;
   list<string> groupnames;
   a->get_groups(groupnames);
   for(list<string>::const_iterator it = groupnames.begin();
@@ -30,8 +32,10 @@ void Group::article(const Article *a) {
         g->senders[sender] = 1;
       else
         ++g->senders[sender];
+      r = 1;
     }
   }
+  return r;
 }
 
 void Group::set_patterns(const std::string &patternlist) {
@@ -50,13 +54,19 @@ bool Group::group_matches(const string &groupname) {
     return true;
 }
 
-void Group::report() {
+void Group::report(int days) {
+  const long bytes_per_day = bytes / days;
+  const double arts_per_day = (double)articles / days;
   cout << "<tr>\n";
   cout << "<td>";
   html_quote(cout, name) << "</td>\n";
-  cout << "<td sorttable_customkey=\"-" << articles << "\">" << articles << "</td>\n";
-  cout << "<td sorttable_customkey=\"-" << bytes << "\">";
-  format_bytes(cout, bytes) << "</td>\n";
+  cout << "<td sorttable_customkey=\"-" 
+       << fixed << arts_per_day << "\">" 
+       << fixed << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
+       << fixed << setprecision(6)
+       << "</td>\n";
+  cout << "<td sorttable_customkey=\"-" << bytes_per_day << "\">";
+  format_bytes(cout, bytes_per_day) << "</td>\n";
   cout << "<td sorttable_customkey=\"-" << senders.size() << "\">" << senders.size() << "</td>\n";
   cout << "</tr>\n";
 }

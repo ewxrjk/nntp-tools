@@ -9,17 +9,23 @@
 
 using namespace std;
 
-Article::Article(const string &text) {
+Article::Article(const string &text): cached_date(-1) {
   parse(text);
 }
 
-void Article::visit(const string &text) {
+int Article::visit(const string &text,
+                    time_t start_time,
+                    time_t end_time) {
   Article *a = new Article(text);
-  if(seen.find(a->mid()) == seen.end()) {
+  if(seen.find(a->mid()) == seen.end()
+     && a->date() >= start_time
+     && a->date() < end_time) {
     seen[a->mid()] = true;
-    Group::article(a);
-  } else
-      delete a;
+    if(Group::article(a))
+      return 1;
+  }
+  delete a;
+  return 0;
 }
 
 void Article::get_groups(list<string> &groups) const {
@@ -27,8 +33,11 @@ void Article::get_groups(list<string> &groups) const {
 }
 
 time_t Article::date() const {
-  string datestr = headers.find("date")->second;
-  return parse_date(datestr);
+  if(cached_date == -1) {
+    string datestr = headers.find("date")->second;
+    cached_date = parse_date(datestr);
+  }
+  return cached_date;
 }
 
 void Article::parse(const string &text) {

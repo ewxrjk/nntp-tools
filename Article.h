@@ -10,7 +10,9 @@ public:
   static std::map<std::string,Article *> articles; // mid -> article
 
   Article(const std::string &text);
-  static void visit(const std::string &text);
+  static int visit(const std::string &text,
+                   time_t start_time,
+                   time_t end_time);
 
   void get_groups(std::list<std::string> &groups) const;
   time_t date() const;
@@ -41,6 +43,8 @@ private:
 
   size_t bytes;
   std::map<std::string, std::string> headers;
+  mutable time_t cached_date;
+
   static std::map<std::string, bool> seen;
 };
 

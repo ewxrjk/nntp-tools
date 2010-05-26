@@ -1,0 +1,51 @@
+.TH spoolstats 1
+.SH NAME
+spoolstats \- statistics on a news spool
+.SH SYNOPSIS
+.B spoolstats
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Generates a report on posting volumes etc on a new spool.
+.SH OPTIONS
+.TP
+.B -S \fIPATH\fR, \fB--spool \fIPATH
+Sets the path to the news spool.
+The default is
+.IR /var/spool/news/articles .
+.TP
+.B -N \fIDAYS\fR, \fB--days \fIDAYS
+The number of days into the past to look.
+The default is 7 days.
+.TP
+.B -G \fIPATTERN\fR, \fB--groups \fIPATTERN
+A comma-separate list of group patterns to analyse.
+May be specified more than once.
+If not specified at all, all groups are analysed.
+.TP
+.B -8\fR, \fB--big8
+Equivalent to a
+.B --groups
+option that lists the Big 8.
+.TP
+.B -Q\fR, \fB--quiet
+Quieter operation.
+.TP
+.B -h\fR, \fB--help
+Display a usage message.
+.TP
+.B -V\fR, \fB--version
+Display version number.
+.SH OUTPUT
+The output is an HTML file giving the following information for each
+newsgroup:
+.IP \(bu
+The newsgroup name.
+.IP \(bu
+The number of posts per day.
+.IP \(bu
+The number of bytes posted per day.
+.PP
+The sampling period, for the per-day figures, is based on the age of
+the oldest article analysed.
+This implies the values will be misleadingly low for newly created
+groups.

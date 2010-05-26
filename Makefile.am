@@ -32,7 +32,7 @@ bzr2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
 spoolstats_SOURCES=spoolstats.cc utils.c Article.h Article.cc Group.h	\
 Group.cc timezones.h timezones.cc cpputils.h cpputils.cc
 
-man_MANS=lj2news.1 tla2news.1 bzr2news.1
+man_MANS=lj2news.1 tla2news.1 bzr2news.1 spoolstats.1
 
 EXTRA_DIST=$(man_MANS) sorttable.js
 ACLOCAL_AMFLAGS=-I aclocal
