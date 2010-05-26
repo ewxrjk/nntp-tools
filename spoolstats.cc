@@ -101,9 +101,9 @@ static void report(int days) {
 
 /* --- spool processing ---------------------------------------------------- */
 
-static void visit_article(const std::string &path,
-                        time_t start_time,
-                        time_t end_time) {
+static int visit_article(const string &path,
+                         time_t start_time,
+                         time_t end_time) {
   int fd;
   string buffer;
   struct stat sb;
@@ -121,17 +121,15 @@ static void visit_article(const std::string &path,
   close(fd);
   if(debug)
     cerr << "article " << path << endl;
-  int r = Article::visit(buffer, start_time, end_time);
-  static int count, included;
-  included += r;
-  count += 1;
-  if(terminal && count % 10 == 0)
-    cerr << included << "/" << count << "\r";
+  return Article::visit(buffer, start_time, end_time);
 }
 
-static void visit_spool(const std::string &path,
+static void visit_spool(const string &root,
+                        const string &path,
                         time_t start_time,
                         time_t end_time) {
+        static int count, included;
+
   DIR *dp;
   struct dirent *de;
   string nodepath;
@@ -148,12 +146,19 @@ static void visit_spool(const std::string &path,
       nodepath += de->d_name;
       if(stat(nodepath.c_str(), &sb) < 0)
         fatal(errno, "stat %s", nodepath.c_str());
-      // TODO if possible limit directory traversal to ones that can match some pattern
-      // failing that limit article analysis!
       if(S_ISDIR(sb.st_mode))
-        visit_spool(nodepath, start_time, end_time);
-      else if(S_ISREG(sb.st_mode))
-        visit_article(nodepath, start_time, end_time);
+        visit_spool(root, nodepath, start_time, end_time);
+      else if(S_ISREG(sb.st_mode)) {
+        string group(path, root.size() + 1);
+        string::size_type n;
+        while((n = group.find('/')) != string::npos)
+          group[n] = '.';
+        if(Group::group_matches(group))
+          included += visit_article(nodepath, start_time, end_time);
+        count += 1;
+        if(terminal && count % 10 == 0)
+          cerr << included << "/" << count << "\r";
+      }
     }
     errno = 0;
   }
@@ -216,7 +221,7 @@ Options:\n\
   }
   time(&end_time);
   start_time = end_time - 86400 * days;
-  visit_spool(spool, start_time, end_time);
+  visit_spool(spool, spool, start_time, end_time);
   if(terminal)
     cerr << "                    \r";
   report(days);

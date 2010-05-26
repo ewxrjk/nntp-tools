@@ -22,9 +22,9 @@ public:
   void report(int days);
 
   static void set_patterns(const std::string &pattern);
+  static bool group_matches(const std::string &groupname);
 private:
   static std::list<std::string> patterns;
-  static bool group_matches(const std::string &groupname);
 };
 
 
