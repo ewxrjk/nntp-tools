@@ -128,6 +128,8 @@ bool Article::parse_date_std(const string &d, struct tm &bdt, int &zone) {
   //    DD MMM YYYY HH:MM:SS +ZZZZ [(ZZZ)]
   //    DD MMM YYYY HH:MM:SS ZZZ
 
+  // TODO: Cannot parse date: 'Saturday, 29 May 2010 00:29:01 +000'
+
   memset(&bdt, 0, sizeof bdt);
   zone = 0;
   // Skip "day,"

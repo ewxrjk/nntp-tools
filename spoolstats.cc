@@ -19,9 +19,8 @@
  */
 #include "spoolstats.h"
 
-#include <iostream>
 #include <algorithm>
-#include <vector>
+#include <fstream>
 
 #include <cstring>
 #include <cerrno>
@@ -44,6 +43,7 @@ const struct option options[] = {
   { "big8", no_argument, 0, '8' },
   { "days", required_argument, 0, 'N' },
   { "latency", required_argument, 0, 'L' },
+  { "output", required_argument, 0, 'O' },
   { "help", no_argument, 0, 'h' },
   { "quiet", no_argument, 0, 'Q' },
   { "version", no_argument, 0, 'V' },
@@ -55,46 +55,90 @@ static time_t start_time, end_time, start_mtime;
 static int days;
 static int end_latency = 86400;
 static int start_latency = 60;
+static string output = ".";
 
 /* --- reporting ----------------------------------------------------------- */
 
-static void report(int days) {
+static void html_header(const string &title, ostream &os) {
+  os << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n";
+  os << "<html>\n";
+  os << "<head><title>";
+  html_quote(os, title) << "</title>\n";
+  // TODO stylesheet
+  os << "<script src=\"sorttable.js\"></script>\n";
+  os << "<body>\n";
+  os << "<h1>";
+  html_quote(os, title) << "</h1>\n";
+}
+
+static void report(int days, ostream &os) {
   vector<string> grouplist;
 
-  cout << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n";
-  cout << "<html>\n";
-  cout << "<head><title>Spool Report</title>\n";
-  // TODO stylesheet
-  cout << "<script src=\"sorttable.js\"></script>\n";
-  cout << "<body>\n";
-  cout << "<h1>Spool Report</h1>\n";
+  html_header("Spool report", os);
 
-  cout << "<h2>Group Report</h2>\n";
-  cout << "<table class=sortable>\n";
-  cout << "<thead>\n";
-  cout << "<tr>\n";
-  cout << "<th>Group</th>\n";
-  cout << "<th>Articles/day</th>\n";
-  cout << "<th>Bytes/day</th>\n";
-  cout << "<th>Posters</th>\n";
-  cout << "</tr>\n";
-  cout << "</thead>\n";
+  os << "<h2>Hierarchies</h2>\n";
 
-  grouplist.reserve(Group::groups.size());
-  for(map<string,Group *>::const_iterator it = Group::groups.begin();
-      it != Group::groups.end();
-      ++it)
-    grouplist.push_back(it->first);
-  sort(grouplist.begin(), grouplist.end());
-  for(size_t n = 0; n < grouplist.size(); ++n) {
-    Group *g = Group::groups[grouplist[n]];
-    g->report(days);
+  os << "<table class=sortable>\n";
+  os << "<thead>\n";
+  os << "<tr>\n";
+  os << "<th>Hierarchy</th>\n";
+  os << "<th>Articles/day</th>\n";
+  os << "<th>Bytes/day</th>\n";
+  os << "<th>Posters</th>\n";
+  os << "</tr>\n";
+  os << "</thead>\n";
+
+  for(set<string>::const_iterator it = Group::hierarchies.begin();
+      it != Group::hierarchies.end();
+      ++it) {
+    // TODO more detail
+    os << "<tr>\n";
+    os << "<td><a href=\"" << *it << ".html\">" << *it << ".*</a></td>\n";
+    os << "</tr>\n";
   }
 
-  cout << "</table>\n";
+  os << "</table>\n";
 
-  cout << "</body>\n";
-  cout << "</html>\n";
+  os << "</body>\n";
+  os << "</html>\n";
+}
+
+static void report_hierarchy(const string &hierarchy, int days, ostream &os) {
+  vector<string> grouplist;
+
+  html_header(hierarchy + ".*", os);
+
+  os << "<table class=sortable>\n";
+  os << "<thead>\n";
+  os << "<tr>\n";
+  os << "<th>Group</th>\n";
+  os << "<th>Articles/day</th>\n";
+  os << "<th>Bytes/day</th>\n";
+  os << "<th>Posters</th>\n";
+  os << "</tr>\n";
+  os << "</thead>\n";
+
+  for(map<string,Group *>::const_iterator it = Group::groups.begin();
+      it != Group::groups.end();
+      ++it) {
+    string::size_type n = it->first.find('.');
+    if(it->first.compare(0, n, hierarchy) == 0)
+      grouplist.push_back(it->first);
+  }
+  sort(grouplist.begin(), grouplist.end());
+  long articles = 0;
+  long long bytes = 0;
+  for(size_t n = 0; n < grouplist.size(); ++n) {
+    Group *g = Group::groups[grouplist[n]];
+    g->report(days, os);
+    articles += g->articles;
+    bytes += g->bytes;
+  }
+
+  os << "</table>\n";
+
+  os << "</body>\n";
+  os << "</html>\n";
 }
 
 /* --- spool processing ---------------------------------------------------- */
@@ -177,7 +221,7 @@ int main(int argc, char **argv) {
 
   init_timezones();
   terminal = !!isatty(2);
-  while((n = getopt_long(argc, argv, "DS:QhH:8VN:L:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "DS:QhH:8VN:L:O:", options, 0)) >= 0) {
     switch(n) {
     case 'D':
       debug = 1;
@@ -219,6 +263,9 @@ int main(int argc, char **argv) {
       if(days <= 0)
         fatal(0, "--days must be positive");
       break;
+    case 'O':
+      output = optarg;
+      break;
     case 'h':
       printf("Usage:\n\
   spoolstats [OPTIONS]\n\
@@ -229,6 +276,7 @@ Options:\n\
   -S, --spool PATH                Path to spool\n\
   -H, --hierarchy NAME[,NAME...]  Hierachies to analyse\n\
   -8, --big8                      Analyse the Big 8\n\
+  -O, --output DIRECTORY          Output directory\n\
   -Q, --quiet                     Quieter operation\n\
   -h, --help                      Display usage message\n\
   -V, --version                   Display version number\n");
@@ -240,17 +288,32 @@ Options:\n\
       exit(1);
     }
   }
+  // Compute sampling interval
   time(&end_time);
   end_time -= end_latency;
   start_time = end_time - 86400 * days;
   start_mtime = start_time - start_latency;
+  // Scan each hierarchy.  Article/Group will cooperate to ensure that each
+  // article is only processed once even if we see it multiple times due to
+  // crossposting.
   for(set<string>::const_iterator it = Group::hierarchies.begin();
       it != Group::hierarchies.end();
       ++it)
     visit_spool(spool, spool + "/" + *it, start_time, end_time);
   if(terminal)
     cerr << "                    \r";
-  report(days);
+  // Generate overall report
+  ofstream index((output + "/index.html").c_str());
+  index.exceptions(ofstream::failbit|ofstream::badbit);
+  report(days, index);
+  // Generate hierarhcy reports
+  for(set<string>::const_iterator it = Group::hierarchies.begin();
+      it != Group::hierarchies.end();
+      ++it) {
+    ofstream os((output + "/" + *it + ".html").c_str());
+    os.exceptions(ofstream::failbit|ofstream::badbit);
+    report_hierarchy(*it, days, os);
+  }
   return 0;
 }
 

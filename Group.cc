@@ -39,21 +39,21 @@ bool Group::group_matches(const string &groupname) {
   return hierarchies.find(string(groupname, 0, n)) != hierarchies.end();
 }
 
-void Group::report(int days) {
+void Group::report(int days, ostream &os) {
   const long bytes_per_day = bytes / days;
   const double arts_per_day = (double)articles / days;
-  cout << "<tr>\n";
-  cout << "<td>";
-  html_quote(cout, name) << "</td>\n";
-  cout << "<td sorttable_customkey=\"-" 
+  os << "<tr>\n";
+  os << "<td>";
+  html_quote(os, name) << "</td>\n";
+  os << "<td sorttable_customkey=\"-" 
        << fixed << arts_per_day << "\">" 
        << fixed << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
        << fixed << setprecision(6)
        << "</td>\n";
-  cout << "<td sorttable_customkey=\"-" << bytes_per_day << "\">";
-  format_bytes(cout, bytes_per_day) << "</td>\n";
-  cout << "<td sorttable_customkey=\"-" << senders.size() << "\">" << senders.size() << "</td>\n";
-  cout << "</tr>\n";
+  os << "<td sorttable_customkey=\"-" << bytes_per_day << "\">";
+  format_bytes(os, bytes_per_day) << "</td>\n";
+  os << "<td sorttable_customkey=\"-" << senders.size() << "\">" << senders.size() << "</td>\n";
+  os << "</tr>\n";
 }
 
 map<string,Group *> Group::groups;

@@ -19,7 +19,7 @@ public:
 
   Group(const std::string &name_);
   static int article(const Article *a);
-  void report(int days);
+  void report(int days, std::ostream &os);
 
   static bool group_matches(const std::string &groupname);
 
