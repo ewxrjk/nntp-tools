@@ -1,10 +1,4 @@
-#include <config.h>
-#include "Group.h"
-#include "Article.h"
-#include "cpputils.h"
-#include <fnmatch.h>
-#include <iostream>
-#include <iomanip>
+#include "spoolstats.h"
 
 using namespace std;
 
@@ -15,9 +9,9 @@ Group::Group(const string &name_): name(name_),
 
 int Group::article(const Article *a) {
   int r = 0;
-  list<string> groupnames;
+  vector<string> groupnames;
   a->get_groups(groupnames);
-  for(list<string>::const_iterator it = groupnames.begin();
+  for(vector<string>::const_iterator it = groupnames.begin();
       it != groupnames.end();
       ++it) {
     const string &groupname = *it;
@@ -38,20 +32,11 @@ int Group::article(const Article *a) {
   return r;
 }
 
-void Group::set_patterns(const std::string &patternlist) {
-  split(patterns, ',', patternlist);
-}
-
 bool Group::group_matches(const string &groupname) {
-  if(patterns.size()) {
-    for(list<string>::const_iterator it = patterns.begin();
-        it != patterns.end();
-        ++it)
-      if(fnmatch(it->c_str(), groupname.c_str(), 0) == 0)
-        return true;
+  string::size_type n = groupname.find('.');
+  if(n == string::npos)
     return false;
-  } else
-    return true;
+  return hierarchies.find(string(groupname, 0, n)) != hierarchies.end();
 }
 
 void Group::report(int days) {
@@ -72,7 +57,7 @@ void Group::report(int days) {
 }
 
 map<string,Group *> Group::groups;
-list<string> Group::patterns;
+set<string> Group::hierarchies;
 
 /*
 Local Variables:

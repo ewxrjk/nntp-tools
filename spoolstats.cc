@@ -17,12 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#include <config.h>
-
-#include "utils.h"
-#include "Group.h"
-#include "Article.h"
-#include "timezones.h"
+#include "spoolstats.h"
 
 #include <iostream>
 #include <algorithm>
@@ -45,9 +40,10 @@ using namespace std;
 const struct option options[] = {
   { "debug", no_argument, 0, 'D' },
   { "spool", required_argument, 0, 'S' },
-  { "groups", required_argument, 0, 'G' },
+  { "hierarchy", required_argument, 0, 'G' },
   { "big8", no_argument, 0, '8' },
   { "days", required_argument, 0, 'N' },
+  { "latency", required_argument, 0, 'L' },
   { "help", no_argument, 0, 'h' },
   { "quiet", no_argument, 0, 'Q' },
   { "version", no_argument, 0, 'V' },
@@ -55,8 +51,10 @@ const struct option options[] = {
 };
 
 static bool terminal;
-static time_t start_time, end_time;
+static time_t start_time, end_time, start_mtime;
 static int days;
+static int end_latency = 3600;
+static int start_latency = 86400;
 
 /* --- reporting ----------------------------------------------------------- */
 
@@ -149,12 +147,13 @@ static void visit_spool(const string &root,
       if(S_ISDIR(sb.st_mode))
         visit_spool(root, nodepath, start_time, end_time);
       else if(S_ISREG(sb.st_mode)) {
-        string group(path, root.size() + 1);
-        string::size_type n;
-        while((n = group.find('/')) != string::npos)
-          group[n] = '.';
-        if(Group::group_matches(group))
+        if(sb.st_mtime >= start_mtime) {
+          string group(path, root.size() + 1);
+          string::size_type n;
+          while((n = group.find('/')) != string::npos)
+            group[n] = '.';
           included += visit_article(nodepath, start_time, end_time);
+        }
         count += 1;
         if(terminal && count % 10 == 0)
           cerr << included << "/" << count << "\r";
@@ -170,14 +169,14 @@ static void visit_spool(const string &root,
 /* --- main ---------------------------------------------------------------- */
 
 int main(int argc, char **argv) {
-  const char *spool = "/var/spool/news/articles";
+  string spool = "/var/spool/news/articles";
   int n;
   time_t start_time, end_time;
   int days = 7;
 
   init_timezones();
   terminal = !!isatty(2);
-  while((n = getopt_long(argc, argv, "DS:QhG:8VN:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "DS:QhG:8VN:L:", options, 0)) >= 0) {
     switch(n) {
     case 'D':
       debug = 1;
@@ -188,11 +187,31 @@ int main(int argc, char **argv) {
     case 'Q':
       terminal = false;
       break;
-    case 'G':
-      Group::set_patterns(optarg);
+    case 'G': {
+      vector<string> bits;
+      split(bits, ',', string(optarg));
+      for(size_t i = 0; i < bits.size(); ++i)
+        Group::hierarchies.insert(bits[i]);
       break;
+    }
+    case 'L': {
+      vector<string> bits;
+      split(bits, ',', string(optarg));
+      if(bits.size() != 2)
+        fatal(0, "invalid argument to --latency option");
+      start_latency = atoi(bits[0].c_str());
+      end_latency = atoi(bits[1].c_str());
+      break;
+    }
     case '8':
-      Group::set_patterns("comp.*,talk.*,misc.*,news.*,soc.*,sci.*,humanities.*,rec.*");
+      Group::hierarchies.insert("news");
+      Group::hierarchies.insert("humanities");
+      Group::hierarchies.insert("sci");
+      Group::hierarchies.insert("comp");
+      Group::hierarchies.insert("misc");
+      Group::hierarchies.insert("soc");
+      Group::hierarchies.insert("rec");
+      Group::hierarchies.insert("talk");
       break;
     case 'N':
       days = atoi(optarg);
@@ -204,13 +223,13 @@ int main(int argc, char **argv) {
   spoolstats [OPTIONS]\n\
 \n\
 Options:\n\
-  -N, --days DAYS        Number of days to analyse\n\
-  -S, --spool PATH       Path to spool\n\
-  -G, --groups PATTERNS  Groups to analyse\n\
-  -8, --big8             Analyse the Big 8\n\
+  -N, --days DAYS                 Number of days to analyse\n\
+  -S, --spool PATH                Path to spool\n\
+  -G, --hierarchy NAME[,NAME...]  Hierachies to analyse\n\
+  -8, --big8                      Analyse the Big 8\n\
   -Q, --quiet            Quieter operation\n\
-  -h, --help             Display usage message\n\
-  -V, --version          Display version number\n");
+  -h, --help                               Display usage message\n\
+  -V, --version                   Display version number\n");
       exit(0);
     case 'V':
       printf("spoolstats from rjk-nntp-tools version " VERSION "\n");
@@ -220,8 +239,13 @@ Options:\n\
     }
   }
   time(&end_time);
+  end_time -= end_latency;
   start_time = end_time - 86400 * days;
-  visit_spool(spool, spool, start_time, end_time);
+  start_mtime = start_time - start_latency;
+  for(set<string>::const_iterator it = Group::hierarchies.begin();
+      it != Group::hierarchies.end();
+      ++it)
+    visit_spool(spool, spool + "/" + *it, start_time, end_time);
   if(terminal)
     cerr << "                    \r";
   report(days);

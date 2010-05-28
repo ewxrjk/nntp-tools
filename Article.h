@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <list>
+#include <vector>
 
 class Article {
 public:
@@ -14,7 +14,7 @@ public:
                    time_t start_time,
                    time_t end_time);
 
-  void get_groups(std::list<std::string> &groups) const;
+  void get_groups(std::vector<std::string> &groups) const;
   time_t date() const;
 
   inline const std::string &mid() const {

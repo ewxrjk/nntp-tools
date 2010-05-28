@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void split(list<string> &bits,
+void split(vector<string> &bits,
            char sep,
            const string &s) {
   string::size_type pos = 0;

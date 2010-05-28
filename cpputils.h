@@ -1,11 +1,11 @@
 #ifndef CPPUTILS
 #define CPPUTILS
 
-#include <list>
+#include <vector>
 #include <string>
 #include <ostream>
 
-void split(std::list<std::string> &bits,
+void split(std::vector<std::string> &bits,
            char sep,
            const std::string &s);
 

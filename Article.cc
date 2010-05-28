@@ -1,11 +1,4 @@
-#include <config.h>
-#include "Article.h"
-#include "Group.h"
-#include "timezones.h"
-#include "utils.h"
-#include "cpputils.h"
-#include <iostream>
-#include <cstring>
+#include "spoolstats.h"
 
 using namespace std;
 
@@ -28,7 +21,7 @@ int Article::visit(const string &text,
   return 0;
 }
 
-void Article::get_groups(list<string> &groups) const {
+void Article::get_groups(vector<string> &groups) const {
   split(groups, ',', headers.find("newsgroups")->second);
 }
 
