@@ -102,24 +102,25 @@ static void report(int days) {
 static int visit_article(const string &path,
                          time_t start_time,
                          time_t end_time) {
-  int fd;
-  string buffer;
+  int fd, n;
+  string article;
   struct stat sb;
+  char buffer[2048];
 
   if((fd = open(path.c_str(), O_RDONLY)) < 0)
     fatal(errno, "opening %s", path.c_str());
-  if(fstat(fd, &sb) < 0)
-    fatal(errno, "stat %s", path.c_str());
-  buffer.resize(sb.st_size);
-  int n = read(fd, (void *)buffer.data(), sb.st_size);
+  while((n = read(fd, buffer, sizeof buffer)) > 0) {
+    article.append(buffer, n);
+    if(article.find("\n\n") != string::npos
+       || article.find("\r\n\r\n") != string::npos)
+      break;
+  }
   if(n < 0)
     fatal(errno, "reading %s", path.c_str());
-  else if(n != sb.st_size)
-    fatal(0, "reading %s: wrong byte count", path.c_str());
   close(fd);
   if(debug)
     cerr << "article " << path << endl;
-  return Article::visit(buffer, start_time, end_time);
+  return Article::visit(article, start_time, end_time);
 }
 
 static void visit_spool(const string &root,
