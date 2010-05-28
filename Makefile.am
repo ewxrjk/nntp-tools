@@ -29,8 +29,9 @@ tla2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
 bzr2news_SOURCES=bzr2news.c utils.c utils.h nntp.c nntp.h
 bzr2news_LDADD=$(LIBOBJS) $(LIBGCRYPT) $(LIBPTHREAD)
 
-spoolstats_SOURCES=spoolstats.cc utils.c Article.h Article.cc Group.h	\
-Group.cc timezones.h timezones.cc cpputils.h cpputils.cc
+spoolstats_SOURCES=spoolstats.cc spoolstats.h utils.c Article.h	\
+Article.cc Group.h Group.cc timezones.h timezones.cc cpputils.h	\
+cpputils.cc
 
 man_MANS=lj2news.1 tla2news.1 bzr2news.1 spoolstats.1
 
