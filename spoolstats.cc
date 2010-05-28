@@ -40,7 +40,7 @@ using namespace std;
 const struct option options[] = {
   { "debug", no_argument, 0, 'D' },
   { "spool", required_argument, 0, 'S' },
-  { "hierarchy", required_argument, 0, 'G' },
+  { "hierarchy", required_argument, 0, 'H' },
   { "big8", no_argument, 0, '8' },
   { "days", required_argument, 0, 'N' },
   { "latency", required_argument, 0, 'L' },
@@ -53,8 +53,8 @@ const struct option options[] = {
 static bool terminal;
 static time_t start_time, end_time, start_mtime;
 static int days;
-static int end_latency = 3600;
-static int start_latency = 86400;
+static int end_latency = 86400;
+static int start_latency = 60;
 
 /* --- reporting ----------------------------------------------------------- */
 
@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
 
   init_timezones();
   terminal = !!isatty(2);
-  while((n = getopt_long(argc, argv, "DS:QhG:8VN:L:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "DS:QhH:8VN:L:", options, 0)) >= 0) {
     switch(n) {
     case 'D':
       debug = 1;
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
     case 'Q':
       terminal = false;
       break;
-    case 'G': {
+    case 'H': {
       vector<string> bits;
       split(bits, ',', string(optarg));
       for(size_t i = 0; i < bits.size(); ++i)
@@ -225,11 +225,12 @@ int main(int argc, char **argv) {
 \n\
 Options:\n\
   -N, --days DAYS                 Number of days to analyse\n\
+  -L, --latency BEFORE, AFTER     Set latencies in seconds\n\
   -S, --spool PATH                Path to spool\n\
-  -G, --hierarchy NAME[,NAME...]  Hierachies to analyse\n\
+  -H, --hierarchy NAME[,NAME...]  Hierachies to analyse\n\
   -8, --big8                      Analyse the Big 8\n\
-  -Q, --quiet            Quieter operation\n\
-  -h, --help                               Display usage message\n\
+  -Q, --quiet                     Quieter operation\n\
+  -h, --help                      Display usage message\n\
   -V, --version                   Display version number\n");
       exit(0);
     case 'V':

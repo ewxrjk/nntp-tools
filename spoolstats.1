@@ -6,6 +6,8 @@ spoolstats \- statistics on a news spool
 .RI [ OPTIONS ]
 .SH DESCRIPTION
 Generates a report on posting volumes etc on a new spool.
+.PP
+.B "This is a work in progress!"
 .SH OPTIONS
 .TP
 .B -S \fIPATH\fR, \fB--spool \fIPATH
@@ -13,18 +15,32 @@ Sets the path to the news spool.
 The default is
 .IR /var/spool/news/articles .
 .TP
+.B -L \fIS\fB,\fIE\fR, \fB--latency \fIS\fB,\fIE
+Set the spool latencies.
+These define the relationships allowed between the date header in an
+article and the time it arrives.
+.IP
+.I S
+is the number of seconds "early" an article may arrive and still
+be properly counted.
+The default is 60s.
+.IP
+.I E
+is the number of seconds "late" an article may arrive.
+It defines the maximum propagation delay.
+The default is 86400s (one day).
+.TP
 .B -N \fIDAYS\fR, \fB--days \fIDAYS
 The number of days into the past to look.
 The default is 7 days.
 .TP
-.B -G \fIPATTERN\fR, \fB--groups \fIPATTERN
-A comma-separate list of group patterns to analyse.
+.B -H \fILIST\fR, \fB--hiearchies \fILIST
+A comma-separate list of hierarchies to analyse.
 May be specified more than once.
-If not specified at all, all groups are analysed.
 .TP
 .B -8\fR, \fB--big8
 Equivalent to a
-.B --groups
+.B --hierachies
 option that lists the Big 8.
 .TP
 .B -Q\fR, \fB--quiet
@@ -35,6 +51,27 @@ Display a usage message.
 .TP
 .B -V\fR, \fB--version
 Display version number.
+.SH "SAMPLING INTERVAL"
+The sampling interval is defined by the
+.B --days
+and
+.B --latency
+options and the time the program is invoked.
+The interval ends
+.I E
+seconds before the current time
+and starts
+.I DAYS
+days before that.
+So with the defaults, articles from the 7 days ending exactly 24 hours
+ago will be considered.
+.PP
+The
+.I S
+parameter defines how much reliance is put on the timestamp of the
+file (as an optimization).
+With the default, an article can arrive up to 60 seconds "early" and
+still be counted if its Date: header is within the sampling interval.
 .SH OUTPUT
 The output is an HTML file giving the following information for each
 newsgroup:
@@ -45,7 +82,5 @@ The number of posts per day.
 .IP \(bu
 The number of bytes posted per day.
 .PP
-The sampling period, for the per-day figures, is based on the age of
-the oldest article analysed.
 This implies the values will be misleadingly low for newly created
 groups.
