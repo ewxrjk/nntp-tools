@@ -23,19 +23,29 @@ namespace HTML {
     static std::ostream &write(std::ostream &os, const std::string &str);
   };
 
-  inline std::ostream &operator<<(std::ostream &os, Quote e) {
+  inline std::ostream &operator<<(std::ostream &os, const Quote &e) {
     return e.write(os, e.str);
   }
 
   class Header {
   public:
-    inline Header(const std::string &t): title(t) {}
+    inline Header(const std::string &t,
+                  const char *c = NULL,
+                  const char *j = NULL): title(t),
+                                         css(c),
+                                         js(j) {}
     const std::string &title;
-    static std::ostream &write(std::ostream &os, const std::string &title);
+    const char *css;
+    const char *js;
+    static std::ostream &write(std::ostream &os, 
+                               const std::string &title,
+                               const char *css,
+                               const char *js);
   };
 
-  inline std::ostream &operator<<(std::ostream &os, Header h) {
-    return h.write(os, h.title);
+  inline std::ostream &operator<<(std::ostream &os, 
+                                  const Header &h) {
+    return h.write(os, h.title, h.css, h.js);
   }
 
 };

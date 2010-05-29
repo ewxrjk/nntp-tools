@@ -25,6 +25,12 @@ private:
 
   // Visit one article by name.  Returns 1 if article used, else 0.
   int visit(const std::string &path);
+
+  // Generate the hierarchies report
+  void report_hierarchies();
+
+  // Generate the groups report
+  void report_groups();
 };
 
 #endif /* ALL_H */

@@ -21,11 +21,25 @@ bin_PROGRAMS=spoolstats
 
 spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
 Group.h Group.cc Bucket.h Bucket.cc AllGroups.h AllGroups.cc		\
-Hierarchy.h Hierarchy.cc Config.h Config.cc
+Hierarchy.h Hierarchy.cc Config.h Config.cc css.c sorttable.c
 
 CPPFLAGS=-I${top_srcdir}/lib
 LDADD=../lib/libmiscpp.a ../lib/libmisc.a
 
 man_MANS=spoolstats.1
 
-EXTRA_DIST=$(man_MANS)
+EXTRA_DIST=$(man_MANS) sorttable.js spoolstats.css
+
+css.c: spoolstats.css
+	rm -f $@.new
+	echo "char css[] = " >> $@.new
+	sed 's/[\"\\?]/\\&/g;s/^/\"/;s/$$/\\n\"/;' < $< >> $@.new
+	echo ";" >> $@.new
+	mv $@.new $@
+
+sorttable.c: sorttable.js
+	rm -f $@.new
+	echo "char sorttable[] = " >> $@.new
+	sed 's/[\"\\?]/\\&/g;s/^/\"/;s/$$/\\n\"/;' < $< >> $@.new
+	echo ";" >> $@.new
+	mv $@.new $@

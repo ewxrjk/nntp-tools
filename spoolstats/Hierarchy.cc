@@ -46,7 +46,7 @@ void Hierarchy::page() {
   ofstream os((Config::output + "/" + name + ".html").c_str());
   os.exceptions(ofstream::badbit|ofstream::failbit);
 
-  os << HTML::Header(name + ".*");
+  os << HTML::Header(name + ".*", "spoolstats.css", "sorttable.js");
 
   os << "<table class=sortable>\n";
 
@@ -78,9 +78,12 @@ void Hierarchy::page() {
      << "</td>\n";
   os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
   os << "<td></td>\n";                  // TODO?
-  os << "</tr>";
+  os << "</tr>\n";
   os << "</tfoot>\n";
   os << "</table>\n";
+  os << "<p><a href=" << HTML::Quote("index.html") << ">Hierarchies</a>"
+     << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
+     << "</p>\n";
   os << flush;
 }
 

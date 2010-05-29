@@ -1,4 +1,4 @@
-const char sorttable[] = 
+char sorttable[] = 
 "/*\n"
 "  SortTable\n"
 "  version 2\n"

@@ -21,6 +21,12 @@
 
 using namespace std;
 
+static void extrafile(const char *name, const char *contents) {
+  ofstream os((Config::output + "/" + name).c_str());
+  os.exceptions(ofstream::badbit|ofstream::failbit);
+  os << contents << flush;
+}
+
 int main(int argc, char **argv) {
   init_timezones();
   Config::Options(argc, argv);
@@ -30,9 +36,8 @@ int main(int argc, char **argv) {
   // Generate the report
   all.report();
   // Auxilary files
-  ofstream os((Config::output + "/sorttable.js").c_str());
-  os.exceptions(ofstream::badbit|ofstream::failbit);
-  os << sorttable << flush;
+  extrafile("sorttable.js", sorttable);
+  extrafile("spoolstats.css", css);
   return 0;
 }
 

@@ -22,7 +22,7 @@ public:
 
   // Locate a group (which must be in this hierarchy)
   Group *group(const std::string &name);
-private:
+
   // Map of group names to their objects
   std::map<std::string,Group *> groups;
 };

@@ -23,6 +23,9 @@
 #include "Config.h"
 #include "HTML.h"
 
+extern "C" const char sorttable[];
+extern "C" const char css[];
+
 #endif /* SPOOLSTATS_H */
 
 /*
