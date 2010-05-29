@@ -116,7 +116,7 @@ if test "x$GCC" = xyes; then
   fi    
 fi
 
-if test "x$GXX" = xtye; then
+if test "x$GXX" = xyes; then
   CXX="${CXX} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
 -Wmissing-declarations -Wmissing-noreturn -Wredundant-decls"
   CXX="${CXX} -Werror"
