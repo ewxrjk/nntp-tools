@@ -26,3 +26,5 @@ echo-distdir:
 
 echo-version:
 	@echo $(VERSION)
+
+EXTRA_DIST=COPYING.sorttable
