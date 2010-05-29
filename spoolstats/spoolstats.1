@@ -1,0 +1,127 @@
+.TH spoolstats 1
+.SH NAME
+spoolstats \- statistics on a news spool
+.SH SYNOPSIS
+.B spoolstats
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Generates a report on posting volumes etc on a new spool.
+.PP
+.B "This is a work in progress!"
+.SH OPTIONS
+.TP
+.B -S \fIPATH\fR, \fB--spool \fIPATH
+Sets the path to the news spool.
+The default is
+.IR /var/spool/news/articles .
+.TP
+.B -L \fIS\fB,\fIE\fR, \fB--latency \fIS\fB,\fIE
+Set the spool latencies.
+These define the relationships allowed between the date header in an
+article and the time it arrives.
+.IP
+.I S
+is the number of seconds "early" an article may arrive and still
+be properly counted.
+The default is 60s.
+.IP
+.I E
+is the number of seconds "late" an article may arrive.
+It defines the maximum propagation delay.
+The default is 86400s (one day).
+.TP
+.B -N \fIDAYS\fR, \fB--days \fIDAYS
+The number of days into the past to look.
+The default is 7 days.
+.TP
+.B -H \fILIST\fR, \fB--hierarchies \fILIST
+A comma-separate list of hierarchies to analyse.
+May be specified more than once.
+.TP
+.B -8\fR, \fB--big8
+Equivalent to a
+.B --hierachies
+option that lists the Big 8.
+.TP
+.B -Q\fR, \fB--quiet
+Quieter operation.
+.TP
+.B -h\fR, \fB--help
+Display a usage message.
+.TP
+.B -V\fR, \fB--version
+Display version number.
+.SH "SAMPLING INTERVAL"
+The sampling interval is defined by the
+.B --days
+and
+.B --latency
+options and the time the program is invoked.
+The interval ends
+.I E
+seconds before the current time
+and starts
+.I DAYS
+days before that.
+So with the defaults, articles from the 7 days ending exactly 24 hours
+ago will be considered.
+.PP
+The
+.I S
+parameter defines how much reliance is put on the timestamp of the
+file (as an optimization).
+With the default, an article can arrive up to 60 seconds "early" and
+still be counted if its Date: header is within the sampling interval.
+.SH OUTPUT
+The output is a collection of link HTML files.
+.PP
+.B index.html
+contains a table giving summary information about each hierarchy.
+The hierarchy names can be clicked.
+.PP
+.B allgroups.html
+contains a table giving summary information about every newsgroup.
+.PP
+For each hierarchy,
+.IB HIERARCHY .html
+gives the same information about just the newsgroups in that hierarchy.
+.PP
+In all cases, if Javascript is supported, the tables can be re-ordered
+by clicking the headings.
+.SH LOGS
+.SS "Overall Logs"
+.B all.csv
+summarizes all articles scanned.
+Each line has the following fields:
+.TP
+.B time
+The time_t at the end of the sampling interval.
+.TP
+.B days
+The length of the sampling interval in seconds.
+.TP
+.B bytes
+The number of bytes in the all sampled articles.
+.TP
+.B articles
+The number of sampled articles.
+.SS "Hierarchy Logs"
+Each hierarchy has a
+.IB HIERARCHY .csv
+summarizing articles scanned in that hierarchy.
+Each line has the following fields:
+.TP
+.B time
+The time_t at the end of the sampling interval.
+.TP
+.B days
+The length of the sampling interval in seconds.
+.TP
+.B bytes
+The number of bytes in the all sampled articles.
+.TP
+.B articles
+The number of sampled articles.
+.TP
+.B senders
+The number of unique senders.

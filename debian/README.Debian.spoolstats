@@ -1,0 +1,6 @@
+This package includes a cron job which will automatically run
+spoolstats daily.  It is configured via /etc/defaults/spoolstats.
+Note that it will NOT run if its output directory does not exist (and
+the .deb does not automaticallt create it).
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>, Sat, 29 May 2010 15:56:55 +0100

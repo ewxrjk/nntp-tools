@@ -1,7 +1,5 @@
-#! /bin/bash
 #
-# This file is part of newstools
-# Copyright (C) 2005, 2010 Richard Kettlewell
+# Copyright (C) 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,28 +17,9 @@
 # USA
 #
 
-set -e
-
-# Reject ancient versions of Automake
-amv=`automake --version|grep ^automake`
-case "$amv" in
-*1.4 | *1.4.* | *1.5 | *1.5.* | *1.6 | *1.6.* )
-  echo Need Automake 1.7 or better >&2
-  exit 1
-  ;;
-esac
-
-srcdir=$(dirname $0)
-here=$(pwd)
-cd $srcdir
-rm -f COPYING
-if [ -d $HOME/usr/share/aclocal ]; then
-  aclocal -I $HOME/usr/share/aclocal -I aclocal
-else
-  aclocal -I aclocal
-fi
-autoconf
-autoheader
-automake -a || true		# for INSTALL
-automake --foreign -a
-rm -f config.cache
+noinst_LIBRARIES=libmisc.a libmiscpp.a
+libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
+nntp.h utils.h
+libmiscpp_a_SOURCES=cpputils.h split.cc Bytes.cc Timezones.h		\
+Timezones.cc Bytes.cc HTML.h Escape.cc Quote.cc Header.cc case.cc	\
+parse_date.cc

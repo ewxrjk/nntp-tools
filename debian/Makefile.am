@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008 Richard Kettlewell
+# Copyright (C) 2008, 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,4 +19,6 @@
 
 noinst_SCRIPTS=rules
 
-EXTRA_DIST=changelog control copyright rules
+EXTRA_DIST=changelog control copyright rules conffiles.rjk-spoolstats	\
+README.Debian.spoolstats source/format
+

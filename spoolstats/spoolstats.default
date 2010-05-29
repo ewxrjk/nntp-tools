@@ -1,0 +1,20 @@
+# Configuration for /etc/cron.daily/spoolstats
+
+# Output directory for spoolstats HTML.
+# It will not automatically run unless this directory exists.
+output=/var/www/spoolstats
+
+# Length of sample interval in days
+days=7
+
+# How early an article may arrive (essentially, clock skew)
+before=60
+
+# How late an article may arrive (essenitally, propagation delay)
+after=86400
+
+# Hierarchies to analyze
+hierarchies="$big8,cam,uk"
+
+# Path to your news spool
+spool=/var/spool/news/articles

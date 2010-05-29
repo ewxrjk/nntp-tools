@@ -1,7 +1,5 @@
-#! /bin/bash
 #
-# This file is part of newstools
-# Copyright (C) 2005, 2010 Richard Kettlewell
+# Copyright (C) 2005-2008, 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,28 +17,19 @@
 # USA
 #
 
-set -e
+bin_PROGRAMS=lj2news tla2news bzr2news
 
-# Reject ancient versions of Automake
-amv=`automake --version|grep ^automake`
-case "$amv" in
-*1.4 | *1.4.* | *1.5 | *1.5.* | *1.6 | *1.6.* )
-  echo Need Automake 1.7 or better >&2
-  exit 1
-  ;;
-esac
+lj2news_SOURCES=lj2news.c
+lj2news_LDADD=../lib/libmisc.a $(LIBEXPAT) $(LIBGCRYPT) $(LIBCURL) $(LIBPTHREAD)
 
-srcdir=$(dirname $0)
-here=$(pwd)
-cd $srcdir
-rm -f COPYING
-if [ -d $HOME/usr/share/aclocal ]; then
-  aclocal -I $HOME/usr/share/aclocal -I aclocal
-else
-  aclocal -I aclocal
-fi
-autoconf
-autoheader
-automake -a || true		# for INSTALL
-automake --foreign -a
-rm -f config.cache
+tla2news_SOURCES=tla2news.c
+tla2news_LDADD=../lib/libmisc.a $(LIBGCRYPT) $(LIBPTHREAD)
+
+bzr2news_SOURCES=bzr2news.c
+bzr2news_LDADD=../lib/libmisc.a $(LIBGCRYPT) $(LIBPTHREAD)
+
+CPPFLAGS=-I${top_srcdir}/lib
+
+man_MANS=lj2news.1 tla2news.1 bzr2news.1
+
+EXTRA_DIST=$(man_MANS)

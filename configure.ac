@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 #
-# Copyright (C) 2005-2008 Richard Kettlewell
+# Copyright (C) 2005-2008, 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,15 +18,17 @@
 # USA
 #
 
-AC_INIT([rjk-nntp-tools], [0.11], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([rjk-nntp-tools], [0.11.99], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.11])
-AC_CONFIG_SRCDIR([lj2news.c])
+AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.11.99])
+AC_CONFIG_SRCDIR([gateways/lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AC_SET_MAKE
+AC_PROG_RANLIB
 
 missing_libraries=""
 missing_headers=""
@@ -90,8 +92,7 @@ AC_TYPE_SIZE_T
 AC_C_INLINE
 
 # Checks for functions
-AC_CHECK_FUNCS([funopen])
-AC_REPLACE_FUNCS([open_memstream getline getdelim])
+AC_CHECK_FUNCS([funopen open_memstream getline getdelim])
 
 if test "x$GCC" = xyes; then
   # a reasonable default set of warnings
@@ -115,11 +116,21 @@ if test "x$GCC" = xyes; then
   fi    
 fi
 
+if test "x$GXX" = xyes; then
+  CXX="${CXX} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
+-Wmissing-declarations -Wmissing-noreturn -Wredundant-decls"
+  CXX="${CXX} -Werror"
+fi
+
 AH_BOTTOM([#ifdef __GNUC__
 # define attribute(x) __attribute__(x)
 #else
 # define attribute(x)
 #endif])
 
-AC_CONFIG_FILES([Makefile debian/Makefile])
+AC_CONFIG_FILES([Makefile
+                 debian/Makefile
+                 gateways/Makefile
+                 lib/Makefile
+                 spoolstats/Makefile])
 AC_OUTPUT
