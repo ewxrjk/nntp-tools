@@ -168,6 +168,8 @@ static int visit_article(const string &path,
 
   if((fd = open(path.c_str(), O_RDONLY)) < 0)
     fatal(errno, "opening %s", path.c_str());
+  if(fstat(fd, &sb) < 0)
+    fatal(errno, "stat %s", path.c_str());
   while((n = read(fd, buffer, sizeof buffer)) > 0) {
     article.append(buffer, n);
     if(article.find("\n\n") != string::npos
@@ -179,7 +181,7 @@ static int visit_article(const string &path,
   close(fd);
   if(debug)
     cerr << "article " << path << endl;
-  return Article::visit(article, start_time, end_time);
+  return Article::visit(article, sb.st_size, start_time, end_time);
 }
 
 static void visit_spool(const string &root,

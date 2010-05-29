@@ -2,14 +2,16 @@
 
 using namespace std;
 
-Article::Article(const string &text): cached_date(-1) {
+Article::Article(const string &text, size_t bytes_): cached_date(-1),
+                                                     bytes(bytes_) {
   parse(text);
 }
 
 int Article::visit(const string &text,
-                    time_t start_time,
-                    time_t end_time) {
-  Article *a = new Article(text);
+                   size_t bytes_,
+                   time_t start_time,
+                   time_t end_time) {
+  Article *a = new Article(text, bytes_);
   if(seen.find(a->mid()) == seen.end()
      && a->date() >= start_time
      && a->date() < end_time) {
@@ -63,7 +65,6 @@ void Article::parse(const string &text) {
       cerr << "  header " << name << endl
            << "        '" << value << "'" << endl;
   }
-  bytes = text.size();
 }
 
 /// end of line?

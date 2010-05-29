@@ -9,8 +9,9 @@ class Article {
 public:
   static std::map<std::string,Article *> articles; // mid -> article
 
-  Article(const std::string &text);
+  Article(const std::string &text, size_t bytes_);
   static int visit(const std::string &text,
+                   size_t bytes_,
                    time_t start_time,
                    time_t end_time);
 
