@@ -32,6 +32,9 @@ public:
   // Scan the spool
   void scan();
 
+  // Generate logs
+  void logs();
+
   // Generate all reports
   void report();
 

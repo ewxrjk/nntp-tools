@@ -73,14 +73,55 @@ file (as an optimization).
 With the default, an article can arrive up to 60 seconds "early" and
 still be counted if its Date: header is within the sampling interval.
 .SH OUTPUT
-The output is an HTML file giving the following information for each
-newsgroup:
-.IP \(bu
-The newsgroup name.
-.IP \(bu
-The number of posts per day.
-.IP \(bu
-The number of bytes posted per day.
+The output is a collection of link HTML files.
 .PP
-This implies the values will be misleadingly low for newly created
-groups.
+.B index.html
+contains a table giving summary information about each hierarchy.
+The hierarchy names can be clicked.
+.PP
+.B allgroups.html
+contains a table giving summary information about every newsgroup.
+.PP
+For each hierarchy,
+.IB HIERARCHY .html
+gives the same information about just the newsgroups in that hierarchy.
+.PP
+In all cases, if Javascript is supported, the tables can be re-ordered
+by clicking the headings.
+.SH LOGS
+.SS "Overall Logs"
+.B all.csv
+summarizes all articles scanned.
+Each line has the following fields:
+.TP
+.B time
+The time_t at the end of the sampling interval.
+.TP
+.B days
+The length of the sampling interval in seconds.
+.TP
+.B bytes
+The number of bytes in the all sampled articles.
+.TP
+.B articles
+The number of sampled articles.
+.SS "Hierarchy Logs"
+Each hierarchy has a
+.IB HIERARCHY .csv
+summarizing articles scanned in that hierarchy.
+Each line has the following fields:
+.TP
+.B time
+The time_t at the end of the sampling interval.
+.TP
+.B days
+The length of the sampling interval in seconds.
+.TP
+.B bytes
+The number of bytes in the all sampled articles.
+.TP
+.B articles
+The number of sampled articles.
+.TP
+.B senders
+The number of unique senders.

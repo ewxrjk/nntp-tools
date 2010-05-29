@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
   // Scan everything
   AllGroups all;
   all.scan();
-  // Generate the report
+  // Generate the logs & report
+  all.logs();
   all.report();
   // Auxilary files
   extrafile("sorttable.js", sorttable);

@@ -256,6 +256,22 @@ void AllGroups::report_groups() {
   os << flush;
 }
 
+void AllGroups::logs() {
+  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end();
+      ++it) {
+    Hierarchy *const h = it->second;
+    h->logs();
+  }
+  ofstream os((Config::output + "/all.csv").c_str(), ios::app);
+  os << Config::end_time
+     << ',' << Config::days * 86400
+     << ',' << bytes
+     << ',' << articles
+     << '\n'
+     << flush;
+}
+
 /*
 Local Variables:
 mode:c++

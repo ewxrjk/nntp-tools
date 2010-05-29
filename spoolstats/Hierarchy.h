@@ -33,6 +33,9 @@ public:
 
   void visit(const Article *a);
 
+  // Generate logs
+  void logs();
+
   // Generate a summary line for this hierarchy
   void summary(std::ostream &s);
 

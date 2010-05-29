@@ -107,6 +107,17 @@ void Hierarchy::page() {
   os << flush;
 }
 
+void Hierarchy::logs() {
+  ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
+  os << Config::end_time
+     << ',' << Config::days * 86400
+     << ',' << bytes
+     << ',' << articles
+     << ',' << senders.size()
+     << '\n'
+     << flush;
+}
+
 /*
 Local Variables:
 mode:c++
