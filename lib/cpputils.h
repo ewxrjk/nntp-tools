@@ -24,6 +24,8 @@
 #include <string>
 #include <ostream>
 #include <stdint.h>
+#include <ctime>
+#include <map>
 
 void split(std::vector<std::string> &bits,
            char sep,
@@ -39,6 +41,14 @@ public:
 inline std::ostream &operator<<(std::ostream &os, const Bytes &b) {
   return b.write(os, b.bytes);
 }
+
+time_t parse_date(const std::string &d);
+std::string &lower(std::string &s);
+std::string &upper(std::string &s);
+
+void init_timezones();
+
+extern std::map<std::string,int> timezones;
 
 #endif /* CPPUTILS */
 

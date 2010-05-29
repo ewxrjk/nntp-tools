@@ -32,7 +32,6 @@
 #include <cerrno>
 
 #include "utils.h"
-#include "timezones.h"
 #include "cpputils.h"
 #include "Article.h"
 #include "Bucket.h"

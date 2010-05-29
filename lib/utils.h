@@ -20,6 +20,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <config.h>
+
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/types.h>

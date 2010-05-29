@@ -18,7 +18,7 @@
  * USA
  */
 #include <config.h>
-#include "timezones.h"
+#include "cpputils.h"
 
 using namespace std;
 

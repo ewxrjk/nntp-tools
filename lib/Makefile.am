@@ -20,5 +20,6 @@
 noinst_LIBRARIES=libmisc.a libmiscpp.a
 libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
 nntp.h utils.h
-libmiscpp_a_SOURCES=cpputils.h split.cc Bytes.cc timezones.h	\
-timezones.cc Bytes.cc HTML.h Escape.cc Quote.cc Header.cc 
+libmiscpp_a_SOURCES=cpputils.h split.cc Bytes.cc timezones.h		\
+timezones.cc Bytes.cc HTML.h Escape.cc Quote.cc Header.cc case.cc	\
+parse_date.cc
