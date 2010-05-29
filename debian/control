@@ -8,8 +8,6 @@ Homepage: http://www.greenend.org.uk/rjk/2006/newstools.html
 
 Package: rjk-nntp-tools
 Architecture: any
-Section: news
-Priority: optional
 Depends: ${shlibs:Depends}
 Recommends: lynx,bzr
 Description: Miscellanous Usenet news tools
@@ -19,8 +17,6 @@ Description: Miscellanous Usenet news tools
 
 Package: rjk-spoolstats
 Architecture: any
-Section: news
-Priority: optional
 Depends: ${shlibs:Depends}
 Description: Usenet news spool analysis
  Creates an HTML report about the contents of the spool.
