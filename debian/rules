@@ -107,24 +107,28 @@ pkg-rjk-nntp-tools:
 pkg-rjk-spoolstats:
 	rm -rf debian/rjk-spoolstats
 	$(MKDIR) debian/rjk-spoolstats debian/rjk-spoolstats/DEBIAN \
-		 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats
+		 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats \
+		 debian/rjk-spoolstats/etc/cron.daily \
+		 debian/rjk-spoolstats/etc/default
 	$(INSTALL_DATA) debian/copyright \
 			debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/copyright
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog
 	gzip -9 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
-	@for f in preinst postinst prerm postrm conffiles templates config; do\
-	  if test -e debian/$$f.rjk-spoolstats; then\
-	    echo $(INSTALL_SCRIPT) debian/$$f.rjk-spoolstats debian/rjk-spoolstats/DEBIAN/$$f; \
-	    $(INSTALL_SCRIPT) debian/$$f.rjk-spoolstats debian/rjk-spoolstats/DEBIAN/$$f; \
-	  fi;\
-	done
+	$(INSTALL_DATA) debian/conffiles.rjk-spoolstats \
+		debian/rjk-spoolstats/DEBIAN/conffiles
 	$(MAKE) -C spoolstats DESTDIR=`pwd`/debian/rjk-spoolstats install
 	strip --remove-section=.comment debian/rjk-spoolstats/usr/bin/spoolstats
 	dpkg-shlibdeps -Tdebian/substvars.rjk-spoolstats \
 		debian/rjk-spoolstats/usr/bin/*
+	$(INSTALL_SCRIPT) spoolstats/spoolstats.cron \
+		debian/rjk-spoolstats/etc/cron.daily/spoolstats
+	$(INSTALL_DATA) spoolstats/spoolstats.default \
+		debian/rjk-spoolstats/etc/default/spoolstats
 	$(INSTALL_DATA) README debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
-	gzip -9f debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README \
+	$(INSTALL_DATA) debian/README.Debian.spoolstats \
+		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README.Debian
+	gzip -9f debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README* \
 		 debian/rjk-spoolstats/usr/share/man/man*/*
 	cd debian/rjk-spoolstats && \
 		find -name DEBIAN -prune -o -type f -print \

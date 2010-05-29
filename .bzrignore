@@ -33,3 +33,4 @@ config.aux/mkinstalldirs
 spoolstats/spoolstats
 rjk-nntp-tools-*
 *.dsc
+debian/rjk-spoolstats

@@ -29,7 +29,8 @@ LDADD=../lib/libmiscpp.a ../lib/libmisc.a
 
 man_MANS=spoolstats.1
 
-EXTRA_DIST=$(man_MANS) sorttable.js spoolstats.css
+EXTRA_DIST=$(man_MANS) sorttable.js spoolstats.css spoolstats.cron	\
+spoolstats.default
 
 css.c: spoolstats.css
 	rm -f $@.new
