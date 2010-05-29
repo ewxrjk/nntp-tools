@@ -22,7 +22,8 @@ TAGS
 debian/newstools
 debian/rjk-nntp-tools
 newstools-*.tar.gz
-rjk-nntp-tools-*.tar.gz
+rjk-nntp-tools*.tar.gz
+rjk-nntp-tools_*.changes
 debian/files
 debian/substvars.*
 ./newstools-*
@@ -30,3 +31,5 @@ newstools_*
 config.aux/mkinstalldirs
 *.deb
 spoolstats/spoolstats
+rjk-nntp-tools-*
+*.dsc
