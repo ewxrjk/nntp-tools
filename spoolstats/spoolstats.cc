@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
   // Generate the logs & report
   all.logs();
   all.report();
-  // Auxilary files
+  // Auxiliary files
   extrafile("sorttable.js", sorttable);
   extrafile("spoolstats.css", css);
   return 0;
