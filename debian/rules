@@ -142,7 +142,7 @@ pkg-rjk-spoolstats:
 DEBVERSION:=$(shell dpkg-parsechangelog|awk '/Version:/ {print $$2}')
 DSC=rjk-nntp-tools_$(DEBVERSION).dsc
 DEBSRC=rjk-nntp-tools_$(DEBVERSION).tar.gz
-VERSION=$(shell $(MAKE) echo-version)
+VERSION=$(shell unset MAKELEVEL;make echo-version)
 
 source:
 	$(MAKE) dist
@@ -153,8 +153,16 @@ source:
 
 source-check: source
 	rm -rf rjk-nntp-tools-$(DEBVERSION)
-	dpkg-source -x $(DSC)
-	cd rjk-nntp-tools-$(DEBVERSION) && dpkg-buildpackage -r$(FAKEROOT)
+	unset CFLAGS CXXFLAGS;dpkg-source -x $(DSC)
+	cd rjk-nntp-tools-$(DEBVERSION) && dpkg-buildpackage -r$(FAKEROOT) -uc -us
+
+source-check-lintian:
+	rm -f *.deb
+	rm -f *.tar.gz
+	rm -f *.dsc
+	rm -f *.changes
+	debian/rules source-check
+	lintian -i -I -E --pedantic *.deb *.dsc
 
 binary: binary-arch binary-indep
 binary-arch: pkg-rjk-nntp-tools pkg-rjk-spoolstats
