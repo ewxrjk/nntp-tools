@@ -4,16 +4,24 @@
 #include <config.h>
 
 #include <set>
+#include <map>
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <cstring>
+#include <cerrno>
 
 #include "utils.h"
-#include "Group.h"
-#include "Article.h"
 #include "timezones.h"
 #include "cpputils.h"
+#include "Article.h"
+#include "Bucket.h"
+#include "AllGroups.h"
+#include "Hierarchy.h"
+#include "Group.h"
+#include "Config.h"
+#include "HTML.h"
 
 #endif /* SPOOLSTATS_H */
 

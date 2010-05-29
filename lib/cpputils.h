@@ -4,24 +4,21 @@
 #include <vector>
 #include <string>
 #include <ostream>
+#include <stdint.h>
 
 void split(std::vector<std::string> &bits,
            char sep,
            const std::string &s);
 
-std::ostream &html_quote(std::ostream &str, const std::string &s);
+class Bytes {
+public:
+  inline Bytes(intmax_t n): bytes(n) {}
+  intmax_t bytes;
+  static std::ostream &write(std::ostream &os, intmax_t bytes);
+};
 
-template<typename T>
-std::ostream &format_bytes(std::ostream &str, T n) {
-  if(n < 2048)
-    str << n;
-  else if(n < 2048 * 1024)
-    str << n / 1024 << "K";
-  else if(n < 2048LL * 1024 * 1024)
-    str << n / (1024 * 1024) << "M";
-  else
-    str << n / (1024 * 1024 * 1024) << "G";
-  return str;
+inline std::ostream &operator<<(std::ostream &os, const Bytes &b) {
+  return b.write(os, b.bytes);
 }
 
 #endif /* CPPUTILS */

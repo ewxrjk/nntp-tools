@@ -2,25 +2,9 @@
 
 using namespace std;
 
-Article::Article(const string &text, size_t bytes_): cached_date(-1),
-                                                     bytes(bytes_) {
+Article::Article(const string &text, size_t bytes_): bytes(bytes_),
+                                                     cached_date(-1) {
   parse(text);
-}
-
-int Article::visit(const string &text,
-                   size_t bytes_,
-                   time_t start_time,
-                   time_t end_time) {
-  Article *a = new Article(text, bytes_);
-  if(seen.find(a->mid()) == seen.end()
-     && a->date() >= start_time
-     && a->date() < end_time) {
-    seen[a->mid()] = true;
-    if(Group::article(a))
-      return 1;
-  }
-  delete a;
-  return 0;
 }
 
 void Article::get_groups(vector<string> &groups) const {
@@ -259,9 +243,6 @@ bool Article::parse_int(const string &s, string::size_type &pos, int &n) {
   }
   return good;
 }
-
-//map<string,Article *> Article::articles;
-map<string,bool> Article::seen;
 
 /*
 Local Variables:

@@ -19,23 +19,6 @@ void split(vector<string> &bits,
   }
 }
 
-ostream &html_quote(ostream &str, const string &s) {
-  for(string::size_type pos = 0; pos < s.size(); ++pos) {
-    const unsigned char c = s[pos];
-    switch(c) {
-    default:
-      if(c >= 32 && c <= 126)
-        str << c;
-      else {
-      case '<':
-      case '&':
-        str << '<' << (int)c << ';';
-      }
-    }
-  }
-  return str;
-}
-
 /*
 Local Variables:
 mode:c++

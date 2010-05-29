@@ -1,29 +1,20 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#include <map>
-#include <string>
-#include <list>
-
 class Article;
 
-class Group {
+class Group: public Bucket {
 public:
-  static std::map<std::string,Group *> groups;
-
-  std::string name;
-  int articles;                 // count of articles
-  long long bytes;              // count of bytes
-
+  std::string name;                     // name of group
   std::map<std::string,int> senders;    // sender -> article count
 
   Group(const std::string &name_);
-  static int article(const Article *a);
-  void report(int days, std::ostream &os);
 
-  static bool group_matches(const std::string &groupname);
+  // Visit one article
+  void visit(const Article *a);
 
-  static std::set<std::string> hierarchies;
+  // Generate table line
+  void summary(std::ostream &os);
 };
 
 

@@ -20,11 +20,12 @@
 bin_PROGRAMS=spoolstats
 
 spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
-Group.h Group.cc
+Group.h Group.cc Bucket.h Bucket.cc AllGroups.h AllGroups.cc		\
+Hierarchy.h Hierarchy.cc Config.cc
 
 CPPFLAGS=-I${top_srcdir}/lib
-LDADD=../lib/libmisc.a
+LDADD=../lib/libmiscpp.a ../lib/libmisc.a
 
 man_MANS=spoolstats.1
 
-EXTRA_DIST=$(man_MANS) sorttable.js
+EXTRA_DIST=$(man_MANS)

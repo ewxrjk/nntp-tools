@@ -2,62 +2,37 @@
 
 using namespace std;
 
-Group::Group(const string &name_): name(name_),
-                                   articles(0),
-                                   bytes(0) {
+Group::Group(const string &name_): name(name_) {
 }
 
-int Group::article(const Article *a) {
-  int r = 0;
-  vector<string> groupnames;
-  a->get_groups(groupnames);
-  for(vector<string>::const_iterator it = groupnames.begin();
-      it != groupnames.end();
-      ++it) {
-    const string &groupname = *it;
-    if(group_matches(groupname)) {
-      if(groups.find(groupname) == groups.end())
-        groups[groupname] = new Group(groupname);
-      Group *g = groups[groupname];
-      g->articles += 1;
-      g->bytes += a->get_size();
-      const string &sender = a->sender();
-      if(g->senders.find(sender) == g->senders.end())
-        g->senders[sender] = 1;
-      else
-        ++g->senders[sender];
-      r = 1;
-    }
-  }
-  return r;
+// Visit one article
+void Group::visit(const Article *a) {
+  Bucket::visit(a);
+  const string &sender = a->sender();
+  map<string,int>::iterator it = senders.find(sender);
+  if(it == senders.end())
+    senders[sender] = 1;
+  else
+    ++it->second;
 }
 
-bool Group::group_matches(const string &groupname) {
-  string::size_type n = groupname.find('.');
-  if(n == string::npos)
-    return false;
-  return hierarchies.find(string(groupname, 0, n)) != hierarchies.end();
-}
-
-void Group::report(int days, ostream &os) {
-  const long bytes_per_day = bytes / days;
-  const double arts_per_day = (double)articles / days;
+// Generate table line
+void Group::summary(ostream &os) {
+  const intmax_t bytes_per_day = bytes / Config::days;
+  const double arts_per_day = (double)articles / Config::days;
+  const long posters = senders.size();
   os << "<tr>\n";
-  os << "<td>";
-  html_quote(os, name) << "</td>\n";
-  os << "<td sorttable_customkey=\"-" 
-       << fixed << arts_per_day << "\">" 
-       << fixed << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
-       << fixed << setprecision(6)
-       << "</td>\n";
-  os << "<td sorttable_customkey=\"-" << bytes_per_day << "\">";
-  format_bytes(os, bytes_per_day) << "</td>\n";
-  os << "<td sorttable_customkey=\"-" << senders.size() << "\">" << senders.size() << "</td>\n";
-  os << "</tr>\n";
+  os << "<td>" << HTML::Escape(name) << "</td>\n";
+  os << "<td sorttable_customkey=-" << fixed << arts_per_day << ">"
+     << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
+     << setprecision(6)
+     << "</td>\n";
+  os << "<td sorttable_customkey=-" << bytes_per_day << ">"
+     << Bytes(bytes_per_day) 
+     << "</td>\n";
+  os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
+  // TODO can we find a better stream state restoration idiom?
 }
-
-map<string,Group *> Group::groups;
-set<string> Group::hierarchies;
 
 /*
 Local Variables:
