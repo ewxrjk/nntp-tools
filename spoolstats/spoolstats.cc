@@ -22,9 +22,13 @@
 using namespace std;
 
 static void extrafile(const char *name, const char *contents) {
-  ofstream os((Config::output + "/" + name).c_str());
-  os.exceptions(ofstream::badbit|ofstream::failbit);
-  os << contents << flush;
+  try {
+    ofstream os((Config::output + "/" + name).c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os << contents << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", name);
+  }
 }
 
 int main(int argc, char **argv) {

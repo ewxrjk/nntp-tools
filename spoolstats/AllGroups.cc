@@ -166,94 +166,102 @@ void AllGroups::report() {
 
 void AllGroups::report_hierarchies() {
   // TODO lots of scope to de-dupe with Hierarchy::page() here
-  ofstream os((Config::output + "/index.html").c_str());
-  os.exceptions(ofstream::badbit|ofstream::failbit);
+  try {
+    ofstream os((Config::output + "/index.html").c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
 
-  os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
+    os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
 
-  os << "<table class=sortable>\n";
+    os << "<table class=sortable>\n";
 
-  os << "<thead>\n";
-  os << "<tr>\n";
-  os << "<th>Hierarchy</th>\n";
-  os << "<th>Articles/day</th>\n";
-  os << "<th>Bytes/day</th>\n";
-  os << "<th>Posters</td>\n";
-  os << "</tr>\n";
-  os << "</thead>\n";
+    os << "<thead>\n";
+    os << "<tr>\n";
+    os << "<th>Hierarchy</th>\n";
+    os << "<th>Articles/day</th>\n";
+    os << "<th>Bytes/day</th>\n";
+    os << "<th>Posters</td>\n";
+    os << "</tr>\n";
+    os << "</thead>\n";
 
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
-    Hierarchy *const h = it->second;
-    h->summary(os);
+    for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+        it != Config::hierarchies.end();
+        ++it) {
+      Hierarchy *const h = it->second;
+      h->summary(os);
+    }
+
+    const intmax_t total_bytes_per_day = bytes / Config::days;
+    const double total_arts_per_day = (double)articles / Config::days;
+
+    os << "<tfoot>\n";
+    os << "<tr>\n";
+    os << "<td><a href=" << HTML::Quote("allgroups.html") << ">"
+       << "All groups</a></td>\n";
+    os << "<td>"
+       << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
+       << setprecision(6)
+       << "</td>\n";
+    os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
+    os << "</tr>\n";
+    os << "</tfoot>\n";
+    os << "</table>\n";
+    Config::footer(os);
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/index.html").c_str());
   }
-
-  const intmax_t total_bytes_per_day = bytes / Config::days;
-  const double total_arts_per_day = (double)articles / Config::days;
-
-  os << "<tfoot>\n";
-  os << "<tr>\n";
-  os << "<td><a href=" << HTML::Quote("allgroups.html") << ">"
-     << "All groups</a></td>\n";
-  os << "<td>"
-     << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
-     << setprecision(6)
-     << "</td>\n";
-  os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
-  os << "</tr>\n";
-  os << "</tfoot>\n";
-  os << "</table>\n";
-  Config::footer(os);
-  os << flush;
 }
 
 void AllGroups::report_groups() {
-  ofstream os((Config::output + "/allgroups.html").c_str());
-  os.exceptions(ofstream::badbit|ofstream::failbit);
+  try {
+    ofstream os((Config::output + "/allgroups.html").c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
 
-  os << HTML::Header("All groups", "spoolstats.css", "sorttable.js");
+    os << HTML::Header("All groups", "spoolstats.css", "sorttable.js");
 
-  os << "<table class=sortable>\n";
+    os << "<table class=sortable>\n";
 
-  os << "<thead>\n";
-  os << "<tr>\n";
-  os << "<th>Group</th>\n";
-  os << "<th>Articles/day</th>\n";
-  os << "<th>Bytes/day</th>\n";
-  os << "<th>Posters</td>\n";
-  os << "</tr>\n";
-  os << "</thead>\n";
+    os << "<thead>\n";
+    os << "<tr>\n";
+    os << "<th>Group</th>\n";
+    os << "<th>Articles/day</th>\n";
+    os << "<th>Bytes/day</th>\n";
+    os << "<th>Posters</td>\n";
+    os << "</tr>\n";
+    os << "</thead>\n";
 
-  for(map<string,Hierarchy *>::const_iterator jt = Config::hierarchies.begin();
-      jt != Config::hierarchies.end();
-      ++jt) {
-    Hierarchy *const h = jt->second;
-    for(map<string,Group *>::const_iterator it = h->groups.begin();
-        it != h->groups.end();
-        ++it) {
-      Group *g = it->second;              // Summary line
-      g->summary(os);
+    for(map<string,Hierarchy *>::const_iterator jt = Config::hierarchies.begin();
+        jt != Config::hierarchies.end();
+        ++jt) {
+      Hierarchy *const h = jt->second;
+      for(map<string,Group *>::const_iterator it = h->groups.begin();
+          it != h->groups.end();
+          ++it) {
+        Group *g = it->second;              // Summary line
+        g->summary(os);
+      }
     }
+
+    const intmax_t total_bytes_per_day = bytes / Config::days;
+    const double total_arts_per_day = (double)articles / Config::days;
+
+    os << "<tfoot>\n";
+    os << "<tr>\n";
+    os << "<td>Total</td>\n";
+    os << "<td>"
+       << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
+       << setprecision(6)
+       << "</td>\n";
+    os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
+    os << "<td></td>\n";                  // TODO?
+    os << "</tr>\n";
+    os << "</tfoot>\n";
+    os << "</table>\n";
+    Config::footer(os);
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/allgroups.html").c_str());
   }
-
-  const intmax_t total_bytes_per_day = bytes / Config::days;
-  const double total_arts_per_day = (double)articles / Config::days;
-
-  os << "<tfoot>\n";
-  os << "<tr>\n";
-  os << "<td>Total</td>\n";
-  os << "<td>"
-     << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
-     << setprecision(6)
-     << "</td>\n";
-  os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
-  os << "<td></td>\n";                  // TODO?
-  os << "</tr>\n";
-  os << "</tfoot>\n";
-  os << "</table>\n";
-  Config::footer(os);
-  os << flush;
 }
 
 void AllGroups::logs() {

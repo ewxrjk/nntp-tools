@@ -133,7 +133,7 @@ void Config::hierarchy(const string &h) {
 }
 
 void Config::footer(ostream &os) {
-  os << "<p><a href=" << HTML::Quote("index.html") << ">Hierarchies</a>"
+  os << "<p><a href=" << HTML::Quote(".") << ">Hierarchies</a>"
      << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
      << "</p>\n";
   os << "<p class=credits><a href="
