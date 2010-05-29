@@ -3,10 +3,9 @@
 
 class Article;
 
-class Group: public Bucket {
+class Group: public SenderCountingBucket {
 public:
   std::string name;                     // name of group
-  std::map<std::string,int> senders;    // sender -> article count
 
   Group(const std::string &name_);
 

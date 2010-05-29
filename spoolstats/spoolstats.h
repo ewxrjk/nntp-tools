@@ -17,6 +17,7 @@
 #include "cpputils.h"
 #include "Article.h"
 #include "Bucket.h"
+#include "SenderCountingBucket.h"
 #include "AllGroups.h"
 #include "Hierarchy.h"
 #include "Group.h"

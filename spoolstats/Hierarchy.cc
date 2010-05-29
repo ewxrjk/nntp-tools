@@ -22,12 +22,13 @@ Group *Hierarchy::group(const string &groupname) {
 }
 
 void Hierarchy::visit(const Article *a) {
-  Bucket::visit(a);
+  SenderCountingBucket::visit(a);
 }
 
 void Hierarchy::summary(ostream &os) {
   const intmax_t bytes_per_day = bytes / Config::days;
   const double arts_per_day = (double)articles / Config::days;
+  const long posters = senders.size();
   os << "<tr>\n";
   os << "<td><a href=" << HTML::Quote(name + ".html") << ">"
      << HTML::Escape(name) << ".*</a></td>\n";
@@ -38,6 +39,7 @@ void Hierarchy::summary(ostream &os) {
   os << "<td sorttable_customkey=-" << bytes_per_day << ">"
      << Bytes(bytes_per_day) 
      << "</td>\n";
+  os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   os << "</tr>\n";
   // TODO can we find a better stream state restoration idiom?
 }
@@ -68,6 +70,7 @@ void Hierarchy::page() {
 
   const intmax_t total_bytes_per_day = bytes / Config::days;
   const double total_arts_per_day = (double)articles / Config::days;
+  const long total_posters = senders.size();
 
   os << "<tfoot>\n";
   os << "<tr>\n";
@@ -77,7 +80,7 @@ void Hierarchy::page() {
      << setprecision(6)
      << "</td>\n";
   os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
-  os << "<td></td>\n";                  // TODO?
+  os << "<td>" << total_posters << "</td>\n";
   os << "</tr>\n";
   os << "</tfoot>\n";
   os << "</table>\n";

@@ -159,6 +159,7 @@ void AllGroups::report_hierarchies() {
   os << "<th>Hierarchy</th>\n";
   os << "<th>Articles/day</th>\n";
   os << "<th>Bytes/day</th>\n";
+  os << "<th>Posters</td>\n";
   os << "</tr>\n";
   os << "</thead>\n";
 

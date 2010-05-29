@@ -20,8 +20,9 @@
 bin_PROGRAMS=spoolstats
 
 spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
-Group.h Group.cc Bucket.h Bucket.cc AllGroups.h AllGroups.cc		\
-Hierarchy.h Hierarchy.cc Config.h Config.cc css.c sorttable.c
+Group.h Group.cc Bucket.h Bucket.cc SenderCountingBucket.h		\
+SenderCountingBucket.cc AllGroups.h AllGroups.cc Hierarchy.h		\
+Hierarchy.cc Config.h Config.cc css.c sorttable.c
 
 CPPFLAGS=-I${top_srcdir}/lib
 LDADD=../lib/libmiscpp.a ../lib/libmisc.a

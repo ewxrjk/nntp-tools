@@ -3,7 +3,7 @@
 
 class Group;
 
-class Hierarchy: public Bucket {
+class Hierarchy: public SenderCountingBucket {
 public:
   // Hierarchy name
   const std::string name;
