@@ -41,7 +41,7 @@ void Config::Options(int argc, char **argv) {
   static const struct option options[] = {
     { "debug", no_argument, 0, 'D' },
     { "spool", required_argument, 0, 'S' },
-    { "hierarchy", required_argument, 0, 'H' },
+    { "hierarchies", required_argument, 0, 'H' },
     { "big8", no_argument, 0, '8' },
     { "days", required_argument, 0, 'N' },
     { "latency", required_argument, 0, 'L' },
@@ -103,15 +103,15 @@ void Config::Options(int argc, char **argv) {
   spoolstats [OPTIONS]\n\
 \n\
 Options:\n\
-  -N, --days DAYS                 Number of days to analyse\n\
-  -L, --latency BEFORE, AFTER     Set latencies in seconds\n\
-  -S, --spool PATH                Path to spool\n\
-  -H, --hierarchy NAME[,NAME...]  Hierachies to analyse\n\
-  -8, --big8                      Analyse the Big 8\n\
-  -O, --output DIRECTORY          Output directory\n\
-  -Q, --quiet                     Quieter operation\n\
-  -h, --help                      Display usage message\n\
-  -V, --version                   Display version number\n");
+  -N, --days DAYS                   Number of days to analyse\n\
+  -L, --latency BEFORE, AFTER       Set latencies in seconds\n\
+  -S, --spool PATH                  Path to spool\n\
+  -H, --hierarchies NAME[,NAME...]  Hierachies to analyse\n\
+  -8, --big8                        Analyse the Big 8\n\
+  -O, --output DIRECTORY            Output directory\n\
+  -Q, --quiet                       Quieter operation\n\
+  -h, --help                        Display usage message\n\
+  -V, --version                     Display version number\n");
       exit(0);
     case 'V':
       printf("spoolstats from rjk-nntp-tools version " VERSION "\n");
