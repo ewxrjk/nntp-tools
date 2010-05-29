@@ -113,6 +113,15 @@ void Config::hierarchy(const string &h) {
     hierarchies[h] = new Hierarchy(h);
 }
 
+void Config::footer(ostream &os) {
+  os << "<p><a href=" << HTML::Quote("index.html") << ">Hierarchies</a>"
+     << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
+     << "</p>\n";
+  os << "<p class=credits><a href="
+     << HTML::Quote("http://www.greenend.org.uk/rjk/2006/newstools.html")
+     << ">spoolstats "VERSION"</a></p>\n";
+}
+
 map<string, Hierarchy *> Config::hierarchies;
 
 /*

@@ -84,9 +84,7 @@ void Hierarchy::page() {
   os << "</tr>\n";
   os << "</tfoot>\n";
   os << "</table>\n";
-  os << "<p><a href=" << HTML::Quote("index.html") << ">Hierarchies</a>"
-     << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
-     << "</p>\n";
+  Config::footer(os);
   os << flush;
 }
 

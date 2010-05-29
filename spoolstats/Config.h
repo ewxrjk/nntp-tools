@@ -18,6 +18,9 @@ struct Config {
   // Set of hierarchies to analyse
   static std::map<std::string, Hierarchy *> hierarchies;
 
+  // Generate standard footer
+  static void footer(std::ostream &os);
+
 private:
   // Add a hierarchy
   static void hierarchy(const std::string &h);

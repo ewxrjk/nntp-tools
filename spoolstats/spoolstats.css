@@ -44,3 +44,8 @@ th {
     background-color: black;
     color: white
 }
+
+p.credits {
+    font-size: 8pt;
+    text-align: right
+}
