@@ -28,7 +28,6 @@ static void extrafile(const char *name, const char *contents) {
 }
 
 int main(int argc, char **argv) {
-  init_timezones();
   Config::Options(argc, argv);
   // Scan everything
   AllGroups all;

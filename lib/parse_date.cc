@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <iostream>
 #include <cstring>
+#include "Timezones.h"
 
 using namespace std;
 
@@ -132,12 +133,12 @@ static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
         return false;
       }
       upper(zonename);
-      if(timezones.find(zonename) == timezones.end()) {
+      if(!Timezones::zones.exists(zonename)) {
         if(debug)
           cerr << "unknown zone '" << zonename << "'" << endl;
         return false;
       }
-      zone = timezones[zonename];
+      zone = Timezones::zones[zonename];
     }
   } else
     zone = 0;                 // assume UTC

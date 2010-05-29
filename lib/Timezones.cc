@@ -18,15 +18,13 @@
  * USA
  */
 #include <config.h>
-#include "cpputils.h"
+#include "Timezones.h"
 
 using namespace std;
 
 /* --- timezone names ------------------------------------------------------ */
 
-map<string,int> timezones;
-
-void init_timezones() {
+Timezones::Timezones() {
   // from http://www.timeanddate.com/library/abbreviations/timezones/
   timezones["A"] = 60 * 60; // Alpha Time Zone (Military)
   timezones["ACDT"] = +(10 * 60 + 30) * 60; // Australian Central Daylight Time (Australia)
@@ -119,6 +117,8 @@ void init_timezones() {
   timezones["Y"] = -12 * 60; // Yankee Time Zone (Military)
   timezones["Z"] = 0; // Zulu Time Zone (Military)
 }
+
+Timezones Timezones::zones;
 
 /*
 Local Variables:
