@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2008 Richard Kettlewell
+# Copyright (C) 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,6 @@
 # USA
 #
 
-ACLOCAL_AMFLAGS=-I aclocal
-
-SUBDIRS=lib gateways spoolstats debian
-
-echo-distdir:
-	@echo $(distdir)
-
-echo-version:
-	@echo $(VERSION)
+noinst_LIBRARIES=libmisc.a
+libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
+nntp.h utils.h cpputils.h cpputils.cc timezones.h timezones.cc

@@ -19,6 +19,8 @@
 
 #include <config.h>
 
+#if ! HAVE_OPEN_MEMSTREAM
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -84,6 +86,8 @@ FILE *open_memstream(char **ptr, size_t *sizeloc) {
                  0,                     /* seek */
                  0);                    /* close */
 }
+#endif
+
 #endif
 
 /*

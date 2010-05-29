@@ -19,6 +19,8 @@
 
 #include <config.h>
 
+#if ! HAVE_GETDELIM
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -55,6 +57,8 @@ ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
   }
   return -1;
 }
+
+#endif
 
 /*
 Local Variables:

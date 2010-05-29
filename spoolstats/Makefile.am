@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2008 Richard Kettlewell
+# Copyright (C) 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,14 @@
 # USA
 #
 
-ACLOCAL_AMFLAGS=-I aclocal
+bin_PROGRAMS=spoolstats
 
-SUBDIRS=lib gateways spoolstats debian
+spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
+Group.h Group.cc
 
-echo-distdir:
-	@echo $(distdir)
+CPPFLAGS=-I${top_srcdir}/lib
+LDADD=../lib/libmisc.a
 
-echo-version:
-	@echo $(VERSION)
+man_MANS=spoolstats.1
+
+EXTRA_DIST=$(man_MANS) sorttable.js

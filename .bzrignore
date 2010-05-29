@@ -11,13 +11,13 @@ config.h.in
 config.log
 config.status
 configure
-lj2news
+gateways/lj2news
 stamp-h1
-tla2news
+gateways/tla2news
 config.aux/depcomp
 config.aux/install-sh
 config.aux/missing
-bzr2news
+gateways/bzr2news
 TAGS
 debian/newstools
 debian/rjk-nntp-tools
@@ -29,4 +29,4 @@ debian/substvars.*
 newstools_*
 config.aux/mkinstalldirs
 *.deb
-spoolstats
+spoolstats/spoolstats

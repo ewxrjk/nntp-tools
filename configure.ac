@@ -21,13 +21,14 @@
 AC_INIT([rjk-nntp-tools], [0.11], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
 AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.11])
-AC_CONFIG_SRCDIR([lj2news.c])
+AC_CONFIG_SRCDIR([gateways/lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AC_SET_MAKE
+AC_PROG_RANLIB
 
 missing_libraries=""
 missing_headers=""
@@ -91,8 +92,7 @@ AC_TYPE_SIZE_T
 AC_C_INLINE
 
 # Checks for functions
-AC_CHECK_FUNCS([funopen])
-AC_REPLACE_FUNCS([open_memstream getline getdelim])
+AC_CHECK_FUNCS([funopen open_memstream getline getdelim])
 
 if test "x$GCC" = xyes; then
   # a reasonable default set of warnings
@@ -128,5 +128,9 @@ AH_BOTTOM([#ifdef __GNUC__
 # define attribute(x)
 #endif])
 
-AC_CONFIG_FILES([Makefile debian/Makefile])
+AC_CONFIG_FILES([Makefile
+                 debian/Makefile
+                 gateways/Makefile
+                 lib/Makefile
+                 spoolstats/Makefile])
 AC_OUTPUT

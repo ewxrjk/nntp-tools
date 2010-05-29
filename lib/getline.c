@@ -19,6 +19,8 @@
 
 #include <config.h>
 
+#if ! HAVE_GETLINE
+
 #include <stdio.h>
 
 #include "utils.h"
@@ -28,6 +30,8 @@
 ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
   return getdelim(lineptr, n, '\n', stream);
 }
+
+#endif
 
 /*
 Local Variables:
