@@ -9,8 +9,10 @@
 // Graph-drawing class
 class Graph {
 public:
-  // Define graph dimensions and X scale
+  // Define graph dimensions
   Graph(int width_, int height_);
+
+  // TODO more flexible interfaces, e.g. exposing the underlying Cairo objects.
 
   // Call the following in order:-
 

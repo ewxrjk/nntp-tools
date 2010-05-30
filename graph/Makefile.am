@@ -25,4 +25,4 @@ t_LDADD=libgraph.a
 t_LDFLAGS=${CAIROMM_LIBS}
 
 noinst_LIBRARIES=libgraph.a
-libgraph_a_SOURCES=Graph.cc Graph.h
+libgraph_a_SOURCES=Graph.cc Graph.h TimeGraph.cc TimeGraph.h

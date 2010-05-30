@@ -229,21 +229,21 @@ void Graph::draw_axes() {
     }
     context->set_source_rgb(variables[1].r, variables[1].g, variables[1].b);
     context->stroke();
-  }
-  for(map<double,string>::iterator it = variables[1].markers.begin();
-      it != variables[1].markers.end();
-      ++it) {
-    context->get_text_extents(it->second, te);
-    x = (width - bright) + mark_size - te.x_bearing + label_space;
-    y = yc(1, it->first) - te.height / 2 - te.y_bearing;
+    for(map<double,string>::iterator it = variables[1].markers.begin();
+        it != variables[1].markers.end();
+        ++it) {
+      context->get_text_extents(it->second, te);
+      x = (width - bright) + mark_size - te.x_bearing + label_space;
+      y = yc(1, it->first) - te.height / 2 - te.y_bearing;
+      context->move_to(x, y);
+      context->show_text(it->second);
+    }
+    context->get_text_extents(variables[1].name, te);
+    x = width - border - te.width - te.x_bearing;
+    y = btop + (height - btop - bbottom) / 2 - te.height / 2 - te.y_bearing;
     context->move_to(x, y);
-    context->show_text(it->second);
+    context->show_text(variables[1].name);
   }
-  context->get_text_extents(variables[1].name, te);
-  x = width - border - te.width - te.x_bearing;
-  y = btop + (height - btop - bbottom) / 2 - te.height / 2 - te.y_bearing;
-  context->move_to(x, y);
-  context->show_text(variables[1].name);
 
   // TODO do something sane with additional variables
 }

@@ -1,6 +1,6 @@
-#include "Graph.h"
+#include "TimeGraph.h"
 
-int main() {
+int main(int argc, char **argv) {
   Graph g(640, 480);
   g.define_title("Title");
   // X axis
@@ -46,5 +46,18 @@ int main() {
     if(y > 5) y = 5.0;
   }
   g.save("t.png");
+
+  if(argc >= 3) {
+    time_t s = atoi(argv[1]);
+    time_t e = atoi(argv[2]);
+    TimeGraph h(640, 480);
+    h.define_title("Title");
+    h.define_x("time", s, e);
+    h.define_y("Y", 0.0, 10.0);
+    h.axes();
+    for(time_t n = s; n <= e; ++n)
+      h.plot(0, n, 10.0 * (n - s) / (double)(e - s));
+    h.save("u.png");
+  }
   return 0;
 }
