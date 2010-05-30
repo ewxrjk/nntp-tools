@@ -17,8 +17,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef CONFIG__H
-#define CONFIG__H
+#ifndef CONF_H
+#define CONF_H
 
 struct Config {
   static bool terminal;
@@ -46,7 +46,7 @@ private:
 
 };
 
-#endif /* CONFIG__H */
+#endif /* CONF_H */
 
 /*
 Local Variables:

@@ -1,8 +1,8 @@
-rjk-nntp-tools (0.11.99) unstable; urgency=low
+rjk-nntp-tools (0.12) unstable; urgency=low
 
-  * Experimental version with spoolstats
+  * First release of rjk-spoolstats package.
 
- -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 29 May 2010 15:58:51 +0100
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 29 May 2010 17:10:51 +0100
 
 rjk-nntp-tools (0.11) unstable; urgency=low
 
