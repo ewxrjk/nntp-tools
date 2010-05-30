@@ -20,10 +20,11 @@
 
 set -e
 
-pkg=rjk-nntp-tools              # package name
+srcpkg=rjk-nntp-tools                    # source package name
+binpkgs="rjk-nntp-tools rjk-spoolstats"  # binary packages
 version=$(make echo-version)    # get version number
-source=${pkg}-${version}        # source directory
-archive=${pkg}-${version}.tar.gz # tarball
+source=${srcpkg}-${version}     # source directory
+archive=${srcpkg}-${version}.tar.gz # tarball
 
 # s COMMAND...
 #
@@ -50,21 +51,26 @@ r() {
 build() {
   local host=$1
   local arch=$2
-  local deb="${pkg}_${version}_${arch}.deb"
+  local debs
 
+  for b in $binpkgs; do
+    debs="$debs ${b}_${version}_${arch}.deb"
+  done
   echo
   echo "Build on $host for $arch"
   echo
   r $host "mkdir -p _builds"
-  r $host "cd _builds && rm -rf ${source} ${archive} ${deb}"
+  r $host "cd _builds && rm -rf ${source} ${archive} ${debs}"
   s scp ${archive} $host:_builds/.
   r $host "cd _builds && tar xfz ${archive}"
   r $host "cd _builds/${source} && debian/rules build"
   r $host "cd _builds/${source} && fakeroot debian/rules binary"
-  s scp $host:_builds/$deb .
-  products="$products $deb"
+  for deb in $debs; do
+    s scp $host:_builds/$deb .
+    products="$products $deb"
+  done
   echo
-  echo "Built $deb"
+  echo "Built $debs"
   echo
 }
 
@@ -74,7 +80,7 @@ products="$archive"
 
 # Build .deb files
 s build araminta amd64          # lenny
-s build erjin i386              # etch (works on lenny too)
+s build leucomorph i386         # lenny
 
 # List built products
 echo
