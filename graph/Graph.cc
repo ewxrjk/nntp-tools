@@ -70,12 +70,15 @@ void Graph::compute_bounds() {
   Cairo::TextExtents te;
   Cairo::FontExtents fe;
 
-  btop = border;
-
-  // X axis labels ------------------------------------------------------------
-
   context->get_font_extents(fe);
-  bbottom = fe.height + fe.descent + mark_size + border + label_space;
+
+  // Title --------------------------------------------------------------------
+
+  btop = border + fe.height + fe.descent + label_space;
+
+  // X axis labels ------------------------------------------------------------ 
+
+  bbottom = border + fe.descent + fe.height + label_space + fe.descent + fe.height + label_space + mark_size;
 
   // Left hand Y axis labels --------------------------------------------------
 
@@ -112,7 +115,14 @@ void Graph::draw_axes() {
   Cairo::FontExtents fe;
   double x, y;
 
-  // TODO title
+  // Title --------------------------------------------------------------------
+  context->set_source_rgb(0, 0, 0);
+  context->get_text_extents(title, te);
+  x = width / 2 - te.width / 2 - te.x_bearing;
+  y = border - te.y_bearing;
+  context->move_to(x, y);
+  context->show_text(title);
+  // TODO use a different font for the title
 
   // The X axis ---------------------------------------------------------------
   context->set_source_rgb(0, 0, 0);
@@ -139,7 +149,11 @@ void Graph::draw_axes() {
     context->move_to(x, y);
     context->show_text(it->second);
   }
-  // TODO name
+  context->get_text_extents(xname, te);
+  x = width / 2 - te.width / 2 - te.x_bearing;
+  y = height - border - fe.descent;
+  context->move_to(x, y);
+  context->show_text(xname);
 
   // Left hand Y axis ---------------------------------------------------------
 
