@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2008 Richard Kettlewell
+# Copyright (C) 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,14 +17,12 @@
 # USA
 #
 
-ACLOCAL_AMFLAGS=-I aclocal
+AM_CXXFLAGS=${CAIROMM_CFLAGS}
 
-SUBDIRS=lib gateways graph spoolstats debian
+noinst_PROGRAMS=t
+t_SOURCES=t.cc
+t_LDADD=libgraph.a
+t_LDFLAGS=${CAIROMM_LIBS}
 
-echo-distdir:
-	@echo $(distdir)
-
-echo-version:
-	@echo $(VERSION)
-
-EXTRA_DIST=COPYING.sorttable
+noinst_LIBRARIES=libgraph.a
+libgraph_a_SOURCES=Graph.cc Graph.h

@@ -69,6 +69,17 @@ AC_CHECK_LIB(pthread, pthread_create,
              [AC_SUBST(LIBPTHREAD,[-lpthread])],
             [missing_libraries="$missing_libraries libpthread"])
 LIBCURL_CHECK_CONFIG([yes],,,[missing_libraries="$missing_libraries libcurl"])
+AC_CACHE_CHECK([for Cairomm CFLAGS],[rjk_cv_cairomm_cflags],[
+  rjk_cv_cairomm_cflags=`pkg-config --cflags cairomm-1.0`
+])
+AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
+  rjk_cv_cairomm_libs=`pkg-config --libs cairomm-1.0`
+])
+if test "$rjk_cv_cairomm_libs" = ""; then
+  missing_libraries="$missing_libraries cairomm"
+fi
+AC_SUBST([CAIROMM_CFLAGS],[$rjk_cv_cairomm_cflags])
+AC_SUBST([CAIROMM_LIBS],[$rjk_cv_cairomm_libs])
 
 if test ! -z "$missing_libraries"; then
   AC_MSG_ERROR([missing libraries:$missing_libraries])
@@ -132,5 +143,6 @@ AC_CONFIG_FILES([Makefile
                  debian/Makefile
                  gateways/Makefile
                  lib/Makefile
+                 graph/Makefile
                  spoolstats/Makefile])
 AC_OUTPUT
