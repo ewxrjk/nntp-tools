@@ -20,12 +20,6 @@
 
 set -e
 
-srcpkg=rjk-nntp-tools                    # source package name
-binpkgs="rjk-nntp-tools rjk-spoolstats"  # binary packages
-version=$(make echo-version)    # get version number
-source=${srcpkg}-${version}     # source directory
-archive=${srcpkg}-${version}.tar.gz # tarball
-
 # s COMMAND...
 #
 # Echo a command then execute it.
@@ -76,6 +70,13 @@ build() {
 
 # Build the source archive
 s make distcheck
+
+srcpkg=rjk-nntp-tools                    # source package name
+binpkgs="rjk-nntp-tools rjk-spoolstats"  # binary packages
+version=$(make echo-version)    # get version number
+source=${srcpkg}-${version}     # source directory
+archive=${srcpkg}-${version}.tar.gz # tarball
+
 products="$archive"
 
 # Build .deb files
