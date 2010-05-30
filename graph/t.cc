@@ -3,7 +3,9 @@
 int main() {
   Graph g(640, 480,
           0.0, 100.0);
+  g.set_title("Title");
   // X labels
+  g.set_xname("X");
   g.label(0.0, "0");
   g.label(50.0, "50");
   g.label(100.0, "100");

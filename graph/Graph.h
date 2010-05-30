@@ -13,6 +13,9 @@ public:
   Graph(int width_, int height_,
         double start_, double end_);
 
+  void set_xname(const std::string &name);
+  void set_title(const std::string &title_);
+
   // Define a variable
   int variable(const std::string &name, double min, double max,
                double r = -1, double g = -1, double b = -1);
@@ -49,6 +52,9 @@ private:
   std::vector<Variable> variables;      // Y axes
   double mark_size;
   double border;
+  double label_space;
+  std::string xname;
+  std::string title;
 
   double bleft, bright, btop, bbottom;  // border sizes
 

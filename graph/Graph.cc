@@ -8,7 +8,7 @@ Graph::Graph(int width_, int height_,
   context(Cairo::Context::create(surface)),
   width(width_), height(height_),
   start(start_), end(end_),
-  mark_size(4.0), border(8.0),
+  mark_size(4.0), border(8.0), label_space(2.0),
   current_variable(-1) {
   // The background
   context->set_source_rgb(1.0, 1.0, 1.0);
@@ -16,6 +16,14 @@ Graph::Graph(int width_, int height_,
   // The default font
   context->select_font_face("serif", Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
   context->set_font_size(12.0);
+}
+
+void Graph::set_xname(const std::string &name) {
+  xname = name;
+}
+
+void Graph::set_title(const std::string &title_) {
+  title = title_;
 }
 
 int Graph::variable(const std::string &name, double min, double max,
@@ -67,7 +75,7 @@ void Graph::compute_bounds() {
   // X axis labels ------------------------------------------------------------
 
   context->get_font_extents(fe);
-  bbottom = fe.height + fe.descent + mark_size + border;
+  bbottom = fe.height + fe.descent + mark_size + border + label_space;
 
   // Left hand Y axis labels --------------------------------------------------
 
@@ -79,7 +87,8 @@ void Graph::compute_bounds() {
     if(te.width > max)
       max = te.width;
   }
-  bleft = max + mark_size + border;
+  context->get_text_extents(variables[0].name, te);
+  bleft = max + mark_size + border + label_space + te.width + label_space;
 
   // Right hand Y axis labels -------------------------------------------------
 
@@ -92,7 +101,8 @@ void Graph::compute_bounds() {
     if(te.width > max)
       max = te.width;
     }
-    bright = max + mark_size + border;
+    context->get_text_extents(variables[0].name, te);
+    bright = max + mark_size + border + label_space + te.width + label_space;
   } else
     bright = border;
 }
@@ -121,7 +131,7 @@ void Graph::draw_axes() {
       ++it) {
     context->get_text_extents(it->second, te);
     x = xc(it->first) - te.width / 2 - te.x_bearing;
-    y = (height - bbottom) + fe.height;
+    y = (height - bbottom) + fe.height + label_space;
     if(x < bleft)
       x = bleft;
     if(x + te.width > width - bright)
@@ -147,12 +157,16 @@ void Graph::draw_axes() {
       it != variables[0].labels.end();
       ++it) {
     context->get_text_extents(it->second, te);
-    x = bleft - mark_size - te.width - te.x_bearing;
+    x = bleft - mark_size - te.width - te.x_bearing - label_space;
     y = yc(0, it->first) - te.height / 2 - te.y_bearing;
     context->move_to(x, y);
     context->show_text(it->second);
   }
-  // TODO name
+  context->get_text_extents(variables[0].name, te);
+  x = border;
+  y = btop + (height - btop - bbottom) / 2 - te.height / 2 - te.y_bearing;
+  context->move_to(x, y);
+  context->show_text(variables[0].name);
 
   // Right-hand Y axis --------------------------------------------------------
 
@@ -173,12 +187,16 @@ void Graph::draw_axes() {
       it != variables[1].labels.end();
       ++it) {
     context->get_text_extents(it->second, te);
-    x = (width - bright) + mark_size - te.x_bearing;
+    x = (width - bright) + mark_size - te.x_bearing + label_space;
     y = yc(1, it->first) - te.height / 2 - te.y_bearing;
     context->move_to(x, y);
     context->show_text(it->second);
   }
-  // TODO name
+  context->get_text_extents(variables[1].name, te);
+  x = width - border - te.width - te.x_bearing;
+  y = btop + (height - btop - bbottom) / 2 - te.height / 2 - te.y_bearing;
+  context->move_to(x, y);
+  context->show_text(variables[1].name);
 
   // TODO do something sane with additional variables
 }
