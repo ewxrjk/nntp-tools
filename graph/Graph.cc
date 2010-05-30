@@ -150,7 +150,7 @@ void Graph::draw_axes() {
     context->show_text(it->second);
   }
   context->get_text_extents(xname, te);
-  x = width / 2 - te.width / 2 - te.x_bearing;
+  x = bleft + (width - bleft - bright) / 2 - te.width / 2 - te.x_bearing;
   y = height - border - fe.descent;
   context->move_to(x, y);
   context->show_text(xname);
