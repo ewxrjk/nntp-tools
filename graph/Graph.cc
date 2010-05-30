@@ -57,6 +57,10 @@ void Graph::label(double x, const string &value) {
   labels[x] = value;
 }
 
+void Graph::range(double xmin, double xmax, const string &value) {
+  ranges[pair<double,double>(xmin, xmax)] = value;
+}
+
 void Graph::label(int v, double y, const string &value) {
   variables[v].labels[y] = value;
 }
@@ -76,7 +80,7 @@ void Graph::compute_bounds() {
 
   btop = border + fe.height + fe.descent + label_space;
 
-  // X axis labels ------------------------------------------------------------ 
+  // X axis labels ------------------------------------------------------------
 
   bbottom = border + fe.descent + fe.height + label_space + fe.descent + fe.height + label_space + mark_size;
 
@@ -125,16 +129,7 @@ void Graph::draw_axes() {
   // TODO use a different font for the title
 
   // The X axis ---------------------------------------------------------------
-  context->set_source_rgb(0, 0, 0);
-  context->move_to(bleft, height - bbottom);
-  context->line_to(width - bright, height - bbottom);
-  for(map<double,string>::iterator it = labels.begin();
-      it != labels.end();
-      ++it) {
-    context->move_to(xc(it->first), height - bbottom);
-    context->rel_line_to(0, mark_size);
-  }
-  context->stroke();
+  // Labels
   context->get_font_extents(fe);
   for(map<double,string>::iterator it = labels.begin();
       it != labels.end();
@@ -149,11 +144,49 @@ void Graph::draw_axes() {
     context->move_to(x, y);
     context->show_text(it->second);
   }
+  // Ranges
+  bool shaded = false;
+  for(map<pair<double,double>,string>::iterator it = ranges.begin();
+      it != ranges.end();
+      ++it) {
+    const double xmin = it->first.first;
+    const double xmax = it->first.second;
+    if(shaded) {
+      context->set_source_rgb(0.9, 0.9, 0.9);
+      context->rectangle(xc(xmin), btop,
+                         xc(xmax) - xc(xmin), height - bbottom - btop);
+      context->fill();
+    }
+    context->set_source_rgb(0.0, 0.0, 0.0);
+    context->get_text_extents(it->second, te);
+    x = xc((xmin + xmax) / 2) - te.width / 2 - te.x_bearing;
+    y = (height - bbottom) + fe.height + label_space;
+    if(x < bleft)
+      x = bleft;
+    if(x + te.width > width - bright)
+      x = width - bright - te.width;
+    context->move_to(x, y);
+    context->show_text(it->second);
+    shaded = !shaded;
+  }
+  // xname
+  context->set_source_rgb(0.0, 0.0, 0.0);
   context->get_text_extents(xname, te);
   x = bleft + (width - bleft - bright) / 2 - te.width / 2 - te.x_bearing;
   y = height - border - fe.descent;
   context->move_to(x, y);
   context->show_text(xname);
+  // Markers
+  context->set_source_rgb(0, 0, 0);
+  context->move_to(bleft, height - bbottom);
+  context->line_to(width - bright, height - bbottom);
+  for(map<double,string>::iterator it = labels.begin();
+      it != labels.end();
+      ++it) {
+    context->move_to(xc(it->first), height - bbottom);
+    context->rel_line_to(0, mark_size);
+  }
+  context->stroke();
 
   // Left hand Y axis ---------------------------------------------------------
 

@@ -23,6 +23,9 @@ public:
   // Add an X label
   void label(double x, const std::string &value);
 
+  // Add an X range label
+  void range(double xmin, double xmax, const std::string &value);
+
   // Add a Y label
   void label(int v, double y, const std::string &value);
 
@@ -59,6 +62,7 @@ private:
   double bleft, bright, btop, bbottom;  // border sizes
 
   std::map<double,std::string> labels;
+  std::map<std::pair<double,double>,std::string> ranges;
   int current_variable;
 
   inline double xc(double x) const {
