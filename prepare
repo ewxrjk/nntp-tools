@@ -33,7 +33,6 @@ esac
 srcdir=$(dirname $0)
 here=$(pwd)
 cd $srcdir
-rm -f COPYING
 if [ -d $HOME/usr/share/aclocal ]; then
   aclocal -I $HOME/usr/share/aclocal -I aclocal
 else

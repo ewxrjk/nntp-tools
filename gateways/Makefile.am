@@ -28,7 +28,7 @@ tla2news_LDADD=../lib/libmisc.a $(LIBGCRYPT) $(LIBPTHREAD)
 bzr2news_SOURCES=bzr2news.c
 bzr2news_LDADD=../lib/libmisc.a $(LIBGCRYPT) $(LIBPTHREAD)
 
-CPPFLAGS=-I${top_srcdir}/lib
+AM_CPPFLAGS=-I${top_srcdir}/lib
 
 man_MANS=lj2news.1 tla2news.1 bzr2news.1
 
