@@ -47,6 +47,8 @@ private:
   int width, height;                    // dimensions
   double start, end;                    // X axis range
   std::vector<Variable> variables;      // Y axes
+  double mark_size;
+  double border;
 
   double bleft, bright, btop, bbottom;  // border sizes
 
@@ -58,9 +60,13 @@ private:
   }
 
   inline double yc(int v, double y) const {
-    return bleft + (y - variables[v].min) * (height - btop - bbottom) /
+    return height - bbottom - (y - variables[v].min) * (height - btop - bbottom) /
       (variables[v].max - variables[v].min);
   }
+
+  void compute_bounds();
+  void draw_axes();
+
 };
 
 #endif /* GRAPH_H */
