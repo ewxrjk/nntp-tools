@@ -39,7 +39,7 @@
 #include "AllGroups.h"
 #include "Hierarchy.h"
 #include "Group.h"
-#include "Config.h"
+#include "Conf.h"
 #include "HTML.h"
 
 extern "C" const char sorttable[];
