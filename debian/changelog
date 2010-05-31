@@ -1,3 +1,9 @@
+rjk-nntp-tools (0.13) unstable; urgency=low
+
+  * Graph-drawing for spoolstats.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Mon, 31 May 2010 17:51:55 +0100
+
 rjk-nntp-tools (0.12.1) unstable; urgency=low
 
   * Build fixes.  No functional change.

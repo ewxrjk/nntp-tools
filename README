@@ -1,7 +1,7 @@
 rjk-nntp-tools
 ==============
 
-This package contains tools do with Usenet news.  It depends on
+This package contains tools do with Usenet news.  It depends on cairo,
 libpthread, libcurl, libexpat and libgcrypt.  It runs on Linux but
 should not be too hard to get going on other UNIX platforms.
 
