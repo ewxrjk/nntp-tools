@@ -104,6 +104,9 @@ void Hierarchy::page() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "<p><a href=" << HTML::Quote(name + ".png") << ">"
+       << "<img class=graph src=" << HTML::Quote(name + ".png") << ">"
+       << "</a></p>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -129,6 +132,9 @@ void Hierarchy::logs() {
 }
 
 void Hierarchy::graphs() {
+  graph(name + ".*",
+        Config::output + "/" + name + ".csv", 
+        Config::output + "/" + name + ".png");
 }
 
 /*

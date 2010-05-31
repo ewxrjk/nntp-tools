@@ -54,6 +54,7 @@ public:
 };
 
 void read_csv(const std::string &path, std::list<std::vector<intmax_t> > &rows);
+std::string compact_kilo(double n);
 
 #endif /* CPPUTILS */
 
