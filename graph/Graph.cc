@@ -14,7 +14,7 @@ Graph::Graph(int width_, int height_):
   context->paint();
   // The default font
   context->select_font_face("serif", Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-  context->set_font_size(12.0);
+  context->set_font_size(11.0);
 }
 
 void Graph::define_x(const std::string &name, double start_, double end_) {

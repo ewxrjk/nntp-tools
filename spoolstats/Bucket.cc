@@ -51,8 +51,8 @@ void Bucket::graph(const string &title,
   double limarticlerate;
   for(limarticlerate = 10.0; limarticlerate < maxarticlerate; limarticlerate *= 10.0)
     ;
-  g.define_y("bytes/day", 0, limbyterate);
-  g.define_y("articles/day", 0, limarticlerate);
+  g.define_y("byte/d", 0, limbyterate);
+  g.define_y("arts/d", 0, limarticlerate);
   for(double y = 0.0; y <= limbyterate; y += limbyterate / 10.0)
     g.marker_y(0, y, compact_kilo(y));
   for(double y = 0.0; y <= limarticlerate; y += limarticlerate / 10.0)
