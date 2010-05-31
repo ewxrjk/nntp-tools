@@ -115,7 +115,7 @@ void Graph::compute_bounds() {
     if(te.width > max)
       max = te.width;
     }
-    context->get_text_extents(variables[0].name, te);
+    context->get_text_extents(variables[1].name, te);
     bright = max + mark_size + border + label_space + te.width + label_space;
   } else
     bright = border;
