@@ -24,7 +24,7 @@ void TimeGraph::define_x(const string &name, time_t start_, time_t end_) {
   } else if(day(start_) == day(end_)) {
     const long ds = day(start_), de = ds + 1;
     const time_t ts = daystart(ds), te = daystart(de);
-    Graph::define_x(name + display(ts, " (%x)"), ts, te);
+    Graph::define_x(name + display(ts, " (%F)"), ts, te);
     for(time_t t = ts; t < te; t = nexthour(t)) {
       range_x(t, nexthour(t), "");
       if(hour(t) % 32 % 3 == 0)
