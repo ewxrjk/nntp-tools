@@ -111,9 +111,9 @@ void Graph::compute_bounds() {
     for(map<double,string>::iterator it = variables[1].markers.begin();
         it != variables[1].markers.end();
         ++it) {
-    context->get_text_extents(it->second, te);
-    if(te.width > max)
-      max = te.width;
+      context->get_text_extents(it->second, te);
+      if(te.width > max)
+        max = te.width;
     }
     context->get_text_extents(variables[1].name, te);
     bright = max + mark_size + border + label_space + te.width + label_space;
