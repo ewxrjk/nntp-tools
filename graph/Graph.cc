@@ -225,7 +225,6 @@ void Graph::draw_axes() {
         ++it) {
       context->move_to(width - bright - 1, yc(1, it->first));
       context->rel_line_to(mark_size, 0.0);
-      // TODO text
     }
     context->set_source_rgb(variables[1].r, variables[1].g, variables[1].b);
     context->stroke();
