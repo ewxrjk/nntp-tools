@@ -36,6 +36,9 @@ public:
   // Generate logs
   void logs();
 
+  // Generate graphs
+  void graphs();
+
   // Generate a summary line for this hierarchy
   void summary(std::ostream &s);
 

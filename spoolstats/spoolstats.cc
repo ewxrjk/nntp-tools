@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   all.scan();
   // Generate the logs & report
   all.logs();
+  all.graphs();
   all.report();
   // Auxiliary files
   extrafile("sorttable.js", sorttable);

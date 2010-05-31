@@ -24,8 +24,10 @@ Group.h Group.cc Bucket.h Bucket.cc SenderCountingBucket.h		\
 SenderCountingBucket.cc AllGroups.h AllGroups.cc Hierarchy.h		\
 Hierarchy.cc Conf.h Conf.cc css.c sorttable.c
 
-AM_CPPFLAGS=-I${top_srcdir}/lib
-LDADD=../lib/libmiscpp.a ../lib/libmisc.a
+AM_CXXFLAGS=${CAIROMM_CFLAGS}
+AM_CPPFLAGS=-I${top_srcdir}/lib -I${top_srcdir}/graph
+LDADD=../lib/libmiscpp.a ../lib/libmisc.a ../graph/libgraph.a
+LIBS=${CAIROMM_LIBS}
 
 man_MANS=spoolstats.1
 

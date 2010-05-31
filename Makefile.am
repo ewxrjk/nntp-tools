@@ -19,7 +19,7 @@
 
 ACLOCAL_AMFLAGS=-I aclocal
 
-SUBDIRS=lib gateways spoolstats debian
+SUBDIRS=lib gateways graph spoolstats debian
 
 echo-distdir:
 	@echo $(distdir)

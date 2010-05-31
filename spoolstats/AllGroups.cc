@@ -172,6 +172,15 @@ void AllGroups::report_hierarchies() {
 
     os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
 
+    os << "<h2>History</h2>\n";
+    os << "<div>\n";
+    os << "<p class=graph><a href=" << HTML::Quote("all.png") << ">"
+       << "<img src=" << HTML::Quote("all.png") << ">"
+       << "</a></p>\n";
+    os << "</div>\n";
+
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -205,6 +214,7 @@ void AllGroups::report_hierarchies() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -219,6 +229,8 @@ void AllGroups::report_groups() {
 
     os << HTML::Header("All groups", "spoolstats.css", "sorttable.js");
 
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -257,6 +269,7 @@ void AllGroups::report_groups() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -271,13 +284,30 @@ void AllGroups::logs() {
     Hierarchy *const h = it->second;
     h->logs();
   }
-  ofstream os((Config::output + "/all.csv").c_str(), ios::app);
-  os << Config::end_time
-     << ',' << Config::days * 86400
-     << ',' << bytes
-     << ',' << articles
-     << '\n'
-     << flush;
+  try {
+    ofstream os((Config::output + "/all.csv").c_str(), ios::app);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os << Config::end_time
+       << ',' << Config::days * 86400
+       << ',' << bytes
+       << ',' << articles
+       << '\n'
+       << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
+  }
+}
+
+void AllGroups::graphs() {
+  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end();
+      ++it) {
+    Hierarchy *const h = it->second;
+    h->graphs();
+  }
+  graph("All groups",
+        Config::output + "/all.csv", 
+        Config::output + "/all.png");
 }
 
 /*

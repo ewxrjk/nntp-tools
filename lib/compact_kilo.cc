@@ -1,5 +1,5 @@
 /*
- * This file is part of spoolstats.
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,35 +17,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef BUCKET_H
-#define BUCKET_H
+#include "cpputils.h"
+#include <sstream>
 
-class Article;
+using namespace std;
 
-class Bucket {
-public:
-  int articles;                 // count of articles
-  intmax_t bytes;               // count of bytes
-
-  inline Bucket(): articles(0),
-                   bytes(0) {
-  }
-
-  virtual ~Bucket();
-
-  // Supply an article to this bucket
-  inline void visit(const Article *a) {
-    ++articles;
-    bytes += a->get_size();
-  }
-
-  void graph(const std::string &title,
-             const std::string &csv, 
-             const std::string &png);
-
-};
-
-#endif /* BUCKET_H */
+string compact_kilo(double n) {
+  stringstream ss;
+  if(n < 1000)
+    ss << n;
+  else if(n < 1E6)
+    ss << n / 1E3 << "K";
+  else if(n < 1E9)
+    ss << n / 1E6 << "M";
+  else if(n < 1E12)
+    ss << n / 1E9 << "G";
+  return ss.str();
+}
 
 /*
 Local Variables:

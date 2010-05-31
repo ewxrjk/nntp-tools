@@ -70,6 +70,15 @@ void Hierarchy::page() {
 
     os << HTML::Header(name + ".*", "spoolstats.css", "sorttable.js");
 
+    os << "<h2>History</h2>\n";
+    os << "<div>\n";
+    os << "<p class=graph><a href=" << HTML::Quote(name + ".png") << ">"
+       << "<img src=" << HTML::Quote(name + ".png") << ">"
+       << "</a></p>\n";
+    os << "</div>\n";
+
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -104,6 +113,7 @@ void Hierarchy::page() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -113,14 +123,25 @@ void Hierarchy::page() {
 }
 
 void Hierarchy::logs() {
-  ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
-  os << Config::end_time
-     << ',' << Config::days * 86400
-     << ',' << bytes
-     << ',' << articles
-     << ',' << senders.size()
-     << '\n'
-     << flush;
+  try {
+    ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os << Config::end_time
+       << ',' << Config::days * 86400
+       << ',' << bytes
+       << ',' << articles
+       << ',' << senders.size()
+       << '\n'
+       << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
+  }
+}
+
+void Hierarchy::graphs() {
+  graph(name + ".*",
+        Config::output + "/" + name + ".csv", 
+        Config::output + "/" + name + ".png");
 }
 
 /*
