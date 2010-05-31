@@ -1,6 +1,11 @@
 #include "TimeGraph.h"
+#include <cassert>
+#include <iostream>
 
-int main(int argc, char **argv) {
+using namespace std;
+
+static void generic() {
+  cerr << "generic" << endl;
   Graph g(640, 480);
   g.define_title("Title");
   // X axis
@@ -45,19 +50,48 @@ int main(int argc, char **argv) {
     if(y < 0) y = 0.0;
     if(y > 5) y = 5.0;
   }
-  g.save("t.png");
+  g.save("generic.png");
+}
 
-  if(argc >= 3) {
-    time_t s = atoi(argv[1]);
-    time_t e = atoi(argv[2]);
-    TimeGraph h(640, 480);
-    h.define_title("Title");
-    h.define_x("time", s, e);
-    h.define_y("Y", 0.0, 10.0);
-    h.axes();
-    for(time_t n = s; n <= e; ++n)
-      h.plot(0, n, 10.0 * (n - s) / (double)(e - s));
-    h.save("u.png");
-  }
+static void timegraph(time_t s, time_t e, const char *name) {
+  cerr << name << endl;
+  assert(s < e);
+  TimeGraph g(640, 480);
+  g.define_title(name);
+  g.define_x("time", s, e);
+  g.define_y("Y", 0.0, 10.0);
+  g.axes();
+  for(time_t n = s; n <= e; n += (e - s) / 480)
+    g.plot(0, n, 10.0 * (n - s) / (double)(e - s));
+  g.save(name);
+}
+
+static void hourly() {
+  timegraph(1275300270, 1275300270 + 2000, "hourly.png");
+}
+
+static void daily() {
+  timegraph(1275300270, 1275300270 + 7200, "daily.png");
+}
+
+static void monthly() {
+  timegraph(1274263523, 1275300270, "monthly.png");
+}
+
+static void yearly() {
+  timegraph(1274263523, 1280484346, "yearly.png");
+}
+
+static void huge() {
+  timegraph(1274263523, 1344420380, "huge.png");
+}
+
+int main() {
+  generic();
+  hourly();
+  daily();
+  monthly();
+  yearly();
+  huge();
   return 0;
 }

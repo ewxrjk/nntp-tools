@@ -1,75 +1,136 @@
 #include "TimeGraph.h"
-#include <sstream>
-#include <iomanip>
 
 using namespace std;
 
+TimeGraph::TimeGraph(int width_,
+		     int height_,
+		     decompose_time_type decompose_,
+		     compose_time_type compose_):
+  Graph(width_, height_),
+  decompose_fn(decompose_),
+  compose_fn(compose_) {
+}
+
 void TimeGraph::define_x(const string &name, time_t start_, time_t end_) {
   if(hour(start_) == hour(end_)) {
-    int h = hour(start_);
-    time_t t = h * 3600;
-    Graph::define_x(name, t, t + 3600);
-    for(int n = 0; n < 60; n += 10) {
-      stringstream s;
-      s << setw(2) << setfill('0') << h % 24 << ":" << setw(2) << n;
-      range_x(t + n * 60, t + (n + 10) * 60, "");
-      marker_x(t + n * 60, s.str());
+    const long hs = hour(start_), he = hs + 1;
+    const time_t ts = hourstart(hs), te = hourstart(he);
+    Graph::define_x(name + display(ts, " (%x)"), ts, te);
+    for(time_t t = ts; t < te; t += 600) {
+      range_x(t, t + 600, "");
+      marker_x(t, display(t, "%H:%M"));
     }
-    stringstream s;
-    s << setw(2) << setfill('0') << (h + 1) % 24 << ":" << setw(2) << 0;
-    marker_x(t + 60 * 60, s.str());
+    marker_x(te, display(te, "%H:%M"));
   } else if(day(start_) == day(end_)) {
-    int d = day(start_);
-    time_t t = d * 86400;
-    Graph::define_x(name, t, t + 86400);
-    for(int n = 0; n < 24; ++n) {
-      stringstream s;
-      if(n % 3 == 0)
-	s << n << ":00";
-      range_x(t + n * 3600, t + (n + 1) * 3600, "");
-      marker_x(t + n * 3600, s.str());
+    const long ds = day(start_), de = ds + 1;
+    const time_t ts = daystart(ds), te = daystart(de);
+    Graph::define_x(name + display(ts, " (%x)"), ts, te);
+    for(time_t t = ts; t < te; t = nexthour(t)) {
+      range_x(t, nexthour(t), "");
+      if(hour(t) % 32 % 3 == 0)
+	marker_x(t, display(t, "%H:%M"));
     }
-    marker_x(t + 24 * 3600, "0:00");
-  } else if(week(start_) == week(end_)) {
-    // TODO bizarre choice of start of week (due to time_t(0) being a Thursday)
-    static const char *const dayname[] =
-      { "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed" };
-    int w = week(start_);
-    time_t t = w * 86400 * 7;
-    Graph::define_x(name, t, t + 86400 * 7);
-    for(int n = 0; n < 7; ++n)
-      range_x(t + n * 86400, t + (n + 1) * 86400, dayname[n]);
+    marker_x(te, display(te, "%H:%M"));
   } else if(month(start_) == month(end_)) {
-    // TODO
+    const long ms = month(start_), me = ms + 1;
+    const time_t ts = monthstart(ms), te = monthstart(me);
+    Graph::define_x(name + display(ts, " (%b %Y)"), ts, te);
+    for(time_t t = ts; t < te; t = nextday(t))
+      range_x(t, nextday(t), display(t, "%d"));
   } else if(year(start_) == year(end_)) {
-    // TODO
+    const long ys = year(start_), ye = ys + 1;
+    const time_t ts = yearstart(ys), te = yearstart(ye);
+    Graph::define_x(name + display(ts, " (%Y)"), ts, te);
+    for(time_t t = ts; t < te; t = nextmonth(t))
+      range_x(t, nextmonth(t), display(t, "%b"));
   } else {
-    // TODO
+    const long ys = year(start_), ye = year(end_) + 1;
+    const time_t ts = yearstart(ys), te = yearstart(ye);
+    Graph::define_x(name, ts, te);
+    for(time_t t = ts; t < te; t = nextyear(t))
+      range_x(t, nextyear(t), display(t, "%Y"));
   }
 }
 
 long TimeGraph::hour(time_t t) {
-  return t / 3600;
+  struct tm dc;
+
+  decompose_fn(&t, &dc);
+  return dc.tm_hour + 32 * (dc.tm_mday - 1 + 32 * (dc.tm_mon + 16 * dc.tm_year));
+  // Good for ~100,000 years with a 32-bit long, or hundreds of trillions of
+  // years with 64 bits.
+}
+
+time_t TimeGraph::hourstart(long h) {
+  struct tm dc;
+  dc.tm_hour = h % 32; h /= 32;
+  dc.tm_mday = 1 + h % 32; h /= 32;
+  dc.tm_mon = h % 16; h /= 16;
+  dc.tm_year = h;
+  return compose(dc);
 }
 
 long TimeGraph::day(time_t t) {
-  return t / 86400;
+  struct tm dc;
+
+  decompose_fn(&t, &dc);
+  return dc.tm_mday - 1 + 32 * (dc.tm_mon + 16 * dc.tm_year);
 }
 
-long TimeGraph::week(time_t t) {
-  return t / (86400 * 7);
+time_t TimeGraph::daystart(long d) {
+  struct tm dc;
+  dc.tm_hour = 0;
+  dc.tm_mday = 1 + d % 32; d /= 32;
+  dc.tm_mon = d % 16; d /= 16;
+  dc.tm_year = d;
+  return compose(dc);
 }
 
 long TimeGraph::month(time_t t) {
-  struct tm r;
-  localtime_r(&t, &r);
-  return (r.tm_year + 1900) * 12 + r.tm_mon;
+  struct tm dc;
+
+  decompose_fn(&t, &dc);
+  return dc.tm_mon + 16 * dc.tm_year;
+}
+
+time_t TimeGraph::monthstart(long m) {
+  struct tm dc;
+  dc.tm_hour = 0;
+  dc.tm_mday = 1;
+  dc.tm_mon = m % 16; m /= 16;
+  dc.tm_year = m;
+  return compose(dc);
 }
 
 long TimeGraph::year(time_t t) {
-  struct tm r;
-  localtime_r(&t, &r);
-  return r.tm_year + 1900;
+  struct tm dc;
+
+  decompose_fn(&t, &dc);
+  return dc.tm_year;
+}
+
+time_t TimeGraph::yearstart(long y) {
+  struct tm dc;
+  dc.tm_hour = 0;
+  dc.tm_mday = 1;
+  dc.tm_mon = 0;
+  dc.tm_year = y;
+  return compose(dc);
+}
+
+time_t TimeGraph::compose(struct tm &dc) {
+  dc.tm_sec = 0;
+  dc.tm_min = 0;
+  dc.tm_isdst = -1;
+  return compose_fn(&dc);
+}
+
+string TimeGraph::display(time_t t, const char *format) {
+  struct tm dc;
+  char buffer[1024];
+  decompose_fn(&t, &dc);
+  strftime(buffer, sizeof buffer, format, &dc);
+  return buffer;
 }
 
 /*
