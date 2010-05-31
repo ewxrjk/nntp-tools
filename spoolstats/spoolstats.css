@@ -34,6 +34,10 @@ h2,h3,h4,h5,h6 {
     font-family: helvetica, arial, sans-serif
 }
 
+h2 + div {
+    margin-left: 1em
+}
+
 a {
     text-decoration: none
 }
@@ -69,6 +73,9 @@ p.credits {
     text-align: right
 }
 
-img.graph {
+p.graph {
+}
+
+p.graph img {
     border: 1px solid black
 }

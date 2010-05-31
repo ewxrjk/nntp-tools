@@ -172,10 +172,15 @@ void AllGroups::report_hierarchies() {
 
     os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
 
-    os << "<p><a href=" << HTML::Quote("all.png") << ">"
-       << "<img class=graph src=" << HTML::Quote("all.png") << ">"
+    os << "<h2>History</h2>\n";
+    os << "<div>\n";
+    os << "<p class=graph><a href=" << HTML::Quote("all.png") << ">"
+       << "<img src=" << HTML::Quote("all.png") << ">"
        << "</a></p>\n";
+    os << "</div>\n";
 
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -209,6 +214,7 @@ void AllGroups::report_hierarchies() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -223,6 +229,8 @@ void AllGroups::report_groups() {
 
     os << HTML::Header("All groups", "spoolstats.css", "sorttable.js");
 
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -261,6 +269,7 @@ void AllGroups::report_groups() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {

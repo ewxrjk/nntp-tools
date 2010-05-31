@@ -70,10 +70,15 @@ void Hierarchy::page() {
 
     os << HTML::Header(name + ".*", "spoolstats.css", "sorttable.js");
 
-    os << "<p><a href=" << HTML::Quote(name + ".png") << ">"
-       << "<img class=graph src=" << HTML::Quote(name + ".png") << ">"
+    os << "<h2>History</h2>\n";
+    os << "<div>\n";
+    os << "<p class=graph><a href=" << HTML::Quote(name + ".png") << ">"
+       << "<img src=" << HTML::Quote(name + ".png") << ">"
        << "</a></p>\n";
+    os << "</div>\n";
 
+    os << "<h2>Last " << Config::days << " days</h2>\n";
+    os << "<div>\n";
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -108,6 +113,7 @@ void Hierarchy::page() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "</div>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {

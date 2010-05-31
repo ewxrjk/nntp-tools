@@ -70,7 +70,10 @@ char css[] =
 "    text-align: right\n"
 "}\n"
 "\n"
-"img.graph {\n"
+"p.graph {\n"
+"}\n"
+"\n"
+"p.graph img {\n"
 "    border: 1px solid black\n"
 "}\n"
 ;
