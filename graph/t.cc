@@ -1,34 +1,43 @@
-#include "Graph.h"
+#include "TimeGraph.h"
+#include <cassert>
+#include <iostream>
 
-int main() {
-  Graph g(640, 480,
-          0.0, 100.0);
-  g.set_title("Title");
-  // X labels
-  g.set_xname("X");
-  g.label(0.0, "0");
-  g.label(50.0, "50");
-  g.label(100.0, "100");
+using namespace std;
+
+static void generic() {
+  cerr << "generic" << endl;
+  Graph g(640, 480);
+  g.define_title("Title");
+  // X axis
+  g.define_x("X", 0.0, 100.0);
+  g.marker_x(0.0, "0");
+  g.marker_x(50.0, "50");
+  g.marker_x(100.0, "100");
+  g.range_x(0.0, 25.0, "first");
+  g.range_x(25.0, 50.0, "second");
+  g.range_x(50.0, 75.0, "third");
+  g.range_x(75.0, 100.0, "fourth");
   // Y axes
-  g.variable("Y0", 0.0, 10.0);
-  g.label(0, 0.0, "0");
-  g.label(0, 1.0, "1");
-  g.label(0, 2.0, "2");
-  g.label(0, 3.0, "3");
-  g.label(0, 4.0, "4");
-  g.label(0, 5.0, "5");
-  g.label(0, 6.0, "6");
-  g.label(0, 7.0, "7");
-  g.label(0, 8.0, "8");
-  g.label(0, 9.0, "9");
-  g.label(0, 10.0, "10");
-  g.variable("Y1", 0, 5.0);
-  g.label(1, 0.0, "0");
-  g.label(1, 1.0, "1");
-  g.label(1, 2.0, "2");
-  g.label(1, 3.0, "3");
-  g.label(1, 4.0, "4");
-  g.label(1, 5.0, "5");
+  g.define_y("Y0", 0.0, 10.0);
+  g.marker_y(0, 0.0, "0");
+  g.marker_y(0, 1.0, "1");
+  g.marker_y(0, 2.0, "2");
+  g.marker_y(0, 3.0, "3");
+  g.marker_y(0, 4.0, "4");
+  g.marker_y(0, 5.0, "5");
+  g.marker_y(0, 6.0, "6");
+  g.marker_y(0, 7.0, "7");
+  g.marker_y(0, 8.0, "8");
+  g.marker_y(0, 9.0, "9");
+  g.marker_y(0, 10.0, "10");
+
+  g.define_y("Y1", 0, 5.0);
+  g.marker_y(1, 0.0, "0");
+  g.marker_y(1, 1.0, "1");
+  g.marker_y(1, 2.0, "2");
+  g.marker_y(1, 3.0, "3");
+  g.marker_y(1, 4.0, "4");
+  g.marker_y(1, 5.0, "5");
   g.axes();
 
   for(double n = 0.0; n <= 100.0; ++n)
@@ -41,6 +50,48 @@ int main() {
     if(y < 0) y = 0.0;
     if(y > 5) y = 5.0;
   }
-  g.save("t.png");
+  g.save("generic.png");
+}
+
+static void timegraph(time_t s, time_t e, const char *name) {
+  cerr << name << endl;
+  assert(s < e);
+  TimeGraph g(640, 480);
+  g.define_title(name);
+  g.define_x("time", s, e);
+  g.define_y("Y", 0.0, 10.0);
+  g.axes();
+  for(time_t n = s; n <= e; n += (e - s) / 480)
+    g.plot(0, n, 10.0 * (n - s) / (double)(e - s));
+  g.save(name);
+}
+
+static void hourly() {
+  timegraph(1275300270, 1275300270 + 2000, "hourly.png");
+}
+
+static void daily() {
+  timegraph(1275300270, 1275300270 + 7200, "daily.png");
+}
+
+static void monthly() {
+  timegraph(1274263523, 1275300270, "monthly.png");
+}
+
+static void yearly() {
+  timegraph(1274263523, 1280484346, "yearly.png");
+}
+
+static void huge() {
+  timegraph(1274263523, 1344420380, "huge.png");
+}
+
+int main() {
+  generic();
+  hourly();
+  daily();
+  monthly();
+  yearly();
+  huge();
   return 0;
 }

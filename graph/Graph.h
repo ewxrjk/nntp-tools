@@ -9,29 +9,40 @@
 // Graph-drawing class
 class Graph {
 public:
-  // Define graph dimensions and X scale
-  Graph(int width_, int height_,
-        double start_, double end_);
+  // Define graph dimensions
+  Graph(int width_, int height_);
 
-  void set_xname(const std::string &name);
-  void set_title(const std::string &title_);
+  // TODO more flexible interfaces, e.g. exposing the underlying Cairo objects.
 
-  // Define a variable
-  int variable(const std::string &name, double min, double max,
+  // Call the following in order:-
+
+  // Name the X axis.  Call exactly once.
+  void define_x(const std::string &name, double start_, double end_);
+
+  // Name the graph.  Call at most once.
+  void define_title(const std::string &title_);
+
+  // Define a Y axis.  Call once or twice.  The return value increases from 0
+  // (and is the 'v' parameter below).
+  int define_y(const std::string &name, double min, double max,
                double r = -1, double g = -1, double b = -1);
 
-  // Add an X label
-  void label(double x, const std::string &value);
+  // Add a marker to the X axis.  Call any number of times.
+  void marker_x(double x, const std::string &value);
 
-  // Add a Y label
-  void label(int v, double y, const std::string &value);
+  // Add a range to the X axis.  Call any number of times.  Ranges should not
+  // overlap.
+  void range_x(double xmin, double xmax, const std::string &value);
 
-  // Draw axes
-  //
-  // This should be after all calls to label() and before all calls to plot().
+  // Add a marker to the Y axis.  Call any number of times.
+  void marker_y(int v, double y, const std::string &value);
+
+  // Draw axes.  Call exactly once.
   void axes();
 
-  // Plot one sample
+  // Plot one sample.  Call any number of times.  If 'link' is true then a line
+  // will be drawn from the previous plot(), provided it was for the same Y
+  // axis (same 'v' value).
   void plot(int v, double x, double y, bool link = false);
 
   // Save as a PNG
@@ -41,7 +52,7 @@ private:
     std::string name;
     double min;
     double max;
-    std::map<double,std::string> labels;
+    std::map<double,std::string> markers;
     double r, g, b;
   };
 
@@ -58,7 +69,8 @@ private:
 
   double bleft, bright, btop, bbottom;  // border sizes
 
-  std::map<double,std::string> labels;
+  std::map<double,std::string> markers;
+  std::map<std::pair<double,double>,std::string> ranges;
   int current_variable;
 
   inline double xc(double x) const {
