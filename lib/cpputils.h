@@ -22,9 +22,11 @@
 
 #include <vector>
 #include <string>
-#include <ostream>
+#include <list>
+#include <iostream>
 #include <stdint.h>
 #include <ctime>
+#include <stdexcept>
 
 void split(std::vector<std::string> &bits,
            char sep,
@@ -44,6 +46,14 @@ inline std::ostream &operator<<(std::ostream &os, const Bytes &b) {
 time_t parse_date(const std::string &d);
 std::string &lower(std::string &s);
 std::string &upper(std::string &s);
+
+// Thrown by parse_csv()
+class BadCSV: public std::runtime_error {
+public:
+  inline BadCSV(): std::runtime_error("malformed CSV") { }
+};
+
+void read_csv(const std::string &path, std::list<std::vector<intmax_t> > &rows);
 
 #endif /* CPPUTILS */
 

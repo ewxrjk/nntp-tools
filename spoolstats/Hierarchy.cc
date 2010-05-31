@@ -113,14 +113,22 @@ void Hierarchy::page() {
 }
 
 void Hierarchy::logs() {
-  ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
-  os << Config::end_time
-     << ',' << Config::days * 86400
-     << ',' << bytes
-     << ',' << articles
-     << ',' << senders.size()
-     << '\n'
-     << flush;
+  try {
+    ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os << Config::end_time
+       << ',' << Config::days * 86400
+       << ',' << bytes
+       << ',' << articles
+       << ',' << senders.size()
+       << '\n'
+       << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
+  }
+}
+
+void Hierarchy::graphs() {
 }
 
 /*

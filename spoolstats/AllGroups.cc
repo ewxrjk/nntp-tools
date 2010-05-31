@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -205,6 +206,9 @@ void AllGroups::report_hierarchies() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
+    os << "<p><a href=" << HTML::Quote("all.png") << ">"
+       << "<img class=graph src=" << HTML::Quote("all.png") << ">"
+       << "</a></p>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
@@ -271,13 +275,90 @@ void AllGroups::logs() {
     Hierarchy *const h = it->second;
     h->logs();
   }
-  ofstream os((Config::output + "/all.csv").c_str(), ios::app);
-  os << Config::end_time
-     << ',' << Config::days * 86400
-     << ',' << bytes
-     << ',' << articles
-     << '\n'
-     << flush;
+  try {
+    ofstream os((Config::output + "/all.csv").c_str(), ios::app);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os << Config::end_time
+       << ',' << Config::days * 86400
+       << ',' << bytes
+       << ',' << articles
+       << '\n'
+       << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
+  }
+}
+
+static string display(double n) {
+  stringstream ss;
+  if(n < 1000)
+    ss << n;
+  else if(n < 1E6)
+    ss << n / 1E3 << "K";
+  else if(n < 1E9)
+    ss << n / 1E6 << "M";
+  else if(n < 1E12)
+    ss << n / 1E9 << "B";
+  return ss.str();
+}
+
+void AllGroups::graphs() {
+  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end();
+      ++it) {
+    Hierarchy *const h = it->second;
+    h->graphs();
+  }
+  list<vector<intmax_t> > rows;
+  read_csv(Config::output + "/all.csv", rows);
+  TimeGraph g(720, 480, gmtime_r, timegm);
+  g.define_x("Date", rows.front()[0], rows.back()[0]);
+  double maxbyterate = 0, maxarticlerate = 0;
+  for(list<vector<intmax_t> >::iterator it = rows.begin();
+      it != rows.end();
+      ++it) {
+    intmax_t seconds = (*it)[1];
+    intmax_t bytecount = (*it)[2];
+    intmax_t articlecount = (*it)[3];
+    double byterate = bytecount / (seconds / 86400);
+    double articlerate = articlecount / (seconds / 86400);
+    if(byterate > maxbyterate)
+      maxbyterate = byterate;
+    if(articlerate > maxarticlerate)
+      maxarticlerate = articlerate;
+  }
+  double limbyterate;
+  for(limbyterate = 10.0; limbyterate < maxbyterate; limbyterate *= 10.0)
+    ;
+  double limarticlerate;
+  for(limarticlerate = 10.0; limarticlerate < maxarticlerate; limarticlerate *= 10.0)
+    ;
+  g.define_y("bytes/day", 0, limbyterate);
+  g.define_y("articles/day", 0, limarticlerate);
+  for(double y = 0.0; y <= limbyterate; y += limbyterate / 10.0)
+    g.marker_y(0, y, display(y));
+  for(double y = 0.0; y <= limarticlerate; y += limarticlerate / 10.0)
+    g.marker_y(1, y, display(y));
+  g.axes();
+  for(list<vector<intmax_t> >::iterator it = rows.begin();
+      it != rows.end();
+      ++it) {
+    double x = (*it)[0];
+    intmax_t seconds = (*it)[1];
+    intmax_t bytecount = (*it)[2];
+    double byterate = bytecount / (seconds / 86400);
+    g.plot(0, x, byterate, true);
+  }
+  for(list<vector<intmax_t> >::iterator it = rows.begin();
+      it != rows.end();
+      ++it) {
+    double x = (*it)[0];
+    intmax_t seconds = (*it)[1];
+    intmax_t articlecount = (*it)[3];
+    double articlerate = articlecount / (seconds / 86400);
+    g.plot(1, x, articlerate, true);
+  }
+  g.save(Config::output + "/all.png");
 }
 
 /*

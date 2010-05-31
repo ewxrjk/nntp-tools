@@ -41,6 +41,7 @@
 #include "Group.h"
 #include "Conf.h"
 #include "HTML.h"
+#include "TimeGraph.h"
 
 extern "C" const char sorttable[];
 extern "C" const char css[];

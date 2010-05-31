@@ -35,6 +35,9 @@ public:
   void range_x(double xmin, double xmax, const std::string &value);
 
   // Add a marker to the Y axis.  Call any number of times.
+  void marker_y(int v, double y);
+
+  // Add a marker to the Y axis.  Call any number of times.
   void marker_y(int v, double y, const std::string &value);
 
   // Draw axes.  Call exactly once.

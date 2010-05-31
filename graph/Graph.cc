@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include <sstream>
 
 using namespace std;
 
@@ -59,6 +60,12 @@ void Graph::marker_x(double x, const string &value) {
 
 void Graph::range_x(double xmin, double xmax, const string &value) {
   ranges[pair<double,double>(xmin, xmax)] = value;
+}
+
+void Graph::marker_y(int v, double y) {
+  stringstream s;
+  s << y;
+  variables[v].markers[y] = s.str();
 }
 
 void Graph::marker_y(int v, double y, const string &value) {

@@ -68,3 +68,7 @@ p.credits {
     font-size: 8pt;
     text-align: right
 }
+
+img.graph {
+    border: 1px solid black
+}

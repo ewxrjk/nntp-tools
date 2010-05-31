@@ -35,6 +35,9 @@ public:
   // Generate logs
   void logs();
 
+  // Generate graphs
+  void graphs();
+
   // Generate all reports
   void report();
 

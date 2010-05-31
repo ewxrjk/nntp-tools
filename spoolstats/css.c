@@ -69,4 +69,8 @@ char css[] =
 "    font-size: 8pt;\n"
 "    text-align: right\n"
 "}\n"
+"\n"
+"img.graph {\n"
+"    border: 1px solid black\n"
+"}\n"
 ;
