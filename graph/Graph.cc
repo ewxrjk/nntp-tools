@@ -7,7 +7,7 @@ Graph::Graph(int width_, int height_):
   surface(Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width_, height_)),
   context(Cairo::Context::create(surface)),
   width(width_), height(height_),
-  mark_size(4.0), border(8.0), label_space(2.0),
+  mark_size(4.0), border(8.0), label_space(4.0),
   current_variable(-1) {
   // The background
   context->set_source_rgb(1.0, 1.0, 1.0);
@@ -217,7 +217,7 @@ void Graph::draw_axes() {
     context->show_text(it->second);
   }
   context->get_text_extents(variables[0].name, te);
-  x = border;
+  x = border - te.x_bearing;
   y = btop + (height - btop - bbottom) / 2 - te.height / 2 - te.y_bearing;
   context->move_to(x, y);
   context->show_text(variables[0].name);
