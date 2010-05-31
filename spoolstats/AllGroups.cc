@@ -172,6 +172,10 @@ void AllGroups::report_hierarchies() {
 
     os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
 
+    os << "<p><a href=" << HTML::Quote("all.png") << ">"
+       << "<img class=graph src=" << HTML::Quote("all.png") << ">"
+       << "</a></p>\n";
+
     os << "<table class=sortable>\n";
 
     os << "<thead>\n";
@@ -205,9 +209,6 @@ void AllGroups::report_hierarchies() {
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
-    os << "<p><a href=" << HTML::Quote("all.png") << ">"
-       << "<img class=graph src=" << HTML::Quote("all.png") << ">"
-       << "</a></p>\n";
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
