@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,9 +80,7 @@ static int pts_response(struct postthreadstate *pts) {
 
 /* check the startup banner */
 static void pts_banner(struct postthreadstate *pts) {
-  int r;
-
-  switch(r = pts_response(pts)) {
+  switch(pts_response(pts)) {
   case 200: break;
   case 201: fatal(0, "news server does not support posting: %s", pts->line);
   default: fatal(0, "unknown response from news server: %s", pts->line);
@@ -181,7 +179,7 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
   if(!sol) pts_write(pts, "\r\n");
   pts_write(pts, ".\r\n");
   if(fflush(pts->fpout) < 0) fatal(errno, "error writing to news server");
-  switch(r = pts_response(pts)) {
+  switch(pts_response(pts)) {
   case 240: break;
   case 441:
     /* 441 XYZ is an INN convention - or at least happenstance - but there
