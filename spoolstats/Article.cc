@@ -93,6 +93,19 @@ int Article::eoh(const string &text, string::size_type pos) {
   return 1;
 }
 
+const string &Article::useragent() const {
+  map<string, string>::const_iterator it;
+  static const string unknown = "unknown";
+
+  it = headers.find("user-agent");
+  if(it == headers.end())
+    it = headers.find("x-newsreader");
+  if(it == headers.end())
+    return unknown;
+  else
+    return it->second;
+}
+
 /*
 Local Variables:
 mode:c++

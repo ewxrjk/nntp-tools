@@ -32,6 +32,7 @@ AllGroups::~AllGroups() {
 // Visit one article
 void AllGroups::visit(const Article *a) {
   Bucket::visit(a);
+  ++useragents[a->useragent()];
 }
 
 // Scan the spool
@@ -156,6 +157,8 @@ int AllGroups::visit(const string &path) {
 void AllGroups::report() {
   report_hierarchies();
   report_groups();
+  report_agents();
+  report_agents_summarized();
   for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
       it != Config::hierarchies.end();
       ++it) {
@@ -306,8 +309,218 @@ void AllGroups::graphs() {
     h->graphs();
   }
   graph("All groups",
-        Config::output + "/all.csv", 
+        Config::output + "/all.csv",
         Config::output + "/all.png");
+}
+
+// Agent table sorting logic - would be more natural inside report_agents() but
+// the compiler won't have it
+typedef pair<string,long> agent;
+struct compare {
+  bool operator()(const agent &a, const agent &b) {
+    return a.second > b.second;
+  }
+};
+
+void AllGroups::report_agents() {
+  try {
+    ofstream os((Config::output + "/agents.html").c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+
+    os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
+
+    os << "<table class=sortable>\n";
+    os << "<thead>\n";
+    os << "<tr>\n";
+    os << "<th>User Agent</th>\n";
+    os << "<th>Articles</th>\n";
+    // TODO posters per UA would be interesting too
+    os << "</tr>\n";
+    os << "</thead>\n";
+
+    // Linearize
+    vector<agent> agents;
+    for(map<string,long>::const_iterator it = useragents.begin();
+        it != useragents.end();
+        ++it)
+      agents.push_back(*it);
+
+    // Sort by count
+    sort(agents.begin(), agents.end(), compare());
+
+    for(unsigned n = 0; n < agents.size(); ++n) {
+      const std::string &name = agents[n].first;
+      long &count = agents[n].second;
+      os << "<tr>\n";
+      os << "<td>" << HTML::Escape(name) << "</td>\n";
+      os << "<td>" << count << "</td>\n";
+      os << "</tr>\n";
+    }
+
+    os << "</table>\n";
+    Config::footer(os);
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/agents.html").c_str());
+  }
+}
+
+void AllGroups::report_agents_summarized() {
+  // TODO de-dupe with report_agents()
+  try {
+    ofstream os((Config::output + "/agents-summary.html").c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+
+    os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
+
+    os << "<table class=sortable>\n";
+    os << "<thead>\n";
+    os << "<tr>\n";
+    os << "<th>User Agent</th>\n";
+    os << "<th>Articles</th>\n";
+    // TODO posters per UA would be interesting too
+    os << "</tr>\n";
+    os << "</thead>\n";
+
+    // Summarize
+    map<string,long> summarized;
+    for(map<string,long>::const_iterator it = useragents.begin();
+        it != useragents.end();
+        ++it) {
+      const string s = summarize(it->first);
+      summarized[s] += it->second;
+    }
+
+    vector<agent> agents;
+
+    // Linearize
+    for(map<string,long>::const_iterator it = summarized.begin();
+        it != summarized.end();
+        ++it)
+      agents.push_back(*it);
+
+    // Sort by count
+    sort(agents.begin(), agents.end(), compare());
+
+    for(unsigned n = 0; n < agents.size(); ++n) {
+      const std::string &name = agents[n].first;
+      long &count = agents[n].second;
+      os << "<tr>\n";
+      os << "<td>" << HTML::Escape(name) << "</td>\n";
+      os << "<td>" << count << "</td>\n";
+      os << "</tr>\n";
+    }
+
+    os << "</table>\n";
+    Config::footer(os);
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", (Config::output + "/agents-summary.html").c_str());
+  }
+}
+
+const string &AllGroups::summarize(const string &ua) {
+  struct agent {
+    const char *substring;
+    const std::string name;
+  };
+  static struct agent clients[] = {
+    { "40tude_Dialog", "40tude_Dialog" },
+    { "Alpine", "Alpine" },
+    { "alpine", "Alpine" },
+    { "Claws Mail", "Claws Mail" },
+    { "Direct Read News", "Direct Read News" },
+    { "Emas", "Emas" },
+    { "Forte Agent", "Forte Agent" },
+    { "Forte Free Agent", "Forte Agent" },
+    { "G2", "G2" },
+    { "Gnus", "Gnus" },
+    { "Groundhog Newsreader for Android", "Groundhog Newsreader for Android" },
+    { "Hamster", "Hamster" },
+    { "Hogwasher", "Hogwasher" },
+    { "JetBrains Omea Reader", "JetBrains Omea Reader" },
+    { "knews", "knews" },
+    { "KNode", "KNode" },
+    { "MacSOUP", "MacSOUP" },
+    { "MesNews", "MesNews" },
+    { "Messenger-Pro", "Messenger-Pro" },
+    { "MicroPlanet Gravity", "MicroPlanet Gravity" },
+    { "MicroPlanet-Gravity", "MicroPlanet Gravity" },
+    { "Microsoft Outlook Express", "Outlook Express" },
+    { "Microsoft Windows Mail", "Outlook Express" },
+    { "Microsoft Windows Live Mail", "Outlook Express" },
+    { "Microsoft Internet News", "Microsoft Internet News" },
+    { "Microsoft-Entourage", "Microsoft Entourage" },
+    { "MT-NewsWatcher", "MT-NewsWatcher" },
+    { "Mutt", "Mutt" },
+    { "Netscape", "Netscape" },
+    { "NewsHound", "NewsHound" },
+    { "NewsLeecher", "NewsLeecher" },
+    { "NewsPortal", "NewsPortal" },
+    { "NewsTap", "NewsTap" },
+    { "Noworyta News Reader", "Noworyta News Reader" },
+    { "Opera Mail", "Opera Mail" },
+    { "Pan", "Pan" },
+    { "^pan ", "Pan" },
+    { "Pluto", "Pluto" },
+    { "PMINews", "PMINews" },
+    { "ProNews", "ProNews" },
+    { "SeaMonkey", "SeaMonkey" },
+    { "Iceape", "SeaMonkey" },          // Debian
+    { "slrn", "slrn" },
+    { "Sylpheed", "Sylpheed" },
+    { "Thoth", "Thoth" },
+    { "Thunderbird", "Thunderbird" },
+    { "Lanikai", "Thunderbird" },       // early 2010 preview
+    { "Shredder", "Thunderbird" },      // mid 2008 preview
+    { "Icedove", "Thunderbird" },       // Debian
+    { "^tin", "tin" },
+    { "^TIN", "tin" },
+    { "TRAVEL.com", "TRAVEL.com" },
+    { "trn", "trn" },
+    { "Turnpike", "Turnpike" },
+    { "Unison", "Unison" },
+    { "XanaNews", "XanaNews" },
+    { "Xnews", "Xnews" },
+    { "XPN", "XPN" },
+    { "^NN/", "NN" },
+    { "^NN version", "NN" },
+    { "^nn/", "NN" },
+    { "WinVN", "WinVN" },
+    { "News Xpress", "News Xpress" },
+    { "NewsAgent", "NewsAgent" },
+    { "PC Piggy News", "PC Piggy News" },
+    { "MATLAB Central Newsreader", "MATLAB Central Newsreader" },
+    { "Flrn", "Flrn" },
+    { "Loom", "Loom" },
+    { "iForth", "iForth" },
+    { "SquirrelMail", "SquirrelMail" },
+    { "NewsMan Pro", "NewsMan Pro" },
+    { "News Rover", "News Rover" },
+    { "AspNNTP", "AspNNTP" },
+    { "Grepler", "Grepler" },
+    { "^xrn", "xrn" },
+    { "Web-News", "Web-News" },
+    { "Marcel", "Marcel" },
+    { "Gemini", "Gemini" },
+    { "newsSync", "newsSync" },
+    { "FUDforum", "FUDforum" },
+    { "KMail", "KMail" },
+    { "Pineapple News", "Pineapple News" },
+  };
+  // By 'summarize' we mean we throw away version and platform information and
+  // just identify the client.  Mostly we do substring match but for very short
+  // substrings we anchor to the start of the string to avoid false +ves.
+  for(unsigned n = 0; n < sizeof clients / sizeof *clients; ++n) {
+    if(clients[n].substring[0] == '^') {
+      if(ua.find(clients[n].substring + 1) == 0)
+        return clients[n].name;
+    } else {
+      if(ua.find(clients[n].substring) != string::npos)
+        return clients[n].name;
+    }
+  }
+  return ua;
 }
 
 /*

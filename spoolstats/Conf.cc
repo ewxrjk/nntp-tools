@@ -135,6 +135,8 @@ void Config::hierarchy(const string &h) {
 void Config::footer(ostream &os) {
   os << "<p><a href=" << HTML::Quote(".") << ">Hierarchies</a>"
      << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
+     << " | <a href=" << HTML::Quote("agents-summary.html") << ">User agents</a>"
+     << " (<a href=" << HTML::Quote("agents.html") << ">full</a>)"
      << "</p>\n";
   os << "<p class=credits><a href="
      << HTML::Quote("http://www.greenend.org.uk/rjk/2006/newstools.html")

@@ -45,6 +45,9 @@ private:
   // Message IDs that have been seen
   std::set<std::string> seen;
 
+  // User agents
+  std::map<std::string,long> useragents;
+
   // Recurse into one directory
   void recurse(const std::string &dir);
 
@@ -56,6 +59,13 @@ private:
 
   // Generate the groups report
   void report_groups();
+
+  // Generate the agents report
+  void report_agents();
+  void report_agents_summarized();
+
+  // Summarize a user-agent name
+  static const std::string &summarize(const std::string &);
 };
 
 #endif /* ALL_H */

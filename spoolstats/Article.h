@@ -43,6 +43,8 @@ public:
     return headers.find("from")->second;
   }
 
+  const std::string &useragent() const;
+
 private:
   void parse(const std::string &text);
   static int eol(const std::string &text, std::string::size_type pos);
