@@ -95,7 +95,7 @@ int Article::eoh(const string &text, string::size_type pos) {
 
 const string &Article::useragent() const {
   map<string, string>::const_iterator it;
-  static const string unknown = "unknown";
+  static const string unknown = "(unknown)";
 
   it = headers.find("user-agent");
   if(it == headers.end())
