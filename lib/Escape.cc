@@ -34,7 +34,7 @@ namespace HTML {
         case '"':
         case '<':
         case '&':
-          os << '<' << (int)c << ';';
+          os << "&#" << (int)c << ';';
         }
       }
     }
