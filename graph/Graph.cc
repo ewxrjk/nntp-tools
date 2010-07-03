@@ -32,9 +32,9 @@ int Graph::define_y(const std::string &name, double min, double max,
   static const struct {
     double r, g, b;
   } default_colors[] = {
-    { 0.0, 1.0, 0.0 },
-    { 1.0, 0.0, 0.0 },
-    { 0.0, 1.0, 1.0 },
+    { 0.0, 0.75, 0.0 },
+    { 0.75, 0.0, 0.0 },
+    { 0.0, 0.75, 0.75 },
     { 0.5, 0.5, 0.0 },
   };
   Variable v;
@@ -159,7 +159,7 @@ void Graph::draw_axes() {
     const double xmin = it->first.first;
     const double xmax = it->first.second;
     if(shaded) {
-      context->set_source_rgb(0.9, 0.9, 0.9);
+      context->set_source_rgb(0.95, 0.95, 0.95);
       context->rectangle(xc(xmin), btop,
                          xc(xmax) - xc(xmin), height - bbottom - btop);
       context->fill();
