@@ -213,7 +213,7 @@ void AllGroups::report_hierarchies() {
        << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
        << setprecision(6)
        << "</td>\n";
-    os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
+    os << "<td>" << round_kilo(total_bytes_per_day) << "</td>\n";
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
@@ -267,7 +267,7 @@ void AllGroups::report_groups() {
        << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
        << setprecision(6)
        << "</td>\n";
-    os << "<td>" << Bytes(total_bytes_per_day) << "</td>\n";
+    os << "<td>" << round_kilo(total_bytes_per_day) << "</td>\n";
     os << "<td></td>\n";                  // TODO?
     os << "</tr>\n";
     os << "</tfoot>\n";

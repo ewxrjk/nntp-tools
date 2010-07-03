@@ -32,17 +32,6 @@ void split(std::vector<std::string> &bits,
            char sep,
            const std::string &s);
 
-class Bytes {
-public:
-  inline Bytes(intmax_t n): bytes(n) {}
-  intmax_t bytes;
-  static std::ostream &write(std::ostream &os, intmax_t bytes);
-};
-
-inline std::ostream &operator<<(std::ostream &os, const Bytes &b) {
-  return b.write(os, b.bytes);
-}
-
 time_t parse_date(const std::string &d);
 std::string &lower(std::string &s);
 std::string &upper(std::string &s);
@@ -55,6 +44,7 @@ public:
 
 void read_csv(const std::string &path, std::list<std::vector<intmax_t> > &rows);
 std::string compact_kilo(double n);
+std::string round_kilo(double n);
 
 #endif /* CPPUTILS */
 

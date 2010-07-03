@@ -18,17 +18,22 @@
  * USA
  */
 #include "cpputils.h"
+#include <sstream>
+#include <cmath>
 
-std::ostream &Bytes::write(std::ostream &os, intmax_t bytes) {
-  if(bytes < 2048)
-    os << bytes;
-  else if(bytes < 2048 * 1024)
-    os << bytes / 1024 << "K";
-  else if(bytes < 2048LL * 1024 * 1024)
-    os << bytes / (1024 * 1024) << "M";
-  else
-    os << bytes / (1024 * 1024 * 1024) << "G";
-  return os;
+using namespace std;
+
+string round_kilo(double n) {
+  stringstream ss;
+  if(n < 2000)
+    ss << n;
+  else if(n < 2E6)
+    ss << floor(n / 1E3) << "K";
+  else if(n < 2E9)
+    ss << floor(n / 1E6) << "M";
+  else if(n < 2E12)
+    ss << floor(n / 1E9) << "G";
+  return ss.str();
 }
 
 /*

@@ -47,7 +47,7 @@ void Group::summary(ostream &os) {
      << setprecision(6)
      << "</td>\n";
   os << "<td sorttable_customkey=-" << bytes_per_day << ">"
-     << Bytes(bytes_per_day) 
+     << round_kilo(bytes_per_day) 
      << "</td>\n";
   os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   // TODO can we find a better stream state restoration idiom?
