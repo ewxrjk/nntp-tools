@@ -101,6 +101,8 @@ const string &Article::useragent() const {
   if(it == headers.end())
     it = headers.find("x-newsreader");
   if(it == headers.end())
+    it = headers.find("x-mailer");
+  if(it == headers.end())
     return unknown;
   else
     return it->second;

@@ -452,6 +452,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "FUDforum", "FUDforum" },
     { "KMail", "KMail" },
     { "Pineapple News", "Pineapple News" },
+    { "Evolution", "Evolution" },
   };
   // By 'summarize' we mean we throw away version and platform information and
   // just identify the client.  Mostly we do substring match but for very short
