@@ -18,9 +18,9 @@
 # USA
 #
 
-AC_INIT([rjk-nntp-tools], [0.13], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([rjk-nntp-tools], [0.14], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.13])
+AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.14])
 AC_CONFIG_SRCDIR([gateways/lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
