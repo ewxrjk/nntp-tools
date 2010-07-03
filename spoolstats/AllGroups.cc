@@ -32,7 +32,13 @@ AllGroups::~AllGroups() {
 // Visit one article
 void AllGroups::visit(const Article *a) {
   Bucket::visit(a);
-  ++useragents[a->useragent()];
+  const string &ua = a->useragent();
+  const string &sender = a->sender();
+  map<string,uadata>::iterator it = useragents.find(ua);
+  if(it == useragents.end())
+    it = useragents.insert(pair<string,uadata>(ua,uadata(ua))).first;
+  ++it->second.articles;
+  it->second.senders.insert(sender);
 }
 
 // Scan the spool
@@ -301,15 +307,6 @@ void AllGroups::graphs() {
         Config::output + "/all.png");
 }
 
-// Agent table sorting logic - would be more natural inside report_agents() but
-// the compiler won't have it
-typedef pair<string,long> agent;
-struct compare {
-  bool operator()(const agent &a, const agent &b) {
-    return a.second > b.second;
-  }
-};
-
 void AllGroups::report_agents(const std::string &path,
                               bool summarized) {
   try {
@@ -319,39 +316,42 @@ void AllGroups::report_agents(const std::string &path,
     os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
 
     os << "<table class=sortable>\n";
-    HTML::thead(os, "User Agent", "Articles", (const char *)NULL);
-    // TODO posters per UA would be interesting too
+    HTML::thead(os, "User Agent", "Articles", "Posters", (const char *)NULL);
 
-    vector<agent> agents;
-    map<string,long> *uas = NULL;
-    map<string,long> summarized_uas;
+    map<string,uadata> *uas = NULL;
+    map<string,uadata> summarized_uas;
     if(summarized) {
       // Summarize
-      for(map<string,long>::const_iterator it = useragents.begin();
+      for(map<string,uadata>::const_iterator it = useragents.begin();
           it != useragents.end();
           ++it) {
-        const string s = summarize(it->first);
-        summarized_uas[s] += it->second;
+        const string summarized_name = summarize(it->first);
+        map<string,uadata>::iterator jt = summarized_uas.find(summarized_name);
+        if(jt == summarized_uas.end())
+          jt = summarized_uas.insert(pair<string,uadata>(summarized_name,uadata(summarized_name))).first;
+        jt->second += it->second;
       }
       uas = &summarized_uas;
     } else
       uas = &useragents;
 
     // Linearize
-    for(map<string,long>::const_iterator it = uas->begin();
+    vector<const uadata *> agents;
+    for(map<string,uadata>::const_iterator it = uas->begin();
         it != uas->end();
         ++it)
-      agents.push_back(*it);
+      agents.push_back(&it->second);
 
     // Sort by count
-    sort(agents.begin(), agents.end(), compare());
+    sort(agents.begin(), agents.end(), uadata::ptr_art_compare());
 
     for(unsigned n = 0; n < agents.size(); ++n) {
-      const std::string &name = agents[n].first;
-      long &count = agents[n].second;
       os << "<tr>\n";
-      os << "<td>" << HTML::Escape(name) << "</td>\n";
-      os << "<td>" << count << "</td>\n";
+      os << "<td>" << HTML::Escape(agents[n]->name) << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << agents[n]->articles
+         << ">" << agents[n]->articles << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << agents[n]->senders.size()
+         << ">" << agents[n]->senders.size() << "</td>\n";
       os << "</tr>\n";
     }
 
@@ -465,6 +465,15 @@ const string &AllGroups::summarize(const string &ua) {
     }
   }
   return ua;
+}
+
+AllGroups::uadata &AllGroups::uadata::operator+=(const uadata &that) {
+  articles += that.articles;
+  for(set<string>::const_iterator it = that.senders.begin();
+      it != that.senders.end();
+      ++it)
+    senders.insert(*it);
+  return *this;
 }
 
 /*

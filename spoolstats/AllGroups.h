@@ -45,8 +45,23 @@ private:
   // Message IDs that have been seen
   std::set<std::string> seen;
 
-  // User agents
-  std::map<std::string,long> useragents;
+  struct uadata {
+    std::string name;
+    long articles;
+    std::set<std::string> senders;
+    inline uadata(const std::string &ua): name(ua), articles(0) {
+    }
+    uadata &operator+=(const uadata &that);
+    struct ptr_art_compare {
+      bool operator()(const uadata *a, const uadata *b) {
+        return a->articles > b->articles;
+      }
+    };
+  private:
+    uadata();                           // not default-constructable
+  };
+
+  std::map<std::string,uadata> useragents;
 
   // Recurse into one directory
   void recurse(const std::string &dir);
