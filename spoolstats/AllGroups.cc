@@ -157,8 +157,8 @@ int AllGroups::visit(const string &path) {
 void AllGroups::report() {
   report_hierarchies();
   report_groups();
-  report_agents();
-  report_agents_summarized();
+  report_agents((Config::output + "/agents.html"), false);
+  report_agents((Config::output + "/agents-summary.html"), true);
   for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
       it != Config::hierarchies.end();
       ++it) {
@@ -310,9 +310,10 @@ struct compare {
   }
 };
 
-void AllGroups::report_agents() {
+void AllGroups::report_agents(const std::string &path,
+                              bool summarized) {
   try {
-    ofstream os((Config::output + "/agents.html").c_str());
+    ofstream os(path.c_str());
     os.exceptions(ofstream::badbit|ofstream::failbit);
 
     os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
@@ -321,10 +322,24 @@ void AllGroups::report_agents() {
     HTML::thead(os, "User Agent", "Articles", (const char *)NULL);
     // TODO posters per UA would be interesting too
 
-    // Linearize
     vector<agent> agents;
-    for(map<string,long>::const_iterator it = useragents.begin();
-        it != useragents.end();
+    map<string,long> *uas = NULL;
+    map<string,long> summarized_uas;
+    if(summarized) {
+      // Summarize
+      for(map<string,long>::const_iterator it = useragents.begin();
+          it != useragents.end();
+          ++it) {
+        const string s = summarize(it->first);
+        summarized_uas[s] += it->second;
+      }
+      uas = &summarized_uas;
+    } else
+      uas = &useragents;
+
+    // Linearize
+    for(map<string,long>::const_iterator it = uas->begin();
+        it != uas->end();
         ++it)
       agents.push_back(*it);
 
@@ -344,56 +359,7 @@ void AllGroups::report_agents() {
     Config::footer(os);
     os << flush;
   } catch(ios::failure) {
-    fatal(errno, "writing to %s", (Config::output + "/agents.html").c_str());
-  }
-}
-
-void AllGroups::report_agents_summarized() {
-  // TODO de-dupe with report_agents()
-  try {
-    ofstream os((Config::output + "/agents-summary.html").c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
-
-    os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
-
-    os << "<table class=sortable>\n";
-    HTML::thead(os, "User Agent", "Articles", (const char *)NULL);
-    // TODO posters per UA would be interesting too
-
-    // Summarize
-    map<string,long> summarized;
-    for(map<string,long>::const_iterator it = useragents.begin();
-        it != useragents.end();
-        ++it) {
-      const string s = summarize(it->first);
-      summarized[s] += it->second;
-    }
-
-    vector<agent> agents;
-
-    // Linearize
-    for(map<string,long>::const_iterator it = summarized.begin();
-        it != summarized.end();
-        ++it)
-      agents.push_back(*it);
-
-    // Sort by count
-    sort(agents.begin(), agents.end(), compare());
-
-    for(unsigned n = 0; n < agents.size(); ++n) {
-      const std::string &name = agents[n].first;
-      long &count = agents[n].second;
-      os << "<tr>\n";
-      os << "<td>" << HTML::Escape(name) << "</td>\n";
-      os << "<td>" << count << "</td>\n";
-      os << "</tr>\n";
-    }
-
-    os << "</table>\n";
-    Config::footer(os);
-    os << flush;
-  } catch(ios::failure) {
-    fatal(errno, "writing to %s", (Config::output + "/agents-summary.html").c_str());
+    fatal(errno, "writing to %s", path.c_str());
   }
 }
 

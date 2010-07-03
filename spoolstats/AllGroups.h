@@ -61,8 +61,7 @@ private:
   void report_groups();
 
   // Generate the agents report
-  void report_agents();
-  void report_agents_summarized();
+  void report_agents(const std::string &path, bool summarized);
 
   // Summarize a user-agent name
   static const std::string &summarize(const std::string &);
