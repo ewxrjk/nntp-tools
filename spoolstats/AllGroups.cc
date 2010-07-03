@@ -377,7 +377,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "Emas", "Emas" },
     { "Forte Agent", "Forte Agent" },
     { "Forte Free Agent", "Forte Agent" },
-    { "G2", "G2" },
+    { "^G2", "Google Groups" },
     { "Gnus", "Gnus" },
     { "Groundhog Newsreader for Android", "Groundhog Newsreader for Android" },
     { "Hamster", "Hamster" },
@@ -423,6 +423,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "TRAVEL.com", "TRAVEL.com" },
     { "trn", "trn" },
     { "Turnpike", "Turnpike" },
+    { "^U <", "Turnpike" },         // wibble!
     { "Unison", "Unison" },
     { "XanaNews", "XanaNews" },
     { "Xnews", "Xnews" },
