@@ -56,7 +56,7 @@ void Hierarchy::summary(ostream &os) {
      << setprecision(6)
      << "</td>\n";
   os << "<td sorttable_customkey=-" << bytes_per_day << ">"
-     << round_kilo(bytes_per_day) 
+     << round_kilo(bytes_per_day)
      << "</td>\n";
   os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   os << "</tr>\n";
@@ -81,14 +81,8 @@ void Hierarchy::page() {
     os << "<div>\n";
     os << "<table class=sortable>\n";
 
-    os << "<thead>\n";
-    os << "<tr>\n";
-    os << "<th>Group</th>\n";
-    os << "<th>Articles/day</th>\n";
-    os << "<th>Bytes/day</th>\n";
-    os << "<th>Posters</td>\n";
-    os << "</tr>\n";
-    os << "</thead>\n";
+    HTML::thead(os, "Group", "Articles/day", "Bytes/day", "Posters",
+                (const char *)NULL);
 
     for(map<string,Group *>::const_iterator it = groups.begin();
         it != groups.end();
@@ -140,7 +134,7 @@ void Hierarchy::logs() {
 
 void Hierarchy::graphs() {
   graph(name + ".*",
-        Config::output + "/" + name + ".csv", 
+        Config::output + "/" + name + ".csv",
         Config::output + "/" + name + ".png");
 }
 

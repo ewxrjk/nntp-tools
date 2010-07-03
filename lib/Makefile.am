@@ -22,4 +22,4 @@ libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
 nntp.h utils.h
 libmiscpp_a_SOURCES=cpputils.h split.cc Timezones.h Timezones.cc	\
 HTML.h Escape.cc Quote.cc Header.cc case.cc parse_date.cc parse_csv.cc	\
-compact_kilo.cc round_kilo.cc
+compact_kilo.cc round_kilo.cc thead.cc

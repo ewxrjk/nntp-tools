@@ -186,14 +186,8 @@ void AllGroups::report_hierarchies() {
     os << "<div>\n";
     os << "<table class=sortable>\n";
 
-    os << "<thead>\n";
-    os << "<tr>\n";
-    os << "<th>Hierarchy</th>\n";
-    os << "<th>Articles/day</th>\n";
-    os << "<th>Bytes/day</th>\n";
-    os << "<th>Posters</td>\n";
-    os << "</tr>\n";
-    os << "</thead>\n";
+    HTML::thead(os, "Hierarchy", "Articles/day", "Bytes/day", "Posters",
+                (const char *)NULL);
 
     for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
         it != Config::hierarchies.end();
@@ -236,14 +230,8 @@ void AllGroups::report_groups() {
     os << "<div>\n";
     os << "<table class=sortable>\n";
 
-    os << "<thead>\n";
-    os << "<tr>\n";
-    os << "<th>Group</th>\n";
-    os << "<th>Articles/day</th>\n";
-    os << "<th>Bytes/day</th>\n";
-    os << "<th>Posters</td>\n";
-    os << "</tr>\n";
-    os << "</thead>\n";
+    HTML::thead(os, "Group", "Articles/day", "Bytes/day", "Posters",
+                (const char *)NULL);
 
     for(map<string,Hierarchy *>::const_iterator jt = Config::hierarchies.begin();
         jt != Config::hierarchies.end();
@@ -330,13 +318,8 @@ void AllGroups::report_agents() {
     os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
 
     os << "<table class=sortable>\n";
-    os << "<thead>\n";
-    os << "<tr>\n";
-    os << "<th>User Agent</th>\n";
-    os << "<th>Articles</th>\n";
+    HTML::thead(os, "User Agent", "Articles", (const char *)NULL);
     // TODO posters per UA would be interesting too
-    os << "</tr>\n";
-    os << "</thead>\n";
 
     // Linearize
     vector<agent> agents;
@@ -374,13 +357,8 @@ void AllGroups::report_agents_summarized() {
     os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
 
     os << "<table class=sortable>\n";
-    os << "<thead>\n";
-    os << "<tr>\n";
-    os << "<th>User Agent</th>\n";
-    os << "<th>Articles</th>\n";
+    HTML::thead(os, "User Agent", "Articles", (const char *)NULL);
     // TODO posters per UA would be interesting too
-    os << "</tr>\n";
-    os << "</thead>\n";
 
     // Summarize
     map<string,long> summarized;

@@ -67,6 +67,8 @@ namespace HTML {
     return h.write(os, h.title, h.css, h.js);
   }
 
+  void thead(std::ostream &os, const char *heading, ...);
+
 };
 
 #endif /* HTML_H */
