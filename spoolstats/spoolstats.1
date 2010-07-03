@@ -6,8 +6,6 @@ spoolstats \- statistics on a news spool
 .RI [ OPTIONS ]
 .SH DESCRIPTION
 Generates a report on posting volumes etc on a new spool.
-.PP
-.B "This is a work in progress!"
 .SH OPTIONS
 .TP
 .B -S \fIPATH\fR, \fB--spool \fIPATH
@@ -73,7 +71,7 @@ file (as an optimization).
 With the default, an article can arrive up to 60 seconds "early" and
 still be counted if its Date: header is within the sampling interval.
 .SH OUTPUT
-The output is a collection of link HTML files.
+The output is a collection of linked HTML files.
 .PP
 .B index.html
 contains a graph of historical traffic levels and a table giving
@@ -86,6 +84,14 @@ contains a table giving summary information about every newsgroup.
 For each hierarchy,
 .IB HIERARCHY .html
 gives the same information about just the newsgroups in that hierarchy.
+.PP
+.B agents.html
+and
+.B agents-summary.html
+give the frequency of the different user agent strings.
+The latter discards version and platform information to just give the
+name of the client (as far as possible; there is no consistent
+formatting, so a table of known clients is used).
 .PP
 In all cases, if Javascript is supported, the tables can be re-ordered
 by clicking the headings.
