@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
   char *line = 0,  *ptr;
   size_t linelen = 0;
   long maxage = 86400 * 7;              /* = a week */
-  char *archive = 0, *category = 0, *branch = 0, *version = 0, *patch = 0;
+  char *archive = 0, *category = 0, /**branch = 0,*/ *version = 0, *patch = 0;
   time_t now, when;
 
   while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:h", options, 0)) >= 0) {
@@ -192,7 +192,7 @@ Rarely used options:\n\
       category = xstrdup(ptr);
       break;
     case 4:
-      branch = xstrdup(ptr);
+      /*branch = xstrdup(ptr);*/
       break;
     case 6:
       version = xstrdup(ptr);
