@@ -108,6 +108,41 @@ const string &Article::useragent() const {
     return it->second;
 }
 
+const string Article::charset() const {
+  // RFC2045 s5.1.  This is a rather goofy parse, but we're just totting up the
+  // results, not filtering out evil.
+  static const char tokenchars[] = "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz{|}~";
+  map<string, string>::const_iterator it;
+  it = headers.find("content-type");
+  if(it == headers.end())
+    return "unknown";
+  const string &ct = it->second;
+  string::size_type pos = ct.find("charset"), end;
+  if(pos == string::npos)
+    return "unknown";
+  pos += 7;
+  if((pos = ct.find_first_not_of(" \t\r\n", pos)) == string::npos)
+    return "unknown";
+  if(ct[pos++] != '=')
+    return "unknown";
+  if((pos = ct.find_first_not_of(" \t\r\n", pos)) == string::npos)
+    return "unknown";
+  if(pos == '"') {
+    ++pos;
+    if((end = ct.find('"', pos)) == string::npos)
+      return "unknown";
+  } else {
+    if((end = ct.find_first_not_of(tokenchars, pos)) == string::npos)
+      end = ct.size();
+    if(end == pos)
+      return "unknown";
+  }
+  string r(ct, pos, end - pos);
+  for(pos = 0; pos < r.size(); ++pos)
+    r[pos] = tolower(r[pos]);
+  return r;
+}
+
 /*
 Local Variables:
 mode:c++

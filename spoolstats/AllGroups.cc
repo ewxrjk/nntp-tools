@@ -32,13 +32,8 @@ AllGroups::~AllGroups() {
 // Visit one article
 void AllGroups::visit(const Article *a) {
   Bucket::visit(a);
-  const string &ua = a->useragent();
-  const string &sender = a->sender();
-  map<string,uadata>::iterator it = useragents.find(ua);
-  if(it == useragents.end())
-    it = useragents.insert(pair<string,uadata>(ua,uadata(ua))).first;
-  ++it->second.articles;
-  it->second.senders.insert(sender);
+  useragents.update(a, a->useragent());
+  charsets.update(a, a->charset());
 }
 
 // Scan the spool
@@ -165,6 +160,7 @@ void AllGroups::report() {
   report_groups();
   report_agents((Config::output + "/agents.html"), false);
   report_agents((Config::output + "/agents-summary.html"), true);
+  report_charsets();
   for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
       it != Config::hierarchies.end();
       ++it) {
@@ -318,40 +314,56 @@ void AllGroups::report_agents(const std::string &path,
     os << "<table class=sortable>\n";
     HTML::thead(os, "User Agent", "Articles", "Posters", (const char *)NULL);
 
-    map<string,uadata> *uas = NULL;
-    map<string,uadata> summarized_uas;
+    ArticleProperty *uas = NULL;
+    ArticleProperty summarized_uas;
     if(summarized) {
-      // Summarize
-      for(map<string,uadata>::const_iterator it = useragents.begin();
-          it != useragents.end();
-          ++it) {
-        const string summarized_name = summarize(it->first);
-        map<string,uadata>::iterator jt = summarized_uas.find(summarized_name);
-        if(jt == summarized_uas.end())
-          jt = summarized_uas.insert(pair<string,uadata>(summarized_name,uadata(summarized_name))).first;
-        jt->second += it->second;
-      }
+      useragents.summarize(summarized_uas,
+                           AllGroups::summarize);
       uas = &summarized_uas;
     } else
       uas = &useragents;
-
-    // Linearize
-    vector<const uadata *> agents;
-    for(map<string,uadata>::const_iterator it = uas->begin();
-        it != uas->end();
-        ++it)
-      agents.push_back(&it->second);
-
-    // Sort by count
-    sort(agents.begin(), agents.end(), uadata::ptr_art_compare());
+    vector<const ArticleProperty::Value *> agents;
+    uas->order(agents);
 
     for(unsigned n = 0; n < agents.size(); ++n) {
       os << "<tr>\n";
-      os << "<td>" << HTML::Escape(agents[n]->name) << "</td>\n";
+      os << "<td>" << HTML::Escape(agents[n]->value) << "</td>\n";
       os << "<td sorttable_customkey=-" << fixed << agents[n]->articles
          << ">" << agents[n]->articles << "</td>\n";
       os << "<td sorttable_customkey=-" << fixed << agents[n]->senders.size()
          << ">" << agents[n]->senders.size() << "</td>\n";
+      os << "</tr>\n";
+    }
+
+    os << "</table>\n";
+    Config::footer(os);
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", path.c_str());
+  }
+}
+
+void AllGroups::report_charsets() {
+  const string path = Config::output + "/charsets.html";
+  try {
+    ofstream os(path.c_str());
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+
+    os << HTML::Header("Character Encodings", "spoolstats.css", "sorttable.js");
+
+    os << "<table class=sortable>\n";
+    HTML::thead(os, "Character Encoding", "Articles", "Posters", (const char *)NULL);
+
+    vector<const ArticleProperty::Value *> charsets_o;
+    charsets.order(charsets_o);
+
+    for(unsigned n = 0; n < charsets_o.size(); ++n) {
+      os << "<tr>\n";
+      os << "<td>" << HTML::Escape(charsets_o[n]->value) << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << charsets_o[n]->articles
+         << ">" << charsets_o[n]->articles << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << charsets_o[n]->senders.size()
+         << ">" << charsets_o[n]->senders.size() << "</td>\n";
       os << "</tr>\n";
     }
 
@@ -459,6 +471,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "postfaq", "postfaq" },
     { "Virtual Access", "Virtual Access" },
     { "PenguinReader", "PenguinReader" },
+    { "http://www.umailcampaign.com", "http://www.umailcampaign.com" },
   };
   // By 'summarize' we mean we throw away version and platform information and
   // just identify the client.  Mostly we do substring match but for very short
@@ -473,15 +486,6 @@ const string &AllGroups::summarize(const string &ua) {
     }
   }
   return ua;
-}
-
-AllGroups::uadata &AllGroups::uadata::operator+=(const uadata &that) {
-  articles += that.articles;
-  for(set<string>::const_iterator it = that.senders.begin();
-      it != that.senders.end();
-      ++it)
-    senders.insert(*it);
-  return *this;
 }
 
 /*

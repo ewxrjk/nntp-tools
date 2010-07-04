@@ -22,7 +22,8 @@ bin_PROGRAMS=spoolstats
 spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
 Group.h Group.cc Bucket.h Bucket.cc SenderCountingBucket.h		\
 SenderCountingBucket.cc AllGroups.h AllGroups.cc Hierarchy.h		\
-Hierarchy.cc Conf.h Conf.cc css.c sorttable.c
+Hierarchy.cc Conf.h Conf.cc css.c sorttable.c ArticleProperty.cc	\
+ArticleProperty.h
 
 AM_CXXFLAGS=${CAIROMM_CFLAGS}
 AM_CPPFLAGS=-I${top_srcdir}/lib -I${top_srcdir}/graph

@@ -33,6 +33,7 @@
 
 #include "utils.h"
 #include "cpputils.h"
+#include "ArticleProperty.h"
 #include "Article.h"
 #include "Bucket.h"
 #include "SenderCountingBucket.h"

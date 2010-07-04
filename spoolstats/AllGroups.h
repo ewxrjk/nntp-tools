@@ -1,5 +1,5 @@
 /*
- * This file is part of spoolstats.
+ * THIS file is part of spoolstats.
  * Copyright (C) 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,23 +45,8 @@ private:
   // Message IDs that have been seen
   std::set<std::string> seen;
 
-  struct uadata {
-    std::string name;
-    long articles;
-    std::set<std::string> senders;
-    inline uadata(const std::string &ua): name(ua), articles(0) {
-    }
-    uadata &operator+=(const uadata &that);
-    struct ptr_art_compare {
-      bool operator()(const uadata *a, const uadata *b) {
-        return a->articles > b->articles;
-      }
-    };
-  private:
-    uadata();                           // not default-constructable
-  };
-
-  std::map<std::string,uadata> useragents;
+  ArticleProperty useragents;
+  ArticleProperty charsets;
 
   // Recurse into one directory
   void recurse(const std::string &dir);
@@ -77,6 +62,9 @@ private:
 
   // Generate the agents report
   void report_agents(const std::string &path, bool summarized);
+
+  // Generate the charsets report
+  void report_charsets();
 
   // Summarize a user-agent name
   static const std::string &summarize(const std::string &);

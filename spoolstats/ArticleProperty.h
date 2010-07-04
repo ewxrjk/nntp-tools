@@ -17,47 +17,52 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef ARTICLE_H
-#define ARTICLE_H
+#ifndef ARTICLEPROPERTY_H
+#define ARTICLEPROPERTY_H
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
-class Article {
+class Article;
+
+class ArticleProperty {
 public:
-  Article(const std::string &text, size_t bytes_);
+  struct Value {
+    const std::string value;
+    long articles;
+    std::set<std::string> senders;
+    inline Value(const std::string &value_): value(value_), articles(0) {
+    }
+    Value &operator+=(const Value &that);
+    struct ptr_art_compare {
+      bool operator()(const Value *a, const Value *b) {
+        return a->articles > b->articles;
+      }
+    };
+  private:
+    Value();                             // not default-constructable
+  };
 
-  void get_groups(std::vector<std::string> &groups) const;
-  time_t date() const;
+  ArticleProperty();
+  ~ArticleProperty();
 
-  inline const std::string &mid() const {
-    return headers.find("message-id")->second;
-  }
+  void update(const Article *article,
+              const std::string &value);
 
-  inline size_t get_size() const {
-    return bytes;
-  }
+  void order(std::vector<const Value *> &) const;
 
-  inline const std::string &sender() const {
-    return headers.find("from")->second;
-  }
+  typedef const std::string &summarize_fn(const std::string &);
 
-  const std::string &useragent() const;
-  const std::string charset() const;
+  void summarize(ArticleProperty &dest,
+                 summarize_fn *summarize);
 
 private:
-  void parse(const std::string &text);
-  static int eol(const std::string &text, std::string::size_type pos);
-  static int eoh(const std::string &text, std::string::size_type pos);
-
-  size_t bytes;
-  std::map<std::string, std::string> headers;
-  mutable time_t cached_date;
+  std::map<std::string,Value> values;
 };
 
-#endif /* ARTICLE_H */
-
+#endif /* ARTICLEPROPERTY_H */
 
 /*
 Local Variables:
