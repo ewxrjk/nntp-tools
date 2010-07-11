@@ -31,6 +31,8 @@
 #include <gcrypt.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "utils.h"
 #include "nntp.h"

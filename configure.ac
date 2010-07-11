@@ -76,8 +76,11 @@ AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
   rjk_cv_cairomm_libs=`pkg-config --libs cairomm-1.0`
 ])
 if test "$rjk_cv_cairomm_libs" = ""; then
-  missing_libraries="$missing_libraries cairomm"
+  SPOOLSTATS=""
+else
+  SPOOLSTATS="graph spoolstats"
 fi
+AC_SUBST([SPOOLSTATS])
 AC_SUBST([CAIROMM_CFLAGS],[$rjk_cv_cairomm_cflags])
 AC_SUBST([CAIROMM_LIBS],[$rjk_cv_cairomm_libs])
 
