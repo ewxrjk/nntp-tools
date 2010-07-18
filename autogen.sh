@@ -23,7 +23,7 @@ set -e
 
 # Find an automake
 if [ -z "$AUTOMAKE" ]; then
-  for prog in automake automake-1.10 automake-1.9 automake-1.8 automaek-1.7; do
+  for prog in automake automake-1.10 automake-1.9 automake-1.8 automake-1.7; do
     if type $prog >/dev/null 2>&1; then
       AUTOMAKE=$prog
       break
@@ -32,7 +32,7 @@ if [ -z "$AUTOMAKE" ]; then
   if [ -s "$AUTOMAKE" ]; then
     echo "ERROR: no automake found" >&2
     exit 1
-  fi 
+  fi
 fi
 ACLOCAL=${AUTOMAKE/automake/aclocal}
 
