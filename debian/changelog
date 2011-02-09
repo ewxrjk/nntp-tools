@@ -1,3 +1,9 @@
+rjk-nntp-tools (0.16) unstable; urgency=low
+
+  * Support squeeze's bzr, admittedly in a somewhat hacky way.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Wed, 09 Feb 2011 20:20:13 +0000
+
 rjk-nntp-tools (0.15) unstable; urgency=low
 
   * Generate a character encoding report.

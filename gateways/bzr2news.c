@@ -1,6 +1,6 @@
 /*
  * bzr2news - post bzr change logs to a news server
- * Copyright (C) 2007-2009 Richard Kettlewell
+ * Copyright (C) 2007-2009, 2011 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,6 +122,14 @@ static void free_log(struct logentry *l) {
   memset(l, 0, sizeof *l);
 }
 
+static int is_divider(const char *line) {
+  if(line[0] == '-')
+    return 1;
+  if(!strcmp(line, "Use --include-merges or -n0 to see merged revisions.\n"))
+    return 1;
+  return 0;
+}
+
 /* read one log entry; return 0 on success, -ve on error. */
 static int read_log(FILE *fp, struct logentry *l, time_t now) {
   size_t nline = 0, ntext = 0;
@@ -131,7 +139,7 @@ static int read_log(FILE *fp, struct logentry *l, time_t now) {
 
   memset(l, 0, sizeof *l);
   /* skip dividers */
-  while((rc = getline(&line, &nline, fp)) >= 0 && line[0] == '-')
+  while((rc = getline(&line, &nline, fp)) >= 0 && is_divider(line))
     ;
   if(rc < 0) goto error;
   do {
