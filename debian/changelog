@@ -1,3 +1,9 @@
+rjk-nntp-tools (0.17) unstable; urgency=low
+
+  * Extra user-agent heuristics for spoolstats.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 12 Feb 2011 09:55:48 +0000
+
 rjk-nntp-tools (0.16) unstable; urgency=low
 
   * Support squeeze's bzr, admittedly in a somewhat hacky way.
