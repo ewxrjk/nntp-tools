@@ -1,6 +1,6 @@
 /*
  * This file is part of spoolstats.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010, 2011 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -384,6 +384,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "40tude_Dialog", "40tude_Dialog" },
     { "Alpine", "Alpine" },
     { "alpine", "Alpine" },
+    { "Apple Mail", "Apple Mail" },
     { "Claws Mail", "Claws Mail" },
     { "Direct Read News", "Direct Read News" },
     { "Emas", "Emas" },
@@ -391,18 +392,22 @@ const string &AllGroups::summarize(const string &ua) {
     { "Forte Free Agent", "Forte Agent" },
     { "^G2", "Google Groups" },
     { "Gnus", "Gnus" },
+    { "^gnus", "Gnus" },
     { "Groundhog Newsreader for Android", "Groundhog Newsreader for Android" },
     { "Hamster", "Hamster" },
     { "Hogwasher", "Hogwasher" },
     { "JetBrains Omea Reader", "JetBrains Omea Reader" },
     { "knews", "knews" },
     { "KNode", "KNode" },
+    { "Lotus Notes", "Lotus Notes" },
     { "MacSOUP", "MacSOUP" },
     { "MesNews", "MesNews" },
     { "Messenger-Pro", "Messenger-Pro" },
+    { "Michi Buster", "Michi Buster" },
     { "MicroPlanet Gravity", "MicroPlanet Gravity" },
     { "MicroPlanet-Gravity", "MicroPlanet Gravity" },
     { "Microsoft Outlook Express", "Outlook Express" },
+    { "Microsoft-Outlook-©Express", "Outlook Express" },
     { "Microsoft Windows Mail", "Outlook Express" },
     { "Microsoft Windows Live Mail", "Outlook Express" },
     { "Microsoft Internet News", "Microsoft Internet News" },
@@ -418,6 +423,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "Opera", "Opera" },
     { "Pan", "Pan" },
     { "^pan ", "Pan" },
+    { "Pegasus Mail", "Pegasus Mail" },
     { "Pluto", "Pluto" },
     { "PMINews", "PMINews" },
     { "ProNews", "ProNews" },

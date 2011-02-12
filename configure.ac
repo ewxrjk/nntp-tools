@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 #
-# Copyright (C) 2005-2008, 2010 Richard Kettlewell
+# Copyright (C) 2005-2008, 2010-11 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 # USA
 #
 
-AC_INIT([rjk-nntp-tools], [0.16], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([rjk-nntp-tools], [0.16+], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.16])
+AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.16+])
 AC_CONFIG_SRCDIR([gateways/lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
