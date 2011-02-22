@@ -70,10 +70,10 @@ AC_CHECK_LIB(pthread, pthread_create,
             [missing_libraries="$missing_libraries libpthread"])
 LIBCURL_CHECK_CONFIG([yes],,,[missing_libraries="$missing_libraries libcurl"])
 AC_CACHE_CHECK([for Cairomm CFLAGS],[rjk_cv_cairomm_cflags],[
-  rjk_cv_cairomm_cflags=`pkg-config --cflags cairomm-1.0`
+  rjk_cv_cairomm_cflags=`pkg-config --silence-errors --cflags cairomm-1.0`
 ])
 AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
-  rjk_cv_cairomm_libs=`pkg-config --libs cairomm-1.0`
+  rjk_cv_cairomm_libs=`pkg-config --silence-errors --libs cairomm-1.0`
 ])
 if test "$rjk_cv_cairomm_libs" = ""; then
   SPOOLSTATS=""
