@@ -22,6 +22,7 @@
 
 using namespace std;
 
+/* Return a compact representation of N, using SI suffixes. */
 string compact_kilo(double n) {
   stringstream ss;
   if(n < 1000)

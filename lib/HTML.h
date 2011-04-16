@@ -25,6 +25,7 @@
 #include <ostream>
 
 namespace HTML {
+  /* os << Escape(s) writes S to os with escaping */
   class Escape {
   public:
     inline Escape(const std::string &s): str(s) {}
@@ -36,6 +37,8 @@ namespace HTML {
     return e.write(os, e.str);
   }
 
+  /* os << Quote(s) writes S to os with quoting and escaping (i.e. suitable for
+   * use as an attribute value) */
   class Quote {
   public:
     inline Quote(const std::string &s): str(s) {}
@@ -47,6 +50,9 @@ namespace HTML {
     return e.write(os, e.str);
   }
 
+  /* os << HEader(title, css, js) writes an HTML header to OS.  TITLE is the
+   * title and also the contents of an initial H1, CSS an optional style sheet
+   * to embed and JS an optional fragment of Javascript. */
   class Header {
   public:
     inline Header(const std::string &t,

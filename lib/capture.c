@@ -22,6 +22,9 @@
 #include <string.h>
 #include <sys/wait.h>
 
+/* Execute CMD via the shell and return its standard output as a string.
+ * Terminates on error (including if the command exits nonzero or receives a
+ * fatal signal). */
 char *capture(const char *cmd) {
   char *result = 0;
   size_t result_len = 0;
