@@ -1,3 +1,4 @@
+//-*-C++-*-
 /*
  * This file is part of spoolstats.
  * Copyright (C) 2010 Richard Kettlewell
@@ -46,13 +47,3 @@ public:
 };
 
 #endif /* BUCKET_H */
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

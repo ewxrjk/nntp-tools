@@ -30,12 +30,3 @@ void post(const char *msgid, const char *article);
 /* Post an article with a given message ID */
 
 #endif /* NNTP_H */
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

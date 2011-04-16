@@ -288,13 +288,3 @@ void Graph::save(const std::string &path) {
   }
   surface->write_to_png(path);
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

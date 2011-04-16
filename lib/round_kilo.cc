@@ -35,13 +35,3 @@ string round_kilo(double n) {
     ss << floor(n / 1E9) << "G";
   return ss.str();
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

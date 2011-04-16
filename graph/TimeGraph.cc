@@ -132,13 +132,3 @@ string TimeGraph::display(time_t t, const char *format) {
   strftime(buffer, sizeof buffer, format, &dc);
   return buffer;
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

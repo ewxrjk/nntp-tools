@@ -1,3 +1,4 @@
+//-*-C++-*-
 #ifndef TIMEGRAPH_H
 #define TIMEGRAPH_H
 
@@ -47,13 +48,3 @@ private:
 };
 
 #endif /* TIMEGRAPH_H */
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

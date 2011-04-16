@@ -89,13 +89,3 @@ FILE *open_memstream(char **ptr, size_t *sizeloc) {
 #endif
 
 #endif
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/
-

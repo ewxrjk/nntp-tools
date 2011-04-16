@@ -27,5 +27,4 @@ echo-distdir:
 echo-version:
 	@echo $(VERSION)
 
-EXTRA_DIST=COPYING.sorttable autogen.sh
-
+EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el

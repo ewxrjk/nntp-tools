@@ -370,12 +370,3 @@ void do_debug(const char *s, ...) {
 }
 
 #define D(x) do { if(debug) do_debug x ; } while(0)
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

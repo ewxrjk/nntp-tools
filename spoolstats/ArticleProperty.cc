@@ -47,13 +47,3 @@ ArticleProperty::Value &ArticleProperty::Value::operator+=(const Value &that) {
     senders.insert(*it);
   return *this;
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

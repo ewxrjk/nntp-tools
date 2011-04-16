@@ -357,13 +357,3 @@ void post(const char *msgid, const char *article) {
   D(("processor signalled poster"));
   unlock(&postlock);
 }
-
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

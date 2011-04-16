@@ -168,13 +168,3 @@ static bool parse_int(const string &s, string::size_type &pos, int &n) {
   }
   return good;
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

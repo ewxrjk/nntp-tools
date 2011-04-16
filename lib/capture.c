@@ -53,12 +53,3 @@ char *capture(const char *cmd) {
     fatal(errno, "error calling fflush on memory stream");
   return result;
 }
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

@@ -137,13 +137,3 @@ void Hierarchy::graphs() {
         Config::output + "/" + name + ".csv",
         Config::output + "/" + name + ".png");
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/
