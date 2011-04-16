@@ -38,8 +38,8 @@
 
 static struct postjob {
   struct postjob *next;
-  const char *msgid;
-  const char *article;
+  char *msgid;
+  char *article;
 } *postjobs;
 static pthread_mutex_t postlock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t postcond = PTHREAD_COND_INITIALIZER;
@@ -222,7 +222,7 @@ static int pts_stat(struct postthreadstate *pts, const char *msgid) {
 /* main thread entry point */
 static void *postthread(void attribute((unused)) *arg) {
   int fd = -1, fd2, err;
-  struct addrinfo hints, *res;
+  struct addrinfo hints, *res = NULL, *ans;
   struct postthreadstate pts[1];
 
   D(("postthread"));
@@ -239,7 +239,7 @@ static void *postthread(void attribute((unused)) *arg) {
           gai_strerror(err));
   /* wait for some work to arrive */
   lock(&postlock);
-  while(!postdone) {
+  while(postjobs || !postdone) {
     D(("postthread loop"));
     if(postjobs) {
       D(("jobs found"));
@@ -248,12 +248,12 @@ static void *postthread(void attribute((unused)) *arg) {
         /* unlock the queue while we're faffing with dns */
         unlock(&postlock);
 	/* connect to it */
-	for(; res && fd == -1; res = res->ai_next) {
-	  if((fd = socket(res->ai_family, res->ai_socktype,
-			  res->ai_protocol)) < 0)
+	for(ans = res; ans && fd == -1; ans = ans->ai_next) {
+	  if((fd = socket(ans->ai_family, ans->ai_socktype,
+			  ans->ai_protocol)) < 0)
 	    fatal(errno, "error calling socket");
-	  if(connect(fd, res->ai_addr, res->ai_addrlen) < 0) {
-	    error(errno, "error connecting to %s", res->ai_canonname);
+	  if(connect(fd, ans->ai_addr, ans->ai_addrlen) < 0) {
+	    error(errno, "error connecting to %s", ans->ai_canonname);
             close(fd);
             fd = -1;
           }
@@ -273,10 +273,15 @@ static void *postthread(void attribute((unused)) *arg) {
       }
       /* do any work that is now available */
       while(postjobs) {
+        struct postjob *oldpj;
         D(("posting..."));
         if(pts_stat(pts, postjobs->msgid) != 223)
           pts_post(pts, postjobs->article);
+        oldpj = postjobs;
 	postjobs = postjobs->next;
+        free(oldpj->msgid);
+        free(oldpj->article);
+        free(oldpj);
       }
       /* postdone might have been set during the period we released the lock
        * above.  If so, then postjobs must now be empty, because of the loop we
@@ -294,6 +299,9 @@ static void *postthread(void attribute((unused)) *arg) {
     fclose(pts->fpin);
     fclose(pts->fpout);
   }
+  if(res)
+    freeaddrinfo(res);
+  free(pts->line);
   return 0;
 }
 
@@ -331,16 +339,19 @@ void join_postthread(void) {
 }
 
 void post(const char *msgid, const char *article) {
-  struct postjob *pj = xmalloc(sizeof *pj);
+  struct postjob *pj = xmalloc(sizeof *pj), **pjj;
   int err;
 
   D(("post %s", msgid));
   lock(&postlock);
   D(("processor taken post lock"));
-  pj->next = postjobs;
-  pj->msgid = msgid;
-  pj->article = article;
-  postjobs = pj;
+  pjj = &postjobs;
+  while(*pjj)
+    pjj = &(*pjj)->next;
+  pj->next = NULL;
+  pj->msgid = xstrdup(msgid);
+  pj->article = xstrdup(article);
+  *pjj = pj;
   if((err = pthread_cond_signal(&postcond)))
     fatal(err, "error calling pthread_cond_signal");
   D(("processor signalled poster"));

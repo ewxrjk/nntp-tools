@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2007, 2008 Richard Kettlewell
+.\" Copyright (C) 2007, 2008, 2011 Richard Kettlewell
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,13 +18,18 @@
 .\"
 .TH bzr2news 1
 .SH NAME
-bzr2news \- post bzr revision history to a newsgroup
+git2news, bzr2news \- post bzr or git revision history to a newsgroup
 .SH SYNOPSIS
 .B bzr2news
 .RI [OPTIONS]
+.PP
+.B git2news
+.RI [OPTIONS]
 .SH DESCRIPTION
 .B bzr2news
-posts recent changes to an Bazaar archive to a newsgroup.
+and
+.B git2news
+posts recent changes to an Bazaar archive or git repository to a newsgroup.
 .SH OPTIONS
 .SS "Mandatory Options"
 .TP

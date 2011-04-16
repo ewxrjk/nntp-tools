@@ -127,6 +127,16 @@ void unlock(pthread_mutex_t *m) {
     fatal(err, "error calling pthread_mutex_unlock");
 }
 
+int fexists(const char *path) {
+  struct stat sb;
+  if(stat(path, &sb) < 0) {
+    if(errno == ENOENT)
+      return 0;
+    fatal(errno, "error statting %s", path);
+  }
+  return 1;
+}
+
 /* --- convert a W3C date to an RFC822 date -------------------------------- */
 
 /* http://dublincore.org/documents/dces/ says:

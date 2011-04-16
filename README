@@ -56,14 +56,11 @@ cron job:
     http://www.livejournal.com/users/ewx/rss
 
 
-tla2news and bzr2news
+git2news and bzr2news
 ---------------------
 
-tla2news and bzr2news post Arch and Bazaar changelog entries to a
-newsgroup.  See "man tla2news" or "man bzr2news" for documentation.
-
-tla2news is essentially obsolete and may be removed in future
-releases.
+git2news and bzr2news post Git and Bazaar changelog entries to a
+newsgroup.  See "man git2news" or "man bzr2news" for documentation.
 
 
 spoolstats

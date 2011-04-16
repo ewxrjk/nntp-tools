@@ -30,6 +30,11 @@ bzr2news_LDADD=../lib/libmisc.a $(LIBGCRYPT) $(LIBPTHREAD)
 
 AM_CPPFLAGS=-I${top_srcdir}/lib
 
-man_MANS=lj2news.1 tla2news.1 bzr2news.1
+man_MANS=lj2news.1 tla2news.1 bzr2news.1 git2news.1
 
 EXTRA_DIST=$(man_MANS)
+
+install-exec-hook:
+	rm -f $(DESTDIR)$(bindir)/git2news$(EXEEXT)
+	ln $(DESTDIR)$(bindir)/bzr2news$(EXEEXT) \
+                $(DESTDIR)$(bindir)/git2news$(EXEEXT)
