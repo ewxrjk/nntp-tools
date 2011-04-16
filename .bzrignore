@@ -13,7 +13,6 @@ config.status
 configure
 gateways/lj2news
 stamp-h1
-gateways/tla2news
 config.aux/depcomp
 config.aux/install-sh
 config.aux/missing

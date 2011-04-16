@@ -9,11 +9,11 @@ Homepage: http://www.greenend.org.uk/rjk/2006/newstools.html
 Package: rjk-nntp-tools
 Architecture: any
 Depends: ${shlibs:Depends}
-Recommends: lynx,bzr
+Recommends: lynx,bzr,git
 Description: Miscellanous Usenet news tools
  lj2news: post Livejournal articles fetched by RSS to news
  bzr2news: post bzr changelog entries to news
- tla2news: post Arch changelog entries to news (obsolete, may be removed)
+ git2news: post git changelog entries to news
 
 Package: rjk-spoolstats
 Architecture: any

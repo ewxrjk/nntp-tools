@@ -88,7 +88,6 @@ pkg-rjk-nntp-tools:
 	done
 	$(MAKE) -C gateways DESTDIR=`pwd`/debian/rjk-nntp-tools install
 	strip --remove-section=.comment debian/rjk-nntp-tools/usr/bin/bzr2news \
-					debian/rjk-nntp-tools/usr/bin/tla2news \
 					debian/rjk-nntp-tools/usr/bin/lj2news
 	dpkg-shlibdeps -Tdebian/substvars.rjk-nntp-tools \
 		debian/rjk-nntp-tools/usr/bin/*
