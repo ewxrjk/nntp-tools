@@ -39,9 +39,23 @@ my %sites = (
     "dw" => "dreamwidth.org"
     );
 
+# Seek lj2news on the path
+my $lj2news;
+for my $dir (split(/:/, $ENV{PATH})) {
+    if(-x "$dir/lj2news") {
+        $lj2news = "$dir/lj2news";
+        last;
+    }
+}
+if(!defined $lj2news) {
+    die "Cannot find lj2news on \$PATH\n";
+}
+
+print "\n";
 print "Welcome to setup-lj2news.  I will ask you some questions and then\n";
-print "create a cron job to automatically gateway your journal into a\n";
-print "newsgroup.\n";
+print "tell you the lj2news command to use to gateway your journal into\n";
+print "a newsgroup.  If you like, I can add it to your crontab so that\n";
+print "the gatewaying happens automatically from now on.\n";
 print "\n";
 print "Each question has a suggested answer in [square brackets].  You\n";
 print "can accept this answer just by pressing ENTER.  Otherwise, enter\n";
@@ -160,10 +174,13 @@ do {
     chomp($newsgroup = <STDIN>);
 } while($newsgroup eq '');
 
+# Parameters
 my $userAgent = "http://www.greenend.org.uk/rjk/2006/newstools.html;$email";
 my $url = "http://www.$site/users/$user/rss";
 
-my @command = ("lj2news",
+# Synthesize the command.  We include the full path to lj2news to avoid
+# problems with the PATH being different in the runtime environment.
+my @command = ($lj2news,
                "-a", $userAgent,
                "-t", $user,
                "-f", "$name <$email>",
@@ -178,8 +195,6 @@ print "OK, here is the command you will need:\n";
 print "\n";
 print "$command\n";
 print "\n";
-
-exit(0);
 
 print "I can add this command to your crontab, to check your journal\n";
 print "for fresh postings every hour.\n";
@@ -202,4 +217,56 @@ if($updateCron eq 'no') {
     exit(0);
 }
 
-# TODO
+END {
+    unlink("$ENV{HOME}/.lj2news.crontab");
+    unlink("$ENV{HOME}/.lj2news.errors");
+}
+
+# Retrieve the existing crontab.  This is a bit fiddly as we want to be
+# 100% certain that an apparently absent crontab really is just that.
+# It's probably very dependent on particular versions of cron.
+$rc = system("crontab -l > $ENV{HOME}/.lj2news.crontab 2>$ENV{HOME}/.lj2news.errors");
+if($rc != 0) {
+    if($rc == 256) {
+        open(ERRORS, "<$ENV{HOME}/.lj2news.errors") or die "$ENV{HOME}/.lj2news.errors: $!\n";
+        my $line = <ERRORS>;
+        if($line !~ /^no crontab for /) {
+            die "unexpected error output retrieving crontab\n";
+        }
+        close ERRORS;
+    } else {
+        die "error retrieving crontab ($rc)\n";
+    }
+}
+
+# Make sure we've not already done our thing.  Someone trying to set up
+# more than one gateway will be disappointed.  Perhaps a future version
+# will do better - but hopefuly it's a rare case.
+open(CRONTAB, "<$ENV{HOME}/.lj2news.crontab") or die "$ENV{HOME}/.lj2news.crontab: $!\n";
+my @crontab = <CRONTAB>;
+close CRONTAB;
+for(@crontab) {
+    if(/lj2news/) {
+        print "\n";
+        print "You seem to have an lj2news entry in your crontab already.\n";
+        print "I'm too suspicious of this to continue.  Sorry about that l-(\n";
+        exit(1);
+    }
+}
+
+push(@crontab, 
+     "\n",
+     "# added by setup-lj2news\n",
+     "0 * * * * $command\n");
+
+open(CRON, "|crontab") or die "opening pipe to crontab: $!\n";
+print CRON @crontab or die "writing to crontab: $!\n";
+if(!close CRON) {
+    die "writing to crontab: $!\n" if $! != 0;
+    die "crontab failed: $?\n"; # hopefuly it will have printed its own message
+}
+    
+print "\n";
+print "OK, I have updated your crontab.\n";
+print "Use this command to see what it looks like now:\n";
+print "  crontab -l\n";
