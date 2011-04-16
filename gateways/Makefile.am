@@ -29,7 +29,7 @@ AM_CPPFLAGS=-I${top_srcdir}/lib
 
 man_MANS=lj2news.1 bzr2news.1 git2news.1
 
-EXTRA_DIST=$(man_MANS)
+EXTRA_DIST=$(man_MANS) setup-lj2news
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(bindir)/git2news$(EXEEXT)
