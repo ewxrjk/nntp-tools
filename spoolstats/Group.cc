@@ -1,5 +1,5 @@
 /*
- * This file is part of spoolstats.
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
@@ -52,13 +52,3 @@ void Group::summary(ostream &os) {
   os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   // TODO can we find a better stream state restoration idiom?
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

@@ -1,4 +1,5 @@
 /*
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2005, 2006, 2008, 2009 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *
@@ -561,12 +562,3 @@ Rarely used options:\n\
 }
 
 /* --- elvis has left the building ----------------------------------------- */
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

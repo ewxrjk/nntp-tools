@@ -1,0 +1,273 @@
+#! /usr/bin/perl -w
+#
+# This file is part of rjk-nntp-tools.
+# Copyright (C) 2011 Richard Kettlewell
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+#
+use strict;
+
+sub quote {
+    local $_ = shift;
+    # Simple strings require no quoting at all
+    if(/^[\-a-zA-Z0-9_:\/\.]+$/) {
+        return $_;
+    }
+    # For preference use single quotes
+    if(!/\''/) {
+        return "'$_'";
+    }
+    # Otherwise escape funnies and use double quotes
+    s/[\"\\]/\\$&/g;
+    return "\"$_\"";
+}
+
+my %sites = (
+    "lj" => "livejournal.com",
+    "dw" => "dreamwidth.org"
+    );
+
+# Seek lj2news on the path
+my $lj2news;
+for my $dir (split(/:/, $ENV{PATH})) {
+    if(-x "$dir/lj2news") {
+        $lj2news = "$dir/lj2news";
+        last;
+    }
+}
+if(!defined $lj2news) {
+    die "Cannot find lj2news on \$PATH\n";
+}
+
+print "\n";
+print "Welcome to setup-lj2news.  I will ask you some questions and then\n";
+print "tell you the lj2news command to use to gateway your journal into\n";
+print "a newsgroup.  If you like, I can add it to your crontab so that\n";
+print "the gatewaying happens automatically from now on.\n";
+print "\n";
+print "Each question has a suggested answer in [square brackets].  You\n";
+print "can accept this answer just by pressing ENTER.  Otherwise, enter\n";
+print "the right answer and press ENTER.\n";
+print "\n";
+print "At any time you can press CTRL-C to quit.\n";
+print "\n";
+print "Press ENTER when you're ready to go.\n";
+
+$_ = <STDIN>;
+
+print "\n";
+print "I need to know what site you use.\n";
+for my $shortsite (sort keys %sites) {
+    my $site = $sites{$shortsite};
+    print "For $site, enter: $shortsite\n";
+}
+print "\n";
+my $shortsite;
+do {
+    print "[lj] > ";
+    chomp($shortsite = <STDIN>);
+    $shortsite = 'lj' if $shortsite eq '';
+} while(!exists $sites{$shortsite});
+my $site = $sites{$shortsite};
+
+print "\n";
+print "I need to know your $site username.\n";
+print "\n";
+my $user;
+my $rc;
+do {
+    print "[$ENV{LOGNAME}] > ";
+    chomp($user = <STDIN>);
+    $user = $ENV{LOGNAME} if $user eq '';
+    $rc = system("wget -qO - http://$user.$site > /dev/null 2>&1");
+    if($rc != 0) {
+        print "\n";
+        print "Oh dear; http://$user.$site does not seem to work.\n";
+        print "If you are you sure '$user' is right, then perhaps $site\n";
+        print "is down at the moment.  In that case, hit CTRL-C now\n";
+        print "and try again later.\n";
+        print "\n";
+    }
+} while($rc != 0);
+
+my $domain;
+if(-e "/etc/mailname") {
+    open(MAILNAME, "</etc/mailname") or die "/etc/mailname: $!\n";
+    chomp($domain = <MAILNAME>);
+    close MAILNAME;
+} else {
+    $domain = `hostname -f`;
+}
+
+print "\n";
+print "I need to know your email address.  I will use this in two ways:\n";
+print "1) It will be the From: line of the news postings of your journal.\n";
+print "2) It will be supplied to $site (per the LJ bot policy).\n";
+print "\n";
+my $email;
+my $defaultEmail = "$ENV{LOGNAME}\@$domain";
+do {
+    print "[$defaultEmail] > ";
+    chomp($email = <STDIN>);
+    if($email eq '') {
+        $email = $defaultEmail;
+    }
+    if($email !~ /\@/) {
+        print "\n";
+        print "Oh dear; that doesn't look like a valid email address to me.\n";
+        print "\n";
+    }
+} while($email !~ /\@/);
+
+print "\n";
+print "I need to know your name.  I will put this in the From: line of the\n";
+print "news postings of your journal.\n";
+print "\n";
+my $name;
+my @pw = getpwnam($ENV{LOGNAME});
+my $defaultName = $pw[6];
+$defaultName =~ s/,.*//;
+print "[$defaultName] > ";
+chomp($name = <STDIN>);
+if($name eq '') {
+    $name = $defaultName;
+}
+
+print "\n";
+print "I need to know what news server you want to use.\n";
+print "\n";
+my $newsServer;
+my $defaultServer = $ENV{NNTPSERVER} || 'news';
+do {
+    print "[$defaultServer] > ";
+    chomp($newsServer = <STDIN>);
+    if($newsServer eq '') {
+        $newsServer = $defaultServer;
+    }
+    $rc = system("host \Q$newsServer\E >/dev/null 2>&1");
+    if($rc) {
+        print "\n";
+        print "Oh dear; that hostname doesn't seem to exist.\n";
+        print "\n";
+    }
+} while($rc);
+
+print "\n";
+print "I need to know what newsgroup you want to post your journal to.\n";
+print "\n";
+my $newsgroup;
+# TODO there should be a system-wide default.
+do {
+    print "[] > ";
+    chomp($newsgroup = <STDIN>);
+} while($newsgroup eq '');
+
+# Parameters
+my $userAgent = "http://www.greenend.org.uk/rjk/2006/newstools.html;$email";
+my $url = "http://www.$site/users/$user/rss";
+
+# Synthesize the command.  We include the full path to lj2news to avoid
+# problems with the PATH being different in the runtime environment.
+my @command = ($lj2news,
+               "-a", $userAgent,
+               "-t", $user,
+               "-f", "$name <$email>",
+               "-n", $newsgroup,
+               "-s", $newsServer,
+               $url);
+
+my $command = join(" ", map(quote($_), @command));
+
+print "\n";
+print "OK, here is the command you will need:\n";
+print "\n";
+print "$command\n";
+print "\n";
+
+print "I can add this command to your crontab, to check your journal\n";
+print "for fresh postings every hour.\n";
+print "\n";
+my $updateCron;
+do {
+    print "Modify your crontab?\n";
+    print "[no] > ";
+    chomp($updateCron = <STDIN>);
+    if($updateCron ne 'yes' && $updateCron ne 'no') {
+        print "\n";
+        print "Sorry, I didn't understand that.  Please answer 'yes' or 'no'.\n";
+        print "\n";
+    }
+} while($updateCron ne 'yes' && $updateCron ne 'no');
+
+if($updateCron eq 'no') {
+    print "\n";
+    print "OK, I've not touched a thing.\n";
+    exit(0);
+}
+
+END {
+    unlink("$ENV{HOME}/.lj2news.crontab");
+    unlink("$ENV{HOME}/.lj2news.errors");
+}
+
+# Retrieve the existing crontab.  This is a bit fiddly as we want to be
+# 100% certain that an apparently absent crontab really is just that.
+# It's probably very dependent on particular versions of cron.
+$rc = system("crontab -l > $ENV{HOME}/.lj2news.crontab 2>$ENV{HOME}/.lj2news.errors");
+if($rc != 0) {
+    if($rc == 256) {
+        open(ERRORS, "<$ENV{HOME}/.lj2news.errors") or die "$ENV{HOME}/.lj2news.errors: $!\n";
+        my $line = <ERRORS>;
+        if($line !~ /^no crontab for /) {
+            die "unexpected error output retrieving crontab\n";
+        }
+        close ERRORS;
+    } else {
+        die "error retrieving crontab ($rc)\n";
+    }
+}
+
+# Make sure we've not already done our thing.  Someone trying to set up
+# more than one gateway will be disappointed.  Perhaps a future version
+# will do better - but hopefuly it's a rare case.
+open(CRONTAB, "<$ENV{HOME}/.lj2news.crontab") or die "$ENV{HOME}/.lj2news.crontab: $!\n";
+my @crontab = <CRONTAB>;
+close CRONTAB;
+for(@crontab) {
+    if(/lj2news/) {
+        print "\n";
+        print "You seem to have an lj2news entry in your crontab already.\n";
+        print "I'm too suspicious of this to continue.  Sorry about that l-(\n";
+        exit(1);
+    }
+}
+
+push(@crontab, 
+     "\n",
+     "# added by setup-lj2news\n",
+     "0 * * * * $command\n");
+
+open(CRON, "|crontab") or die "opening pipe to crontab: $!\n";
+print CRON @crontab or die "writing to crontab: $!\n";
+if(!close CRON) {
+    die "writing to crontab: $!\n" if $! != 0;
+    die "crontab failed: $?\n"; # hopefuly it will have printed its own message
+}
+    
+print "\n";
+print "OK, I have updated your crontab.\n";
+print "Use this command to see what it looks like now:\n";
+print "  crontab -l\n";

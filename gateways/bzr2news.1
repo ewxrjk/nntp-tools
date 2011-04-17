@@ -1,5 +1,6 @@
 .\"
-.\" Copyright (C) 2007, 2008 Richard Kettlewell
+.\" This file is part of rjk-nntp-tools.
+.\" Copyright (C) 2007, 2008, 2011 Richard Kettlewell
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -18,13 +19,18 @@
 .\"
 .TH bzr2news 1
 .SH NAME
-bzr2news \- post bzr revision history to a newsgroup
+git2news, bzr2news \- post bzr or git revision history to a newsgroup
 .SH SYNOPSIS
 .B bzr2news
 .RI [OPTIONS]
+.PP
+.B git2news
+.RI [OPTIONS]
 .SH DESCRIPTION
 .B bzr2news
-posts recent changes to an Bazaar archive to a newsgroup.
+and
+.B git2news
+posts recent changes to an Bazaar archive or git repository to a newsgroup.
 .SH OPTIONS
 .SS "Mandatory Options"
 .TP
@@ -50,7 +56,7 @@ Display a usage message and terminate.
 The maximum age of changes to post.  The default is 1 week (604800
 seconds).
 .TP
-.B -m \fIMSGIDDOMjAIN\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
+.B -m \fIMSGIDDOMAIN\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
 The message-ID domain.  Normally need not be specified.
 .TP
 .B -p \fIPORT\fR, \fB--port \fIPORT\fR

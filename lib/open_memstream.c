@@ -1,4 +1,5 @@
 /*
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2005 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
@@ -89,13 +90,3 @@ FILE *open_memstream(char **ptr, size_t *sizeloc) {
 #endif
 
 #endif
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/
-

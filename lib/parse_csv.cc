@@ -25,6 +25,7 @@
 
 using namespace std;
 
+// Parse a CSV file with numeric contents
 void read_csv(const string &path, list<vector<intmax_t> > &rows) {
   // istream (at least as actually implemented) doesn't give us a way
   // to distinguish error from eof, so we don't use it.
@@ -49,13 +50,3 @@ void read_csv(const string &path, list<vector<intmax_t> > &rows) {
     fatal(errno, "reading %s", path.c_str());
   fclose(fp);
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

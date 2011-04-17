@@ -81,7 +81,7 @@ products="$archive"
 
 # Build .deb files
 s build araminta amd64          # squeeze
-s build leucomorph i386         # squeeze
+s build sandestin i386          # squeeze
 
 # List built products
 echo

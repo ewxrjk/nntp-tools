@@ -9,16 +9,19 @@ Homepage: http://www.greenend.org.uk/rjk/2006/newstools.html
 Package: rjk-nntp-tools
 Architecture: any
 Depends: ${shlibs:Depends}
-Recommends: lynx,bzr
+Recommends: lynx,bzr,git
 Description: Miscellanous Usenet news tools
  lj2news: post Livejournal articles fetched by RSS to news
  bzr2news: post bzr changelog entries to news
- tla2news: post Arch changelog entries to news (obsolete, may be removed)
+ git2news: post git changelog entries to news
 
 Package: rjk-spoolstats
 Architecture: any
 Depends: ${shlibs:Depends}
 Description: Usenet news spool analysis
- Creates an HTML report about the contents of the spool.
- A work in progress!
-
+ Creates an HTML report about the contents of a news spool.
+ .
+ Draws graphs and generates sortable tables for each of selected
+ hierarchies and for their union.  Reports the rate of posting by
+ article and by byte, and the number of distinct posters.  Also
+ reports the popularity of different user agents.

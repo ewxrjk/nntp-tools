@@ -1,6 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 #
-# Copyright (C) 2005-2008, 2010-11 Richard Kettlewell
+# This file is part of rjk-nntp-tools.
+# Copyright (C) 2005-2011 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 AC_INIT([rjk-nntp-tools], [0.17], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([rjk-nntp-tools], [0.17])
+AM_INIT_AUTOMAKE([1.10])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_SRCDIR([gateways/lj2news.c])
 AM_CONFIG_HEADER([config.h])
 
@@ -70,10 +72,10 @@ AC_CHECK_LIB(pthread, pthread_create,
             [missing_libraries="$missing_libraries libpthread"])
 LIBCURL_CHECK_CONFIG([yes],,,[missing_libraries="$missing_libraries libcurl"])
 AC_CACHE_CHECK([for Cairomm CFLAGS],[rjk_cv_cairomm_cflags],[
-  rjk_cv_cairomm_cflags=`pkg-config --cflags cairomm-1.0`
+  rjk_cv_cairomm_cflags=`pkg-config --silence-errors --cflags cairomm-1.0`
 ])
 AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
-  rjk_cv_cairomm_libs=`pkg-config --libs cairomm-1.0`
+  rjk_cv_cairomm_libs=`pkg-config --silence-errors --libs cairomm-1.0`
 ])
 if test "$rjk_cv_cairomm_libs" = ""; then
   SPOOLSTATS=""

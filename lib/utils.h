@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2006, 2007, 2010 Richard Kettlewell
+ * This file is part of rjk-nntp-tools.
+ * Copyright (C) 2006, 2007, 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +46,8 @@ const char *w3date_to_822date(const char *w3date);
 time_t bzrdate_to_time_t(const char *bzrdate);
 const char *time_t_to_822date(time_t when);
 time_t rfc822date_to_time_t(const char *rfc822date);
+int fexists(const char *path);
+char *capture(const char *cmd);
 
 /* Debugging */
 
@@ -69,12 +72,3 @@ ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 #endif
 
 #endif /* UTILS_H */
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

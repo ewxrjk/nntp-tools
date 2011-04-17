@@ -1,5 +1,5 @@
 /*
- * This file is part of spoolstats.
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2010 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
@@ -137,13 +137,3 @@ void Hierarchy::graphs() {
         Config::output + "/" + name + ".csv",
         Config::output + "/" + name + ".png");
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

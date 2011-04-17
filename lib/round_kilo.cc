@@ -23,6 +23,9 @@
 
 using namespace std;
 
+// Return a compact representation of N, using SI suffixes.  Differs from
+// compact_kilo() in that values a bit over 10^(3n) are represented using the
+// next suffix down.
 string round_kilo(double n) {
   stringstream ss;
   if(n < 2000)
@@ -35,13 +38,3 @@ string round_kilo(double n) {
     ss << floor(n / 1E9) << "G";
   return ss.str();
 }
-
-/*
-Local Variables:
-mode:c++
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

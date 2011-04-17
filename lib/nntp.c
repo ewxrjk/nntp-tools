@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2005, 2006, 2010 Richard Kettlewell
+ * This file is part of rjk-nntp-tools.
+ * Copyright (C) 2005, 2006, 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,26 +37,43 @@
 
 /* --- NNTP poster thread -------------------------------------------------- */
 
+/* A queued article to post.  Jobs are kept in a linked list and processed in
+ * order. */
 static struct postjob {
   struct postjob *next;
-  const char *msgid;
-  const char *article;
+  char *msgid;
+  char *article;
 } *postjobs;
-static pthread_mutex_t postlock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t postcond = PTHREAD_COND_INITIALIZER;
+
+/* Set when the last postjob is queued */
 static int postdone;
+
+/* Lock protecting postjobs */
+static pthread_mutex_t postlock = PTHREAD_MUTEX_INITIALIZER;
+
+/* condvar signaled when postjobs or postdone are modified */
+static pthread_cond_t postcond = PTHREAD_COND_INITIALIZER;
+
+/* ID of the posting thread */
 static pthread_t postthread_id;
+
+/* Count of unwanted articles */
 static int unwanted;
+
+/* Protocol family override */
 static int pf;
+
+/* Server hostname/port */
 static const char *server, *port;
 
+/* Internal state of the posting thread */
 struct postthreadstate {
   FILE *fpin, *fpout;                   /* input from and output to NNRPD */
   char *line;                           /* latest response line */
   size_t n;                             /* buffer size for getline(3) */
 };
 
-/* fetch an NNTP response */
+/* Fetch an NNTP response.  Returns the 3-digit status as an int. */
 static int pts_response(struct postthreadstate *pts) {
   char *s;
 
@@ -78,7 +96,7 @@ static int pts_response(struct postthreadstate *pts) {
   return pts->line[0] * 100 + pts->line[1] * 10 + pts->line[2] - 111 * '0';
 }
 
-/* check the startup banner */
+/* Check the startup banner and terminate if it is unsuitable */
 static void pts_banner(struct postthreadstate *pts) {
   switch(pts_response(pts)) {
   case 200: break;
@@ -87,7 +105,8 @@ static void pts_banner(struct postthreadstate *pts) {
   }
 }
 
-/* write to the NNRPD */
+/* Write to the NNRPD, printf-style.  The trailing CRLF must be included in
+ * FMT. */
 static void pts_write(struct postthreadstate *pts, const char *fmt, ...) {
   va_list ap;
 
@@ -103,7 +122,7 @@ static void pts_write(struct postthreadstate *pts, const char *fmt, ...) {
   }
 }
 
-/* write a byte to the NNRPD */
+/* Write a byte to the NNRPD */
 static void pts_putc(struct postthreadstate *pts, int c) {
   if(putc(c, pts->fpout) < 0)
     fatal(errno, "error writing to news server");
@@ -111,7 +130,7 @@ static void pts_putc(struct postthreadstate *pts, int c) {
     putc(c, stderr);
 }
 
-/* do NNTP authentication.  Only AUTHINFO GENERIC is supported currently. */
+/* Do NNTP authentication.  Only AUTHINFO GENERIC is supported currently. */
 static void pts_auth(struct postthreadstate *pts) {
   const char *nntpauth, *nntp_auth_fds;
   int cookiefd = -1;
@@ -219,10 +238,10 @@ static int pts_stat(struct postthreadstate *pts, const char *msgid) {
   return r;
 }
 
-/* main thread entry point */
+/* Main thread entry point */
 static void *postthread(void attribute((unused)) *arg) {
   int fd = -1, fd2, err;
-  struct addrinfo hints, *res;
+  struct addrinfo hints, *res = NULL, *ans;
   struct postthreadstate pts[1];
 
   D(("postthread"));
@@ -239,21 +258,21 @@ static void *postthread(void attribute((unused)) *arg) {
           gai_strerror(err));
   /* wait for some work to arrive */
   lock(&postlock);
-  while(!postdone) {
+  while(postjobs || !postdone) {
     D(("postthread loop"));
     if(postjobs) {
       D(("jobs found"));
       if(fd == -1) {
         D(("connect to news swerver"));
-        /* unlock the queue while we're faffing with dns */
+        /* unlock the queue while we're connecting */
         unlock(&postlock);
 	/* connect to it */
-	for(; res && fd == -1; res = res->ai_next) {
-	  if((fd = socket(res->ai_family, res->ai_socktype,
-			  res->ai_protocol)) < 0)
+	for(ans = res; ans && fd == -1; ans = ans->ai_next) {
+	  if((fd = socket(ans->ai_family, ans->ai_socktype,
+			  ans->ai_protocol)) < 0)
 	    fatal(errno, "error calling socket");
-	  if(connect(fd, res->ai_addr, res->ai_addrlen) < 0) {
-	    error(errno, "error connecting to %s", res->ai_canonname);
+	  if(connect(fd, ans->ai_addr, ans->ai_addrlen) < 0) {
+	    error(errno, "error connecting to %s", ans->ai_canonname);
             close(fd);
             fd = -1;
           }
@@ -273,10 +292,15 @@ static void *postthread(void attribute((unused)) *arg) {
       }
       /* do any work that is now available */
       while(postjobs) {
+        struct postjob *pj = postjobs;
+        /* TODO actually we could probably unlock here */
         D(("posting..."));
-        if(pts_stat(pts, postjobs->msgid) != 223)
-          pts_post(pts, postjobs->article);
+        if(pts_stat(pts, pj->msgid) != 223)
+          pts_post(pts, pj->article);
 	postjobs = postjobs->next;
+        free(pj->msgid);
+        free(pj->article);
+        free(pj);
       }
       /* postdone might have been set during the period we released the lock
        * above.  If so, then postjobs must now be empty, because of the loop we
@@ -294,9 +318,13 @@ static void *postthread(void attribute((unused)) *arg) {
     fclose(pts->fpin);
     fclose(pts->fpout);
   }
+  if(res)
+    freeaddrinfo(res);
+  free(pts->line);
   return 0;
 }
 
+/* Create the posting thread. */
 void create_postthread(int pf_, const char *server_, const char *port_) {
   int err;
 
@@ -314,6 +342,7 @@ void create_postthread(int pf_, const char *server_, const char *port_) {
     fatal(err, "error calling pthread_create");
 }
 
+/* Wait for the posting thread to complete */
 void join_postthread(void) {
   int err;
 
@@ -330,29 +359,23 @@ void join_postthread(void) {
   D(("%d articles unwanted", unwanted));
 }
 
+/* Queue an article for posting */
 void post(const char *msgid, const char *article) {
-  struct postjob *pj = xmalloc(sizeof *pj);
+  struct postjob *pj = xmalloc(sizeof *pj), **pjj;
   int err;
 
   D(("post %s", msgid));
   lock(&postlock);
   D(("processor taken post lock"));
-  pj->next = postjobs;
-  pj->msgid = msgid;
-  pj->article = article;
-  postjobs = pj;
+  pjj = &postjobs;
+  while(*pjj)
+    pjj = &(*pjj)->next;
+  pj->next = NULL;
+  pj->msgid = xstrdup(msgid);
+  pj->article = xstrdup(article);
+  *pjj = pj;
   if((err = pthread_cond_signal(&postcond)))
     fatal(err, "error calling pthread_cond_signal");
   D(("processor signalled poster"));
   unlock(&postlock);
 }
-
-
-/*
-Local Variables:
-c-basic-offset:2
-comment-column:40
-fill-column:79
-indent-tabs-mode:nil
-End:
-*/

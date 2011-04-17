@@ -55,15 +55,15 @@ cron job:
     -S $HOME/.lj2news-sig.txt \
     http://www.livejournal.com/users/ewx/rss
 
+Alternatively, use setup-lj2news which will ask you about your journal
+and figure out the required command.
 
-tla2news and bzr2news
+
+git2news and bzr2news
 ---------------------
 
-tla2news and bzr2news post Arch and Bazaar changelog entries to a
-newsgroup.  See "man tla2news" or "man bzr2news" for documentation.
-
-tla2news is essentially obsolete and may be removed in future
-releases.
+git2news and bzr2news post Git and Bazaar changelog entries to a
+newsgroup.  See "man git2news" or "man bzr2news" for documentation.
 
 
 spoolstats
@@ -103,7 +103,7 @@ Copyright
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
   USA
 
-The bulk of the code is copyright (c) 2005-2010 Richard Kettlewell and
+The bulk of the code is copyright (c) 2005-2011 Richard Kettlewell and
 subject to GPL 2 or later.  See COPYING.
 
 Portions copyright (c) 1997-date Stuart Langridge and subject to the
