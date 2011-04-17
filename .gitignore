@@ -34,3 +34,5 @@ rjk-nntp-tools-*
 *.dsc
 debian/rjk-spoolstats
 graph/t
+*.o
+*.a
