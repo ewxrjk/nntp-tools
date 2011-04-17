@@ -1,3 +1,22 @@
+/*
+ * This file is part of rjk-nntp-tools.
+ * Copyright (C) 2010-11 Richard Kettlewell
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ */
 #include "cpputils.h"
 #include "utils.h"
 #include <iostream>
@@ -11,6 +30,7 @@ static void skip_ws(const string &s, string::size_type &pos);
 static bool parse_word(const string &s, string::size_type &pos, string &word);
 static bool parse_int(const string &s, string::size_type &pos, int &n);
 
+// Parse a date string and return it as a time_t
 time_t parse_date(const string &d) {
   struct tm bdt;
   int zone;
@@ -25,6 +45,7 @@ time_t parse_date(const string &d) {
   return when;
 }
 
+// Parse a date string and return it as a struct tm and a timezone offset
 static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
   static const string months[] = {
     "jan", "feb", "mar", "apr",
@@ -145,10 +166,12 @@ static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
   return true;
 }
 
+// Move POS forward past whitespace in S
 static void skip_ws(const string &s, string::size_type &pos) {
   pos = s.find_first_not_of(" \t", pos);
 }
 
+// Move POS forward past a word in S, returning it via WORD
 static bool parse_word(const string &s, string::size_type &pos, string &word) {
   bool good = false;
   word.clear();
@@ -159,6 +182,7 @@ static bool parse_word(const string &s, string::size_type &pos, string &word) {
   return good;
 }
 
+// Move POS forward past a decimal integer in S, returning it via N
 static bool parse_int(const string &s, string::size_type &pos, int &n) {
   bool good = false;
   n = 0;

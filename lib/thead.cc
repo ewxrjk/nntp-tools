@@ -24,6 +24,8 @@ using namespace std;
 
 namespace HTML {
 
+  // Write out a table heading row.  The arguments are a
+  // null-pointer-terminated list of char *s.
   void thead(ostream &os, const char *heading, ...) {
     va_list ap;
     os << "<thead>\n";

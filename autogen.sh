@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# This file is part of newstools
+# This file is part of rjk-nntp-tools.
 # Copyright (C) 2005, 2010 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify

@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2005, 2006, 2007 Richard Kettlewell
+ * This file is part of rjk-nntp-tools.
+ * Copyright (C) 2005-08, 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-
 #include <config.h>
 
 #include <stdio.h>
@@ -36,6 +36,7 @@
 
 /* --- utilities ----------------------------------------------------------- */
 
+/* called by fatal() */
 static void (*exitfn)(int) attribute((noreturn)) = exit;
 
 /* report a non-fatal error */
@@ -66,7 +67,7 @@ void fatal(int errno_value, const char *msg, ...) {
   exitfn(1);
 }
 
-/* malloc || fatal */
+/* Allocate memory, call fatal() on error */
 void *xmalloc(size_t n) {
   void *ptr;
 
@@ -74,13 +75,13 @@ void *xmalloc(size_t n) {
   return ptr;
 }
 
-/* realloc || fatal */
+/* Realloc memory, call fatal() on error */
 void *xrealloc(void *ptr, size_t n) {
   if(!(ptr = realloc(ptr, n)) && n) fatal(errno, "error calling realloc");
   return ptr;
 }
 
-/* strdup || fatal */
+/* Duplicate a string, call fatal() on error */
 char *xstrdup(const char *s) {
   return strcpy(xmalloc(strlen(s) + 1), s);
 }
@@ -127,6 +128,7 @@ void unlock(pthread_mutex_t *m) {
     fatal(err, "error calling pthread_mutex_unlock");
 }
 
+/* Return nonzero if PATH exists, else 0.  On error, calls fatal(). */
 int fexists(const char *path) {
   struct stat sb;
   if(stat(path, &sb) < 0) {

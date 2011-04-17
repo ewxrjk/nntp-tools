@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2005, 2006, 2010 Richard Kettlewell
+ * This file is part of rjk-nntp-tools.
+ * Copyright (C) 2005, 2006, 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

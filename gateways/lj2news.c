@@ -1,4 +1,5 @@
 /*
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2005, 2006, 2008, 2009 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *

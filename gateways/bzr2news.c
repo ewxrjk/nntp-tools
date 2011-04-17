@@ -1,5 +1,6 @@
 /*
  * bzr2news - post bzr change logs to a news server
+ * This file is part of rjk-nntp-tools.
  * Copyright (C) 2007-2009, 2011 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify

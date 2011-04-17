@@ -22,6 +22,7 @@
 
 using namespace std;
 
+// Split S into BITS on separator SEP
 void split(vector<string> &bits,
            char sep,
            const string &s) {

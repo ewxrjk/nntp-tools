@@ -1,6 +1,6 @@
 char css[] = 
 "/*\n"
-" * This file is part of spoolstats.\n"
+" * This file is part of rjk-nntptools.\n"
 " * Copyright (C) 2010 Richard Kettlewell\n"
 " *\n"
 " * This program is free software; you can redistribute it and/or modify\n"
