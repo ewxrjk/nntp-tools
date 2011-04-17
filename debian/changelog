@@ -1,3 +1,12 @@
+rjk-nntp-tools (0.20) unstable; urgency=low
+
+  * New script setup-lj2news to create lj2news cronjobs
+  * New git2news (actually an alias for bzr2news) to post git commit logs
+    to a newsgroup
+  * tla2news is abolished.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 17 Apr 2011 15:17:48 +0100
+
 rjk-nntp-tools (0.17) unstable; urgency=low
 
   * Extra user-agent heuristics for spoolstats.
