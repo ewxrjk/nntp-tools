@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include "utils.h"
 
