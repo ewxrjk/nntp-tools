@@ -60,13 +60,15 @@ build() {
   r $host "cd _builds/${source} && debian/rules build"
   r $host "cd _builds/${source} && fakeroot debian/rules binary"
   for deb in $debs; do
-    s scp $host:_builds/$deb .
-    products="$products $deb"
+    s scp $host:_builds/$deb products/
   done
   echo
   echo "Built $debs"
   echo
 }
+
+rm -rf products
+mkdir products
 
 # Build the source archive
 s make distcheck
@@ -77,18 +79,14 @@ version=$(make echo-version)    # get version number
 source=${srcpkg}-${version}     # source directory
 archive=${srcpkg}-${version}.tar.gz # tarball
 
-products="$archive"
-
 # Build .deb files
 s build araminta amd64          # squeeze
 s build sandestin i386          # squeeze
+
+mv "$archive" products/
 
 # List built products
 echo
 echo Final build products:
 echo
-ls -l ${products}
-
-# ...and on a single line for easy C+P
-echo
-echo ${products}
+ls -l products/
