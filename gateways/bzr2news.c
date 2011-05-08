@@ -320,13 +320,15 @@ error:
 }
 
 /* scan a bzr archive's logs, posting new changes */
-static void process_bzr_archive(const char *dir, int first) {
+static void process_bzr_archive(const char *dir, const char *branch, int first) {
   FILE *fp;
   struct logentry l;
   int rc;
   time_t now;
   char *cmd;
 
+  if(branch)
+    fatal(0, "separate branches not supported for bzr");
   time(&now);
   if(first >= 0) {
     if(asprintf(&cmd, "bzr log --timezone=utc --forward -r %d..",
@@ -393,7 +395,7 @@ static void complete_git_commit(const char *dir,
   free_log(l);
 }
 
-static void process_git_archive(const char *dir, int first) {
+static void process_git_archive(const char *dir, const char *branch, int first) {
   char *cmd;
   struct logentry l;
   FILE *fp;
@@ -407,7 +409,8 @@ static void process_git_archive(const char *dir, int first) {
   memset(&l, 0, sizeof l);
   if(first >= 0)
     fatal(0, "--first option is not supported for git archives");/*TODO*/
-  if(asprintf(&cmd, "git log --reverse --date=raw") < 0)
+  if(asprintf(&cmd, "git log --reverse --date=raw %s",
+              branch ? branch : "") < 0)
     fatal(errno, "asprintf");
   if(!(fp = popen(cmd, "r")))
     fatal(errno, "cannot popen git log");
@@ -472,20 +475,35 @@ static void process_git_archive(const char *dir, int first) {
 
 static void process_archive(const char *dir, int first) {
   int olddir;
+  const char *colon;
+  const char *branch = NULL;
 
   /* Switch to target directory */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
     fatal(errno, "cannot open .");
-  if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+  if((colon = strrchr(dir, ':'))) {
+    /* Separate out base and branch */
+    char *base = xstrndup(dir, colon - dir);
+    branch = colon + 1;
+    if(chdir(base) < 0) {
+      /* Base directory does not exist, maybe it was really a directory with a
+       * colon in */
+      if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+      branch = NULL;
+    } else {
+      dir = base;
+    }
+  } else
+    if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
   /* Try to guess what kind of revision control system we have.  First we look
    * at files, failing that we choose a default based on the name we were
    * invoked as, if even that doesn't work we default to bzr. */
-  if(fexists(".bzr"))              process_bzr_archive(dir, first);
-  else if(fexists(".git"))         process_git_archive(dir, first);
-  else if(fexists("HEAD"))         process_git_archive(dir, first);
-  else if(strstr(progname, "bzr")) process_bzr_archive(dir, first);
-  else if(strstr(progname, "git")) process_git_archive(dir, first);
-  else                             process_bzr_archive(dir, first);
+  if(fexists(".bzr"))              process_bzr_archive(dir, branch, first);
+  else if(fexists(".git"))         process_git_archive(dir, branch, first);
+  else if(fexists("HEAD"))         process_git_archive(dir, branch, first);
+  else if(strstr(progname, "bzr")) process_bzr_archive(dir, branch, first);
+  else if(strstr(progname, "git")) process_git_archive(dir, branch, first);
+  else                             process_bzr_archive(dir, branch, first);
   /* Switch back */
   if(fchdir(olddir) < 0)
     fatal(errno, "cannot fchdir back to original directory");
@@ -546,7 +564,7 @@ int main(int argc, char **argv) {
       exit(0);
     case 'h':
       printf("Usage:\n\
-  bzr2news -n GROUP [OPTIONS] DIRECTORY...\n\
+  bzr2news -n GROUP [OPTIONS] DIRECTORY[:BRANCH]...\n\
 \n\
 Mandatory options:\n\
   -n, --newgroup GROUP               Newsgroup\n\

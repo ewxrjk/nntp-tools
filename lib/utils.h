@@ -38,6 +38,7 @@ void fatal(int errno_value, const char *msg, ...) attribute((noreturn));
 void *xmalloc(size_t n);
 void *xrealloc(void *ptr, size_t n) ;
 char *xstrdup(const char *s);
+char *xstrndup(const char *s, size_t n);
 void cloexec(int fd);
 pid_t xfork(void);
 void lock(pthread_mutex_t *m);

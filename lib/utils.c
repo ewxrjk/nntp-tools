@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include "utils.h"
 
@@ -84,6 +85,14 @@ void *xrealloc(void *ptr, size_t n) {
 /* Duplicate a string, call fatal() on error */
 char *xstrdup(const char *s) {
   return strcpy(xmalloc(strlen(s) + 1), s);
+}
+
+/* Duplicate the first N bytes of string S, call fatal() on error */
+char *xstrndup(const char *s, size_t n) {
+  char *new = xmalloc(n + 1);
+  memcpy(new, s, n);
+  new[n] = 0;
+  return new;
 }
 
 /* make FD close-on-exec */
