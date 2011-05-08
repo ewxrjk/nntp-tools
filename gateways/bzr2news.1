@@ -29,12 +29,16 @@ git2news, bzr2news \- post bzr or git revision history to a newsgroup
 .B git2news
 .RI [OPTIONS]
 .RB [ -- ]
-.IR DIRECTORY ...
+.IR DIRECTORY [ \fB:\fIBRANCH ]...
 .SH DESCRIPTION
 .B bzr2news
 and
 .B git2news
-posts recent changes to Bazaar archive or git repositories to a newsgroup.
+posts recent changes to Bazaar or git repositories to a newsgroup.
+.PP
+For Bazaar (bzr), each command line argument should be a directory.
+For git, it may either be a directory or a directory and a branch
+name, separated by a colon.
 .SH OPTIONS
 .SS "Mandatory Options"
 .TP
@@ -43,8 +47,9 @@ The newsgroup to post to.
 .SS "Optional Options"
 .TP
 .B -s \fISERVER\fR, \fB--server \fISERVER\fR
-Specify the news server to post to.  The default is from the
-environment variable \fBNNTPSERVER\fR.
+Specify the news server to post to.
+The default is from the environment variable \fBNNTPSERVER\fR.
+If that is not set then the default is "news".
 .TP
 .B -D\fR, \fB--diff\fR
 Include a diff within the posting.
