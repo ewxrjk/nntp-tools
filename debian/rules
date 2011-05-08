@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 #
-# Copyright (C) 2008 Richard Kettlewell
+# Copyright (C) 2008-11 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -80,6 +80,8 @@ pkg-rjk-nntp-tools:
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog
 	gzip -9 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog*
+	$(INSTALL_DATA) CHANGES.html \
+		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
 	@for f in preinst postinst prerm postrm conffiles templates config; do\
 	  if test -e debian/$$f.rjk-nntp-tools; then\
 	    echo $(INSTALL_SCRIPT) debian/$$f.rjk-nntp-tools debian/rjk-nntp-tools/DEBIAN/$$f; \
@@ -114,6 +116,8 @@ pkg-rjk-spoolstats:
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog
 	gzip -9 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
+	$(INSTALL_DATA) CHANGES.html \
+		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
 	$(INSTALL_DATA) debian/conffiles.rjk-spoolstats \
 		debian/rjk-spoolstats/DEBIAN/conffiles
 	$(MAKE) -C spoolstats DESTDIR=`pwd`/debian/rjk-spoolstats install
