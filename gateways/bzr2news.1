@@ -23,14 +23,18 @@ git2news, bzr2news \- post bzr or git revision history to a newsgroup
 .SH SYNOPSIS
 .B bzr2news
 .RI [OPTIONS]
+.RB [ -- ]
+.IR DIRECTORY ...
 .PP
 .B git2news
 .RI [OPTIONS]
+.RB [ -- ]
+.IR DIRECTORY ...
 .SH DESCRIPTION
 .B bzr2news
 and
 .B git2news
-posts recent changes to an Bazaar archive or git repository to a newsgroup.
+posts recent changes to Bazaar archive or git repositories to a newsgroup.
 .SH OPTIONS
 .SS "Mandatory Options"
 .TP
@@ -95,7 +99,5 @@ The suggested approach is to use a nontrivial salt in testing and
 remove it when going live.
 .SS "NNTP Authentication"
 Currently only AUTHINFO GENERIC is supported.
-.SS "IPv6 Support"
-This has not actually been tested!
 .SH AUTHOR
-(c) 2007-2009 Richard Kettlewell.
+(c) 2007-2011 Richard Kettlewell.
