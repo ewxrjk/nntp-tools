@@ -34,6 +34,8 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <assert.h>
+#include <locale.h>
+#include <langinfo.h>
 
 #include "utils.h"
 #include "nntp.h"
@@ -52,6 +54,7 @@ struct logentry {
   char *modified;
   char *renamed;
   char *diff;
+  char *encoding;                       /* or NULL to follow LC_CTYPE */
 };
 
 /* --- options ------------------------------------------------------------- */
@@ -80,6 +83,7 @@ static const char *salt = "";
 static int preview;
 static int diffs;
 static const char *progname;
+static char *encoding;
 
 /* --- parsing ------------------------------------------------------------- */
 
@@ -131,6 +135,7 @@ static void free_log(struct logentry *l) {
   free(l->added);
   free(l->commitid);
   free(l->diff);
+  free(l->encoding);
   memset(l, 0, sizeof *l);
 }
 
@@ -182,11 +187,14 @@ static void post_log(const char *dir, const struct logentry *l) {
              "Newsgroups: %s\n"
              "From: %s\n"
              "Date: %s\n"
-             "Message-ID: %s\n",
+             "Message-ID: %s\n"
+             "MIME-Version: 1.0\n"
+             "Content-Type: text/plain; charset=%s\n",
              newsgroup,
              l->committer,
              date822,
-             msgid) < 0)
+             msgid,
+             l->encoding ? l->encoding : encoding) < 0)
     fatal(errno, "error constructing article");
   /* Use the first line of the message in the subject */
   subject = l->message;
@@ -387,6 +395,7 @@ static void complete_git_commit(const char *dir,
         l->diff = capture(diff_cmd);
         free(diff_cmd);
       }
+      l->encoding = xstrdup("UTF-8");
       D(("got commit %s", l->commitid));
       post_log(dir, l);
     }
@@ -409,7 +418,8 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   memset(&l, 0, sizeof l);
   if(first >= 0)
     fatal(0, "--first option is not supported for git archives");/*TODO*/
-  if(asprintf(&cmd, "git log --reverse --date=raw %s",
+  /* We explicitly ask for UTF-8 in case i18.logoutputencoding is set */
+  if(asprintf(&cmd, "git log --encoding=UTF-8 --reverse --date=raw %s",
               branch ? branch : "") < 0)
     fatal(errno, "asprintf");
   if(!(fp = popen(cmd, "r")))
@@ -517,6 +527,13 @@ int main(int argc, char **argv) {
   int pf = PF_UNSPEC;
   int first = -1;
   
+  if(!setlocale(LC_CTYPE, ""))
+    fatal(errno, "setlocale");
+  if(!(encoding = nl_langinfo(CODESET)))
+    fatal(0, "nl_langinfo returned NULL");
+  if(!*encoding)
+    fatal(0, "nl_langinfo returned \"\"");
+  encoding = xstrdup(encoding);
   progname = argv[0];
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
