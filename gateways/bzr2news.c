@@ -189,7 +189,8 @@ static void post_log(const char *dir, const struct logentry *l) {
              "Date: %s\n"
              "Message-ID: %s\n"
              "MIME-Version: 1.0\n"
-             "Content-Type: text/plain; charset=%s\n",
+             "Content-Type: text/plain; charset=%s\n"
+             "Content-Transfer-Encoding: 8bit\n",
              newsgroup,
              l->committer,
              date822,
