@@ -62,15 +62,16 @@ Display a usage message and terminate.
 .SS "Rarely-Used Options"
 .TP
 .B -a \fISECONDS\fR, \fB--age \fISECONDS\fR
-The maximum age of changes to post.  The default is 1 week (604800
-seconds).
+The maximum age of changes to post.
+The default is 1 week (604800 seconds).
 .TP
 .B -m \fIMSGIDDOMAIN\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
-The message-ID domain.  Normally need not be specified.
+The message-ID domain.
+Normally need not be specified.
 .TP
 .B -p \fIPORT\fR, \fB--port \fIPORT\fR
-Specify the news server port number.  The default is the standard NNTP
-port.
+Specify the news server port number.
+The default is the standard NNTP port.
 .TP
 .B -x \fISALT\fR, \fB--salt \fISALT\fR
 Include \fISALT\fR in the calculation of message IDs.
@@ -96,9 +97,9 @@ option is useful in testing your setup.
 relies on the news server to keep track of which messages have been
 sent and which not, so if you post all your articles in a test group
 but then want to repost them to a "real" group then the message IDs
-will clash and the articles will be silently rejected.  In this case
-you should change the salt value when switching between the test and
-live groups.
+will clash and the articles will be silently rejected.
+In this case you should change the salt value when switching between
+the test and live groups.
 .PP
 The suggested approach is to use a nontrivial salt in testing and
 remove it when going live.
