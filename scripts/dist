@@ -72,6 +72,12 @@ mkdir products
 
 # Build the source archive
 s make distcheck
+s make -C gateways html
+s make -C spoolstats html
+cp gateways/*.1.html products/
+cp spoolstats/*.1.html products/
+cp CHANGES.html products/newstools-CHANGES.html
+cp README products/newstools-README
 
 srcpkg=rjk-nntp-tools                    # source package name
 binpkgs="rjk-nntp-tools rjk-spoolstats"  # binary packages

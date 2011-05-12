@@ -28,5 +28,5 @@ echo-distdir:
 echo-version:
 	@echo $(VERSION)
 
-EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html
-
+EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html	\
+scripts/htmlman
