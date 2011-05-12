@@ -588,14 +588,14 @@ Mandatory options:\n\
   -n, --newgroup GROUP               Newsgroup\n\
 Optional options:\n\
   -a, --age SECONDS                  Age limit on commits\n\
-  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER)\n\
+  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER or 'news')\n\
 Rarely used options:\n\
-  -p, --port PORT                    Port number (default 119)\n\
+  -p, --port PORT                    Port number (default 'nntp')\n\
   -m, --msggid-domain DOMAIN         Message-ID domain\n\
-  -x, --salt SALT                    Salt for ID calculation\n\
-  -4, -6                             Use IPv4/IPv6 (latter untested)\n\
+  -x, --salt SALT                    Salt for ID calculation (for test runs)\n\
+  -4, -6                             Use IPv4/IPv6\n\
   -P, --preview                      Preview only, don't post\n\
-  -l, --limit N                      Limit to first N revisions\n\
+  -f, --first REVNO                  First revision to post (bzr only)\n\
   -D, --diff                         Show diffs\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
