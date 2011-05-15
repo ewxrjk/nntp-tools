@@ -153,7 +153,7 @@ static void pts_auth(struct postthreadstate *pts) {
   if((flags = fcntl(fd, F_GETFL)) < 0)
     fatal(errno, "fcntl");
   if(flags & O_NONBLOCK)
-    if(fcntl(fd, F_SETFL, flags & O_NONBLOCK) < 0)
+    if(fcntl(fd, F_SETFL, flags ^ O_NONBLOCK) < 0)
       fatal(errno, "fcntl");
   D(("starting helper"));
   if(!(helperpid = xfork())) {
