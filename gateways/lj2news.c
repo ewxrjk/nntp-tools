@@ -536,6 +536,14 @@ Rarely used options:\n\
   if((cerr = curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent)))
     fatal(0, "curl_easy_setopt CURLOPT_USERAGENT: %s",
 	  curl_easy_strerror(cerr));
+  if(pf != PF_UNSPEC) {
+    if((cerr = curl_easy_setopt(curl, CURLOPT_IPRESOLVE,
+                                pf == AF_INET
+                                ? CURL_IPRESOLVE_V4
+                                : CURL_IPRESOLVE_V6)))
+      fatal(0, "curl_easy_setopt CURLOPT_IPRESOLVE: %s",
+            curl_easy_strerror(cerr));
+  }
   /* nnrp posting will happen from a thread */
   create_postthread(pf, server, port);
   /* init expat */
