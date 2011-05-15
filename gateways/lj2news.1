@@ -68,6 +68,10 @@ The default is your login name.
 .B -T\fR, \fB--no-tag
 Do not use a tag in the Subject: header.
 .TP
+.B -w\fR, \fB--timeout \fISECONDS\fR
+Set the timeout for network operations (e.g. fetching the RSS).
+The default is 3600 seconds (one hour).
+.TP
 .B -V\fR, \fB--version
 Display a version string and terminate.
 .TP
@@ -113,7 +117,7 @@ remove it when going live.
 .SS "NNTP Authentication"
 Currently only AUTHINFO GENERIC is supported.
 .SH AUTHORS
-(c) 2005, 2006, 2008, 2009 Richard Kettlewell
+(c) 2005, 2006, 2008, 2009, 2011 Richard Kettlewell
 .nf
 (c) 2008 Colin Watson
 .SH "SEE ALSO"

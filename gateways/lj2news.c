@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2005, 2006, 2008, 2009 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2008, 2009, 2011 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -79,6 +79,7 @@ const struct option options[] = {
   { "port", required_argument, 0,  'p' },
   { "debug", no_argument,  0, 'd' },
   { "from", required_argument, 0, 'f' },
+  { "timeout", required_argument, 0, 'w' },
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
   { 0, 0, 0, 0 }
@@ -430,13 +431,14 @@ int main(int argc, char **argv) {
   const char *server = 0;
   const char *port = 0;
   int pf = PF_UNSPEC;
+  int timeout = 3600;
 
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
   /* Tag default to login name */
   if((tag = getenv("LOGNAME")))
     tag = xstrdup(tag);
-  while((n = getopt_long(argc, argv, "x:a:D:t:n:S:o:M:s:p:46df:VT",
+  while((n = getopt_long(argc, argv, "x:a:D:t:n:S:o:M:s:p:46df:VTw:",
                          options, 0)) >= 0) {
     switch(n) {
     case 'x':
@@ -484,6 +486,9 @@ int main(int argc, char **argv) {
     case 'f':
       if(*optarg) fromline = optarg;
       break;
+    case 'w':
+      timeout = atoi(optarg);
+      break;
     case 'V':
       printf("lj2news from rjk-nntp-tools version " VERSION "\n");
       exit(0);
@@ -500,14 +505,15 @@ Optional options:\n\
   -T, --no-tag                       Suppress subject tag\n\
   -o, --organization ORGANIZATION    Organization line\n\
   -S, --signature PATH               Signature file\n\
-  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER)\n\
+  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER/'news')\n\
   -D, --start-date DATE              Ignore articles before DATE\n\
                 (DATE takes the format 'Mon, 28 Apr 2008 00:00:00 GMT'.)\n\
 Rarely used options:\n\
   -p, --port PORT                    Port number (default 119)\n\
   -m, --msggid-domain DOMAIN         Message-ID domain\n\
   -x, --salt SALT                    Salt for ID calculation\n\
-  -4, -6                             Use IPv4/IPv6 (latter untested)\n\
+  -w, --timeout SECONDS              Network operation (default 3600)\n\
+  -4, -6                             Force IPv4/IPv6\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
     default:
@@ -535,6 +541,9 @@ Rarely used options:\n\
 	  curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent)))
     fatal(0, "curl_easy_setopt CURLOPT_USERAGENT: %s",
+	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)timeout)))
+    fatal(0, "curl_easy_setopt CURLOPT_TIMEOUT: %s",
 	  curl_easy_strerror(cerr));
   if(pf != PF_UNSPEC) {
     if((cerr = curl_easy_setopt(curl, CURLOPT_IPRESOLVE,
