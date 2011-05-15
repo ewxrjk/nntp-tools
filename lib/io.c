@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 64
+#define BUFFER_SIZE 4096
 
 struct IO_data {
   int fd;
