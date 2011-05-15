@@ -389,11 +389,15 @@ static void complete_git_commit(const char *dir,
     if(l->commitid) {
       if(diffs) {
         /* Collect the diff */
-        char *diff_cmd;
+        char *diff_cmd, *diff_native;
             
         if(asprintf(&diff_cmd, "git show --format=format: %s", l->commitid) < 0)
           fatal(errno, "error calling asprintf");
-        l->diff = capture(diff_cmd);
+        diff_native = capture(diff_cmd);
+        /* Convert the diff to UTF-8, on the assumption that it is in the
+         * LC_CTYPE locale */
+        l->diff = recode(diff_native, encoding, "UTF-8");
+        free(diff_native);
         free(diff_cmd);
       }
       l->encoding = xstrdup("UTF-8");

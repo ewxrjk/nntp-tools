@@ -88,6 +88,28 @@ Use only IPv6 addresses.
 .B -d, \fB--debug
 Enable debugging.
 .SH NOTES
+.SS "bzr or git?"
+.B git2news
+and
+.B bzr2news
+are actually the same program, and figures out what version control
+system they are dealing with by inspection, only falling back on the
+name it is invoked as if its heuristics fail.
+.SS "Character Encodings"
+.B git2news
+always posts in UTF-8.
+For commit messages this is unproblematic as \fBgit\fR can produce
+UTF-8 on demand.
+For diffs, it assumes that the tracked files, and therefore the diffs,
+following the current locale's encoding, and translates from that to
+UTF-8.
+.PP
+.B bzr2news
+always follows the current locale's encoding.
+.PP
+.B --preview
+output reproduces the bytes that would be sent to the news server, so
+it can produce UTF-8 even in a non-UTF-8 locale.
 .SS Salt
 The
 .B -x

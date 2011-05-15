@@ -49,6 +49,9 @@ const char *time_t_to_822date(time_t when);
 time_t rfc822date_to_time_t(const char *rfc822date);
 int fexists(const char *path);
 char *capture(const char *cmd);
+char *recode(const char *input,
+             const char *from,
+             const char *to);
 
 /* Debugging */
 
