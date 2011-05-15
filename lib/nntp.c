@@ -31,6 +31,7 @@
 #include <sys/wait.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "utils.h"
 #include "nntp.h"
@@ -135,7 +136,7 @@ static void pts_auth(struct postthreadstate *pts) {
   int cookiefd = -1;
   FILE *cookiefp;
   pid_t helperpid, r;
-  int w;
+  int w, flags,fd;
   char *new_nntp_auth_fds;
 
   D(("pts_auth"));
@@ -148,10 +149,16 @@ static void pts_auth(struct postthreadstate *pts) {
     cookiefd = fileno(cookiefp);
   }
   pts_write(pts, "AUTHINFO GENERIC %s\r\n", nntpauth);
+  fd = io_fileno(pts->io);
+  if((flags = fcntl(fd, F_GETFL)) < 0)
+    fatal(errno, "fcntl");
+  if(flags & O_NONBLOCK)
+    if(fcntl(fd, F_SETFL, flags & O_NONBLOCK) < 0)
+      fatal(errno, "fcntl");
   D(("starting helper"));
   if(!(helperpid = xfork())) {
     if(asprintf(&new_nntp_auth_fds, "NNTP_AUTH_FDS=%d.%d.%d",
-		io_fileno(pts->io), io_fileno(pts->io), cookiefd) < 0)
+		fd, fd, cookiefd) < 0)
       fatal(errno, "error calling asprintf");
     if(putenv(new_nntp_auth_fds))
       fatal(errno, "error calling putenv");
@@ -164,6 +171,9 @@ static void pts_auth(struct postthreadstate *pts) {
   if(r < 0) fatal(errno, "error calling waitpid");
   if(w) fatal(0, "NNTP AUTHINFO GENERIC helper exited with status %#x", w);
   D(("helper finished"));
+  if(flags & O_NONBLOCK)
+    if(fcntl(fd, F_SETFL, flags) < 0)
+      fatal(errno, "fcntl");
 }
 
 /* post ARTICLE */
