@@ -554,7 +554,7 @@ Rarely used options:\n\
             curl_easy_strerror(cerr));
   }
   /* nnrp posting will happen from a thread */
-  create_postthread(pf, server, port);
+  create_postthread(pf, server, port, timeout);
   /* init expat */
   p = XML_ParserCreate(0);
   /* process URLs as requested */

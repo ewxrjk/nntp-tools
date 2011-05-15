@@ -34,6 +34,7 @@
 
 #include "utils.h"
 #include "nntp.h"
+#include "io.h"
 
 /* --- NNTP poster thread -------------------------------------------------- */
 
@@ -57,29 +58,25 @@ static pthread_cond_t postcond = PTHREAD_COND_INITIALIZER;
 /* ID of the posting thread */
 static pthread_t postthread_id;
 
-/* Count of unwanted articles */
-static int unwanted;
-
-/* Protocol family override */
-static int pf;
-
-/* Server hostname/port */
-static const char *server, *port;
-
 /* Internal state of the posting thread */
 struct postthreadstate {
-  FILE *fpin, *fpout;                   /* input from and output to NNRPD */
+  IO *io;                               /* input from and output to NNRPD */
   char *line;                           /* latest response line */
-  size_t n;                             /* buffer size for getline(3) */
+  size_t n;                             /* buffer size for io_getline */
+  int timeout;                          /* IO timeout */
+  int pf;                               /* Protocol family */
+  int unwanted;                         /* Count of unwanted articles */
+  char *server, *port;                  /* Server to talk to */
 };
 
 /* Fetch an NNTP response.  Returns the 3-digit status as an int. */
 static int pts_response(struct postthreadstate *pts) {
   char *s;
+  int errno_value;
 
-  if(getline(&pts->line, &pts->n, pts->fpin) == -1) {
-    if(ferror(pts->fpin))
-      fatal(errno, "error reading from news server");
+  if((errno_value = io_getline(pts->io, &pts->line, &pts->n))) {
+    if(errno_value > 0)
+      fatal(errno_value, "error reading from news server");
     else
       fatal(0, "unexpected EOF reading from news server");
   }
@@ -109,11 +106,12 @@ static void pts_banner(struct postthreadstate *pts) {
  * FMT. */
 static void pts_write(struct postthreadstate *pts, const char *fmt, ...) {
   va_list ap;
+  int errno_value;
 
   va_start(ap, fmt);
-  if(vfprintf(pts->fpout, fmt, ap) < 0
-     || fflush(pts->fpout) < 0)
-    fatal(errno, "error writing to news server");
+  if((errno_value = io_vprintf(pts->io, fmt, ap))
+     || (errno_value = io_flush(pts->io)))
+    fatal(errno_value, "error writing to news server");
   va_end(ap);
   if(debug) {
     va_start(ap, fmt);
@@ -124,8 +122,9 @@ static void pts_write(struct postthreadstate *pts, const char *fmt, ...) {
 
 /* Write a byte to the NNRPD */
 static void pts_putc(struct postthreadstate *pts, int c) {
-  if(putc(c, pts->fpout) < 0)
-    fatal(errno, "error writing to news server");
+  int errno_value;
+  if((errno_value = io_printf(pts->io, "%c", c)))
+    fatal(errno_value, "error writing to news server");
   if(debug)
     putc(c, stderr);
 }
@@ -152,7 +151,7 @@ static void pts_auth(struct postthreadstate *pts) {
   D(("starting helper"));
   if(!(helperpid = xfork())) {
     if(asprintf(&new_nntp_auth_fds, "NNTP_AUTH_FDS=%d.%d.%d",
-		fileno(pts->fpin), fileno(pts->fpout), cookiefd) < 0)
+		io_fileno(pts->io), io_fileno(pts->io), cookiefd) < 0)
       fatal(errno, "error calling asprintf");
     if(putenv(new_nntp_auth_fds))
       fatal(errno, "error calling putenv");
@@ -169,7 +168,7 @@ static void pts_auth(struct postthreadstate *pts) {
 
 /* post ARTICLE */
 static void pts_post(struct postthreadstate *pts, const char *article) {
-  int r, sol = 1, c;
+  int r, sol = 1, c, errno_value;
   const char *s;
 
   pts_write(pts, "POST\r\n");
@@ -190,14 +189,16 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
       sol = 0;
       break;
     case '\n':
-      pts_write(pts, "\r\n");
+      pts_putc(pts, '\r');
+      pts_putc(pts, '\n');
       sol = 1;
       break;
     }
   }
   if(!sol) pts_write(pts, "\r\n");
   pts_write(pts, ".\r\n");
-  if(fflush(pts->fpout) < 0) fatal(errno, "error writing to news server");
+  if((errno_value = io_flush(pts->io)))
+     fatal(errno_value, "error writing to news server");
   switch(pts_response(pts)) {
   case 240: break;
   case 441:
@@ -207,7 +208,7 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
      * there. */
     if(!strstr(pts->line, "441 437")
        || !strstr(pts->line, "441 435"))
-      ++unwanted;
+      ++pts->unwanted;
     else
       error(0, "article rejected: %s", pts->line);
     break;
@@ -239,23 +240,26 @@ static int pts_stat(struct postthreadstate *pts, const char *msgid) {
 }
 
 /* Main thread entry point */
-static void *postthread(void attribute((unused)) *arg) {
-  int fd = -1, fd2, err;
+static void *postthread(void *arg) {
+  int fd = -1, err, errno_value;
   struct addrinfo hints, *res = NULL, *ans;
-  struct postthreadstate pts[1];
+  struct postthreadstate *pts = arg;
+  struct timeval tvtimeout, tvzero;
 
   D(("postthread"));
-  pts->line = 0;
-  pts->n = 0;
   /* look up the server */
   memset(&hints, 0, sizeof hints);
-  hints.ai_family = pf;
+  hints.ai_family = pts->pf;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
   hints.ai_flags = AI_CANONNAME;
-  if((err = getaddrinfo(server, port, &hints, &res)))
-    fatal(0, "error resolving node %s service %s: %s", server, port,
+  if((err = getaddrinfo(pts->server, pts->port, &hints, &res)))
+    fatal(0, "error resolving node %s service %s: %s", pts->server, pts->port,
           gai_strerror(err));
+  tvtimeout.tv_sec = pts->timeout;
+  tvtimeout.tv_usec = 0;
+  tvzero.tv_sec = 0;
+  tvzero.tv_usec = 0;
   /* wait for some work to arrive */
   lock(&postlock);
   while(postjobs || !postdone) {
@@ -271,18 +275,32 @@ static void *postthread(void attribute((unused)) *arg) {
 	  if((fd = socket(ans->ai_family, ans->ai_socktype,
 			  ans->ai_protocol)) < 0)
 	    fatal(errno, "error calling socket");
+          /* TODO does this actually affect the connect timeout? */
+          if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvtimeout, 
+                        sizeof tvtimeout) < 0)
+            fatal(errno, "setsockopt");
+          if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvtimeout,
+                        sizeof tvtimeout) < 0)
+            fatal(errno, "setsockopt");
 	  if(connect(fd, ans->ai_addr, ans->ai_addrlen) < 0) {
 	    error(errno, "error connecting to %s", ans->ai_canonname);
             close(fd);
             fd = -1;
           }
+          /* We use poll() to enforce timeouts on read and write */
+          if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvzero,
+                        sizeof tvzero) < 0)
+            fatal(errno, "setsockopt");
+          if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvzero,
+                        sizeof tvzero) < 0)
+            fatal(errno, "setsockopt");
 	}
 	if(fd == -1)
-	  fatal(0, "cannot connect to node %s service %s", server, port);
-	if((fd2 = dup(fd)) < 0) fatal(errno, "error calling dup");
-	if(!(pts->fpin = fdopen(fd, "r"))
-	   || !(pts->fpout = fdopen(fd2, "w")))
+	  fatal(0, "cannot connect to node %s service %s", 
+                pts->server, pts->port);
+	if(!(pts->io = io_create(fd)))
 	  fatal(errno, "error calling fdopen");
+        io_set_timeout(pts->io, pts->timeout);
 	/* initial banner */
 	pts_banner(pts);
 	/* make sure we are talking to an NNRP server */
@@ -315,36 +333,43 @@ static void *postthread(void attribute((unused)) *arg) {
   D(("postthread done"));
   unlock(&postlock);
   if(fd != -1) {
-    fclose(pts->fpin);
-    fclose(pts->fpout);
+    if((errno_value = io_close(pts->io)))
+      fatal(errno_value, "error closing connection to news server");
   }
   if(res)
     freeaddrinfo(res);
   free(pts->line);
-  return 0;
+  return pts;
 }
 
 /* Create the posting thread. */
-void create_postthread(int pf_, const char *server_, const char *port_) {
+void create_postthread(int pf_, const char *server_, const char *port_,
+                       int timeout) {
   int err;
+  struct postthreadstate *pts = xmalloc(sizeof *pts);
 
   D(("create_postthread"));
-  pf = pf_;
-  if(!(server = server_)) {
-    if((server = getenv("NNTPSERVER")))
-      server = xstrdup(server);
-    else
-      server = "news";
+  pts->line = 0;
+  pts->n = 0;
+  pts->pf = pf_;
+  pts->timeout = timeout;
+  if(!server_) {
+    if(!(server_ = getenv("NNTPSERVER")))
+      server_ = "news";
   }
-  if(!(port = port_))
-    port = "nntp";
-  if((err = pthread_create(&postthread_id, 0, postthread, 0)))
+  if(!port_)
+    port_ = "nntp";
+  pts->server = xstrdup(server_);
+  pts->port = xstrdup(port_);
+  if((err = pthread_create(&postthread_id, 0, postthread, pts)))
     fatal(err, "error calling pthread_create");
 }
 
 /* Wait for the posting thread to complete */
 void join_postthread(void) {
   int err;
+  void *ret;
+  struct postthreadstate *pts;
 
   D(("join_postthread"));
   lock(&postlock);
@@ -354,9 +379,13 @@ void join_postthread(void) {
     fatal(err, "error calling pthread_cond_signal");
   D(("main signalled poster"));
   unlock(&postlock);
-  if((err = pthread_join(postthread_id, 0)))
+  if((err = pthread_join(postthread_id, &ret)))
     fatal(err, "error calling pthread_join");
-  D(("%d articles unwanted", unwanted));
+  pts = ret;
+  D(("%d articles unwanted", pts->unwanted));
+  free(pts->server);
+  free(pts->port);
+  free(pts);
 }
 
 /* Queue an article for posting */

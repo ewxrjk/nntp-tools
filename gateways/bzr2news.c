@@ -606,7 +606,7 @@ Rarely used options:\n\
   if(!newsgroup)
     fatal(0, "no -n option");
   if(!preview)
-    create_postthread(pf, server, port);
+    create_postthread(pf, server, port, 0);
   for(n = optind; n < argc; ++n)
     process_archive(argv[n], first);
   if(!preview)
