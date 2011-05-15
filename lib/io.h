@@ -34,6 +34,9 @@ IO *io_create(int fd);
  * success or an errno value on error.
  *
  * If the timeout is nonzero then the FD will be put into nonblocking mode.
+ *
+ * For any operation below, if the timeout is exceeded, then ETIMEDOUT is
+ * returned.
  */
 int io_set_timeout(IO *io, int seconds);
 
