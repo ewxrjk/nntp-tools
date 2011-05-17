@@ -77,6 +77,8 @@ AC_CACHE_CHECK([for Cairomm CFLAGS],[rjk_cv_cairomm_cflags],[
 AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
   rjk_cv_cairomm_libs=`pkg-config --silence-errors --libs cairomm-1.0`
 ])
+AC_CHECK_LIB([iconv],[iconv_open],[],
+             [AC_CHECK_LIB([iconv],[libiconv_open])])
 if test "$rjk_cv_cairomm_libs" = ""; then
   SPOOLSTATS=""
 else
