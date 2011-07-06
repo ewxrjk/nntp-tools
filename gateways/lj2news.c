@@ -525,6 +525,11 @@ Rarely used options:\n\
     fatal(0, "no -n option");
   if(!fromline)
     fatal(0, "no -f option");
+  /* init gcrypt */
+  if(!gcry_check_version(GCRYPT_VERSION))
+    fatal(0, "libgrypt version mismatch");
+  gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
   /* init curl */
   if(!(curl = curl_easy_init())) fatal(0, "curl_easy_init failed");
   if((cerr = curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, cerrbuf)))

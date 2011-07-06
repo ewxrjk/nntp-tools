@@ -609,6 +609,11 @@ Rarely used options:\n\
   }
   if(!newsgroup)
     fatal(0, "no -n option");
+  /* init gcrypt */
+  if(!gcry_check_version(GCRYPT_VERSION))
+    fatal(0, "libgrypt version mismatch");
+  gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
   if(!preview)
     create_postthread(pf, server, port, 0);
   for(n = optind; n < argc; ++n)
