@@ -379,13 +379,11 @@ static void complete_git_commit(const char *dir,
   time_t now;
   time(&now);
   if(!maxage || now - l->timestamp <= maxage) {
-    size_t message_len;
     char *stem = stem_git_name(dir);
     header("branch nick", stem, l);
     free(stem);
     header("message", message, l);
     message = 0;
-    message_len = 0;
     if(l->commitid) {
       if(diffs) {
         /* Collect the diff */
