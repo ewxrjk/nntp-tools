@@ -47,13 +47,13 @@ AC_CACHE_CHECK([for fink],[rjk_cv_fink],[
 ])
 
 if test "$rjk_cv_fink" != no; then
-  CPPFLAGS="${CPPFLAGS} -I${rjk_cv_fink}/include"
+  CPPFLAGS="${CPPFLAGS} -isystem ${rjk_cv_fink}/include"
   LDFLAGS="${LDFLAGS} -L${rjk_cv_fink}/lib"
 fi
 
 case `uname -s` in
 FreeBSD )
-  CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
+  CPPFLAGS="${CPPFLAGS} -isystem /usr/local/include"
   LDFLAGS="${LDFLAGS} -L/usr/local/lib"
   ;;
 esac  
