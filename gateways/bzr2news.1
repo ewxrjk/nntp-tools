@@ -125,6 +125,13 @@ the test and live groups.
 .PP
 The suggested approach is to use a nontrivial salt in testing and
 remove it when going live.
+.PP
+.B git2news
+by contrast keeps track of all the commits that it has posted in a
+\fI.seen\fR file adjacent to the repository.
+The salt value is still used, so deleting the \fI.seen\fR file will
+not cause articles recent enough that the news server can remember to
+be re-posted.
 .SS "NNTP Authentication"
 Currently only AUTHINFO GENERIC is supported.
 .SH AUTHOR

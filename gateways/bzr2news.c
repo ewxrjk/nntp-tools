@@ -39,6 +39,7 @@
 
 #include "utils.h"
 #include "nntp.h"
+#include "seen.h"
 
 /* --- types --------------------------------------------------------------- */
 
@@ -73,7 +74,7 @@ const struct option options[] = {
   { "diffs", no_argument, 0, 'D' },     /* in case of typos */
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
- { 0, 0, 0, 0 }
+  { 0, 0, 0, 0 }
 };
 
 static long maxage = 86400 * 7;         /* = a week */
@@ -156,9 +157,13 @@ static void post_log(const char *dir, const struct logentry *l) {
   char *subject, *newline;
   int subject_len;
 
-  if(l->commitid)
+  if(l->commitid) {
+    if(seen(l->commitid)) {
+      D(("already posted commit %s", l->commitid));
+      return;
+    }
     D(("posting commit %s", l->commitid));
-  else
+  } else
     D(("posting revision %d", l->revno));
   D(("message: %s", l->message));
   /* Knock up a message ID */
@@ -181,8 +186,14 @@ static void post_log(const char *dir, const struct logentry *l) {
   if(!(output = open_memstream(&article, &articlesize)))
     fatal(errno, "error calling open_memstream");
   /* The header */
-  strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
-           gmtime_r(&l->timestamp, &t));
+  if(l->commitid) {
+    time_t now;
+    time(&now);
+    strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
+             gmtime_r(&now, &t));
+  } else
+    strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
+             gmtime_r(&l->timestamp, &t));
   if(fprintf(output,
              "Newsgroups: %s\n"
              "From: %s\n"
@@ -247,6 +258,8 @@ static void post_log(const char *dir, const struct logentry *l) {
     post(msgid, article);
   free(msgid);
   free(article);
+  if(l->commitid && !preview)
+    remember(l->commitid);
 }
 
 /* --- bzr support --------------------------------------------------------- */
@@ -317,7 +330,7 @@ static int read_bzr_log(FILE *fp, struct logentry *l, time_t now) {
   }
   /* l->added might be 0 and that's ok with us */
   rc = 0;
-error:
+ error:
   free(line);
   free(text);
   free(name);
@@ -417,7 +430,15 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   int state = 0;
   char *message = 0;
   size_t message_len = 0;
-
+  char *seenfile;
+  size_t i;
+  
+  for(i = strlen(dir); i > 0 && dir[i-1] == '/'; --i)
+    ;
+  if(asprintf(&seenfile, "%.*s.seen", (int)i, dir) < 0)
+    fatal(errno, "asprintf");
+  init_seen(seenfile);
+  free(seenfile);
   memset(&l, 0, sizeof l);
   if(first >= 0)
     fatal(0, "--first option is not supported for git archives");/*TODO*/

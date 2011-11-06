@@ -108,6 +108,7 @@ fi
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_C_INLINE
+AC_C_BIGENDIAN
 
 # Checks for functions
 AC_CHECK_FUNCS([funopen open_memstream getline getdelim])
