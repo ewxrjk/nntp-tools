@@ -35,7 +35,16 @@ r() {
   local host=$1
   shift
   echo "$host:" "$@" >&2
-  ssh $host "$@"
+  case $host in
+  schroot:* )
+#    echo ">" schroot -c${host#schroot:} -- bash -c "$@" >&2
+    schroot -c${host#schroot:} -- bash -c "$@"
+    ;;
+  * )
+#    echo ">" ssh $host "$@" >&2
+    ssh $host "$@"
+    ;;
+  esac
 }
 
 # build HOST ARCH
@@ -55,12 +64,12 @@ build() {
   echo
   r $host "mkdir -p _builds"
   r $host "cd _builds && rm -rf ${source} ${archive} ${debs}"
-  s scp ${archive} $host:_builds/.
+  r $host "cat > _builds/${archive}" < ${archive}
   r $host "cd _builds && tar xfz ${archive}"
   r $host "cd _builds/${source} && debian/rules build"
   r $host "cd _builds/${source} && fakeroot debian/rules binary"
   for deb in $debs; do
-    s scp $host:_builds/$deb products/
+    r $host "cat _builds/$deb" > products/$deb
   done
   echo
   echo "Built $debs"
@@ -86,8 +95,10 @@ source=${srcpkg}-${version}     # source directory
 archive=${srcpkg}-${version}.tar.gz # tarball
 
 # Build .deb files
-s build araminta amd64          # squeeze
-s build sandestin i386          # squeeze
+#s build araminta amd64          # squeeze
+#s build sandestin i386          # squeeze
+s build schroot:lenny64 amd64   # lenny
+s build leucomorph i386         # lenny
 
 mv "$archive" products/
 
