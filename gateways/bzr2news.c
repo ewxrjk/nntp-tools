@@ -514,8 +514,7 @@ static void process_archive(const char *dir, int first) {
   int olddir;
   const char *colon;
   const char *branch = NULL;
-  char *seenfile;
-  size_t i;
+  char *seenfile, *realdir;
 
   /* Switch to target directory */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
@@ -535,12 +534,13 @@ static void process_archive(const char *dir, int first) {
   } else
     if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
   /* Open the right .seen file */
-  for(i = strlen(dir); i > 0 && dir[i-1] == '/'; --i)
-    ;
-  if(asprintf(&seenfile, "%.*s.seen", (int)i, dir) < 0)
+  if(!(realdir = realpath(dir, NULL)))
+    fatal(errno, "realpath %s", dir);
+  if(asprintf(&seenfile, "%s.seen", realdir) < 0)
     fatal(errno, "asprintf");
   init_seen(seenfile);
   free(seenfile);
+  free(realdir);
   /* Try to guess what kind of revision control system we have.  First we look
    * at files, failing that we choose a default based on the name we were
    * invoked as, if even that doesn't work we default to bzr. */
