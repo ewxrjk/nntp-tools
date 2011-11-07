@@ -70,7 +70,10 @@ spoolstats
 ----------
 
 spoolstats reads a news spool (directly) and generates an HTML report
-giving numbers articles per day, posters, etc.
+giving numbers articles per day, posters, etc.  See "man spoolstats"
+for documentation.  You can find example output at:
+
+    http://www.greenend.org.uk/rjk/spoolstats/
 
 
 Reporting Bugs
