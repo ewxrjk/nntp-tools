@@ -44,8 +44,8 @@
 /* --- types --------------------------------------------------------------- */
 
 struct logentry {
-  int revno;                            /* bzr only */
-  char *commitid;                       /* git only */
+  int revno;                            /* or -1 */
+  char *commitid;
   time_t timestamp;
   char *branch;
   char *committer;
@@ -117,7 +117,22 @@ static void header(const char *name, char *text, struct logentry *l) {
     l->timestamp = atoll(text);         /* easy l-) */
   else if(!strcmp(name, "commit"))
     l->commitid = xstrdup(text);
-  else
+  else if(!strcmp(name, "revision-id")) {
+    /* bzr revision IDs could be too long, so we convert them into a hash */
+    unsigned char *hash;
+    gcry_error_t gerr;
+    gcry_md_hd_t hd;
+    size_t n;
+
+    if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
+      fatal(0, "error calling gcry_md_open: %s/%s",
+            gcry_strsource(gerr), gcry_strerror(gerr));
+    gcry_md_write(hd, text, strlen(text));
+    hash = gcry_md_read(hd, 0);
+    l->commitid = xmalloc(41);
+    for(n = 0; n < 20; ++n) sprintf(l->commitid + 2 * n, "%02x", hash[n]);
+    gcry_md_close(hd);
+  } else
     D(("...unknown!"));
 }
 
@@ -157,14 +172,11 @@ static void post_log(const char *dir, const struct logentry *l) {
   char *subject, *newline;
   int subject_len;
 
-  if(l->commitid) {
-    if(seen(l->commitid)) {
-      D(("already posted commit %s", l->commitid));
-      return;
-    }
-    D(("posting commit %s", l->commitid));
-  } else
-    D(("posting revision %d", l->revno));
+  if(seen(l->commitid)) {
+    D(("already posted commit %s revision %d", l->commitid));
+    return;
+  }
+  D(("posting commit %s revision %d ", l->commitid, l->revno));
   D(("message: %s", l->message));
   /* Knock up a message ID */
   if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
@@ -173,7 +185,7 @@ static void post_log(const char *dir, const struct logentry *l) {
   gcry_md_write(hd, "bzr2news", 8);
   gcry_md_write(hd, salt, strlen(salt));
   gcry_md_write(hd, dir, strlen(dir));
-  if(l->commitid)
+  if(l->revno < 0)
     gcry_md_write(hd, l->commitid, strlen(l->commitid));
   else
     gcry_md_write(hd, &l->revno, sizeof l->revno);
@@ -185,15 +197,13 @@ static void post_log(const char *dir, const struct logentry *l) {
   /* Construct the article */
   if(!(output = open_memstream(&article, &articlesize)))
     fatal(errno, "error calling open_memstream");
-  /* The header */
-  if(l->commitid) {
-    time_t now;
-    time(&now);
-    strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
-             gmtime_r(&now, &t));
-  } else
-    strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
-             gmtime_r(&l->timestamp, &t));
+  /* Always use the current date, so that commits from the distant past
+   * that we've only just seen are included. */
+  time_t now;
+  time(&now);
+  strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
+           gmtime_r(&now, &t));
+  /* Synthesize the header */
   if(fprintf(output,
              "Newsgroups: %s\n"
              "From: %s\n"
@@ -219,7 +229,7 @@ static void post_log(const char *dir, const struct logentry *l) {
     subject_len = strlen(subject);
   if(subject_len > 58 - (int)strlen(l->branch))
     subject_len = 58 - (int)strlen(l->branch);
-  if(l->commitid) {
+  if(l->revno < 0) {
     if(fprintf(output,
                "X-Git-Commit: %s\n"
                "Subject: [%s] %.8s %.*s\n",
@@ -258,7 +268,7 @@ static void post_log(const char *dir, const struct logentry *l) {
     post(msgid, article);
   free(msgid);
   free(article);
-  if(l->commitid && !preview)
+  if(!preview)
     remember(l->commitid);
 }
 
@@ -353,11 +363,11 @@ static void process_bzr_archive(const char *dir, const char *branch, int first) 
     fatal(0, "separate branches not supported for bzr");
   time(&now);
   if(first >= 0) {
-    if(asprintf(&cmd, "bzr log --timezone=utc --forward -r %d..",
+    if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward -r %d..",
                 first) < 0)
       fatal(errno, "asprintf");
   } else {
-    if(asprintf(&cmd, "bzr log --timezone=utc --forward") < 0)
+    if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward") < 0)
       fatal(errno, "asprintf");
   }
   if(!(fp = popen(cmd, "r")))
@@ -413,6 +423,7 @@ static void complete_git_commit(const char *dir,
       }
       l->encoding = xstrdup("UTF-8");
       D(("got commit %s", l->commitid));
+      l->revno = -1;                    /* no revision number */
       post_log(dir, l);
     }
   } else
@@ -430,15 +441,7 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   int state = 0;
   char *message = 0;
   size_t message_len = 0;
-  char *seenfile;
-  size_t i;
-  
-  for(i = strlen(dir); i > 0 && dir[i-1] == '/'; --i)
-    ;
-  if(asprintf(&seenfile, "%.*s.seen", (int)i, dir) < 0)
-    fatal(errno, "asprintf");
-  init_seen(seenfile);
-  free(seenfile);
+
   memset(&l, 0, sizeof l);
   if(first >= 0)
     fatal(0, "--first option is not supported for git archives");/*TODO*/
@@ -511,6 +514,8 @@ static void process_archive(const char *dir, int first) {
   int olddir;
   const char *colon;
   const char *branch = NULL;
+  char *seenfile;
+  size_t i;
 
   /* Switch to target directory */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
@@ -529,6 +534,13 @@ static void process_archive(const char *dir, int first) {
     }
   } else
     if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+  /* Open the right .seen file */
+  for(i = strlen(dir); i > 0 && dir[i-1] == '/'; --i)
+    ;
+  if(asprintf(&seenfile, "%.*s.seen", (int)i, dir) < 0)
+    fatal(errno, "asprintf");
+  init_seen(seenfile);
+  free(seenfile);
   /* Try to guess what kind of revision control system we have.  First we look
    * at files, failing that we choose a default based on the name we were
    * invoked as, if even that doesn't work we default to bzr. */

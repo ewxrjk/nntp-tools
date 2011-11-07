@@ -92,8 +92,8 @@ Enable debugging.
 .B git2news
 and
 .B bzr2news
-are actually the same program, and figures out what version control
-system they are dealing with by inspection, only falling back on the
+are actually the same program, which figures out what version control
+system it is dealing with by inspection, only falling back on the
 name it is invoked as if its heuristics fail.
 .SS "Character Encodings"
 .B git2news
@@ -110,28 +110,24 @@ always follows the current locale's encoding.
 .B --preview
 output reproduces the bytes that would be sent to the news server, so
 it can produce UTF-8 even in a non-UTF-8 locale.
-.SS Salt
-The
-.B -x
-option is useful in testing your setup.
+.SS "Commit Tracking"
+The set of commits already posted is tracked in a \fI.seen\fR file
+adjacent to the repository.
+You can delete this file to force articles to be reposted (for
+instance to another newsgroup or news server).
 .PP
-.B bzr2news
-relies on the news server to keep track of which messages have been
-sent and which not, so if you post all your articles in a test group
-but then want to repost them to a "real" group then the message IDs
-will clash and the articles will be silently rejected.
-In this case you should change the salt value when switching between
-the test and live groups.
+Message IDs are computed from details of the commit and (if it is
+specified) the "salt" value given to the \fB-x\fR option.
+The news server will reject duplicate message IDs (if they are not
+from so far in the past that it has purged them from its database) so
+if you want to re-post articles you may need to pass a salt value.
 .PP
-The suggested approach is to use a nontrivial salt in testing and
-remove it when going live.
+The main use of \fB-x\fR is for testing - for instance you might
+initially post to a test group with a random salt value, then delete
+the \fI.seen\fR file and remove the salt for production.
 .PP
-.B git2news
-by contrast keeps track of all the commits that it has posted in a
-\fI.seen\fR file adjacent to the repository.
-The salt value is still used, so deleting the \fI.seen\fR file will
-not cause articles recent enough that the news server can remember to
-be re-posted.
+The salt value does not affect the commit tracking in the \fI.seen\fR
+file.
 .SS "NNTP Authentication"
 Currently only AUTHINFO GENERIC is supported.
 .SH AUTHOR
