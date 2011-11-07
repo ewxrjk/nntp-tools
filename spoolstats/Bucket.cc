@@ -24,6 +24,15 @@ using namespace std;
 Bucket::~Bucket() {
 }
 
+void Bucket::verticalScale(double max, 
+                           double &limit, double &chunk, double &count) {
+  for(chunk = 1; 10 * chunk < max; chunk *= 10)
+    ;
+  for(count = 1; count * chunk < max; ++count)
+    ;
+  limit = chunk * count;
+}
+
 void Bucket::graph(const string &title,
                    const string &csv, const string &png) {
   list<vector<intmax_t> > rows;
@@ -45,18 +54,20 @@ void Bucket::graph(const string &title,
     if(articlerate > maxarticlerate)
       maxarticlerate = articlerate;
   }
-  double limbyterate;
-  for(limbyterate = 10.0; limbyterate < maxbyterate; limbyterate *= 10.0)
-    ;
-  double limarticlerate;
-  for(limarticlerate = 10.0; limarticlerate < maxarticlerate; limarticlerate *= 10.0)
-    ;
+  double limbyterate, chunkbyterate, countbyterate;
+  verticalScale(maxbyterate, limbyterate, chunkbyterate, countbyterate);
+  double limarticlerate, chunkarticlerate, countarticlerate;
+  verticalScale(maxarticlerate, limarticlerate, chunkarticlerate, countarticlerate);
   g.define_y("byte/d", 0, limbyterate);
   g.define_y("arts/d", 0, limarticlerate);
-  for(double y = 0.0; y <= limbyterate; y += limbyterate / 10.0)
+  for(double n = 0; n <= countbyterate; n += (countbyterate > 4 ? 1 : 0.5)) {
+    double y = n * chunkbyterate;
     g.marker_y(0, y, compact_kilo(y));
-  for(double y = 0.0; y <= limarticlerate; y += limarticlerate / 10.0)
+  }
+  for(double n = 0; n <= countarticlerate; n += (countarticlerate > 4 ? 1 : 0.5)) {
+    double y = n * chunkarticlerate;
     g.marker_y(1, y, compact_kilo(y));
+  }
   g.axes();
   for(list<vector<intmax_t> >::iterator it = rows.begin();
       it != rows.end();

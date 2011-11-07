@@ -44,6 +44,8 @@ public:
              const std::string &csv, 
              const std::string &png);
 
+private:
+  void verticalScale(double max, double &limit, double &chunk, double &count);
 };
 
 #endif /* BUCKET_H */
