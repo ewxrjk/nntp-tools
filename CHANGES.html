@@ -15,13 +15,13 @@ pre { margin-left: 1em }
   </head>
   <body>
     <h1>Changes to rjk-nntp-tools</h1>
-    
+
     <h2>Changes in version 0.22</h2>
 
     <div>
 
       <h3><code>bzr2news</code> and <code>git2news</code></h3>
-      
+
       <ul>
 
         <li>Include MIME headers documenting the encoding used, and
@@ -31,13 +31,31 @@ pre { margin-left: 1em }
         <li>Track posted commits locally rather than relying on the
         news server rejecting duplicate message IDs.</li>
 
+        <li>Improve <code>--help</code> output.</li>
+
       </ul>
 
       <h3><code>lj2news</code></h3>
 
       <ul>
 
-          <li>New <code>--timeout</code> option to <code>lj2news</code>.</li>
+        <li>New <code>--timeout</code> option to <code>lj2news</code>.</li>
+
+        <li>Honor <code>-4</code> and <code>-6</code> options more
+        fully.</li>
+
+      </ul>
+
+      <h3>Miscellaneous</h3>
+
+      <ul>
+
+        <li>Build fixes for OSX/Fink.</li>
+
+        <li>Properly initialize gcrypt.</li>
+
+        <li>Disable <code>O_NONBLOCK</code> when invoking authinfo
+        generic helper.</li>
 
       </ul>
 
@@ -50,9 +68,9 @@ pre { margin-left: 1em }
 
       <p><code>git2news</code> now supports using non-default
       branches.  For instance you can write:</p>
-      
+
       <pre>git2news -n example.commits rjk-nntp-tools rjk-nntp-tools:release</pre>
-      
+
       <p>&#8230;to publish commits from both the default (master) and
       release branches.</p>
 
