@@ -27,6 +27,8 @@ class SenderCountingBucket: public Bucket {
 public:
   std::map<std::string,int> senders;    // sender -> article count
 
+  size_t senderCount;
+
   // Visit one article
   void visit(const Article *a);
 

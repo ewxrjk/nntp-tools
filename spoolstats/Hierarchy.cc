@@ -47,7 +47,7 @@ void Hierarchy::visit(const Article *a) {
 void Hierarchy::summary(ostream &os) {
   const intmax_t bytes_per_day = bytes / Config::days;
   const double arts_per_day = (double)articles / Config::days;
-  const long posters = senders.size();
+  const long posters = senderCount;
   os << "<tr>\n";
   os << "<td><a href=" << HTML::Quote(name + ".html") << ">"
      << HTML::Escape(name) << ".*</a></td>\n";
@@ -93,7 +93,7 @@ void Hierarchy::page() {
 
     const intmax_t total_bytes_per_day = bytes / Config::days;
     const double total_arts_per_day = (double)articles / Config::days;
-    const long total_posters = senders.size();
+    const long total_posters = senderCount;
 
     os << "<tfoot>\n";
     os << "<tr>\n";
@@ -124,7 +124,7 @@ void Hierarchy::logs() {
        << ',' << Config::days * 86400
        << ',' << bytes
        << ',' << articles
-       << ',' << senders.size()
+       << ',' << senderCount
        << '\n'
        << flush;
   } catch(ios::failure) {
@@ -139,7 +139,7 @@ void Hierarchy::readLogs() {
     const vector<intmax_t> &last = rows.back();
     bytes = last[2];
     articles = last[3];
-    // TODO senders?
+    senderCount = last[4];
   }
   // TODO per-group figures
 }
