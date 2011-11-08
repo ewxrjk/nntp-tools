@@ -33,13 +33,14 @@ void Group::visit(const Article *a) {
     senders[sender] = 1;
   else
     ++it->second;
+  senderCount = senders.size();
 }
 
 // Generate table line
 void Group::summary(ostream &os) {
   const intmax_t bytes_per_day = bytes / Config::days;
   const double arts_per_day = (double)articles / Config::days;
-  const long posters = senders.size();
+  const long posters = senderCount;
   os << "<tr>\n";
   os << "<td>" << HTML::Escape(name) << "</td>\n";
   os << "<td sorttable_customkey=-" << fixed << arts_per_day << ">"

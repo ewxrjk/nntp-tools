@@ -151,7 +151,7 @@ void Hierarchy::logs() {
 }
 
 void Hierarchy::readLogs() {
-  list<vector<Value> > rows;
+  vector<vector<Value> > rows;
   read_csv(Config::output + "/" + name + ".csv", rows);
   if(rows.size()) {
     const vector<Value> &last = rows.back();
@@ -159,7 +159,17 @@ void Hierarchy::readLogs() {
     articles = last[3];
     senderCount = last[4];
   }
-  // TODO per-group figures
+  rows.clear();
+  const string groupdata = Config::output + "/" + name + "-groups.csv";
+  read_csv(groupdata, rows);
+  for(size_t n = 0; n < rows.size(); ++n) {
+    const vector<Value> &row = rows[n];
+    Group *g = new Group(row[0]);
+    g->bytes = row[1];
+    g->articles = row[2];
+    g->senderCount = row[3];
+    groups[row[0]] = g;
+  }
 }
 
 void Hierarchy::graphs() {

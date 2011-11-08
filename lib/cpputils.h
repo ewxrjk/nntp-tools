@@ -65,7 +65,7 @@ public:
   }
 };
 
-void read_csv(const std::string &path, std::list<std::vector<Value> > &rows);
+void read_csv(const std::string &path, std::vector<std::vector<Value> > &rows);
 std::string csv_quote(const std::string &s);
 std::string compact_kilo(double n);
 std::string round_kilo(double n);

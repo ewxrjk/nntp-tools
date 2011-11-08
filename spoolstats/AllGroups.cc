@@ -321,7 +321,7 @@ void AllGroups::readLogs() {
     Hierarchy *const h = it->second;
     h->readLogs();
   }
-  list<vector<Value> > rows;
+  vector<vector<Value> > rows;
   read_csv(Config::output + "/all.csv", rows);
   if(rows.size()) {
     const vector<Value> &last = rows.back();
@@ -371,8 +371,8 @@ void AllGroups::report_agents(const std::string &path,
       os << "<td>" << HTML::Escape(agents[n]->value) << "</td>\n";
       os << "<td sorttable_customkey=-" << fixed << agents[n]->articles
          << ">" << agents[n]->articles << "</td>\n";
-      os << "<td sorttable_customkey=-" << fixed << agents[n]->senders.size()
-         << ">" << agents[n]->senders.size() << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << agents[n]->senderCount
+         << ">" << agents[n]->senderCount << "</td>\n";
       os << "</tr>\n";
     }
 
@@ -403,8 +403,8 @@ void AllGroups::report_charsets() {
       os << "<td>" << HTML::Escape(charsets_o[n]->value) << "</td>\n";
       os << "<td sorttable_customkey=-" << fixed << charsets_o[n]->articles
          << ">" << charsets_o[n]->articles << "</td>\n";
-      os << "<td sorttable_customkey=-" << fixed << charsets_o[n]->senders.size()
-         << ">" << charsets_o[n]->senders.size() << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << charsets_o[n]->senderCount
+         << ">" << charsets_o[n]->senderCount << "</td>\n";
       os << "</tr>\n";
     }
 

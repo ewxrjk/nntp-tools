@@ -27,7 +27,7 @@
 using namespace std;
 
 // Parse a CSV file with numeric contents
-void read_csv(const string &path, list<vector<Value> > &rows) {
+void read_csv(const string &path, vector<vector<Value> > &rows) {
   // istream (at least as actually implemented) doesn't give us a way
   // to distinguish error from eof, so we don't use it.
   FILE *fp;
@@ -61,7 +61,7 @@ void read_csv(const string &path, list<vector<Value> > &rows) {
             }
             s += ch;
           } else
-            s += bit.at(i);
+            s += bit.at(i++);
         }
         v.push_back(s);
       } else {

@@ -25,6 +25,7 @@ class Article;
 
 class SenderCountingBucket: public Bucket {
 public:
+  SenderCountingBucket(): senderCount(0) {}
   std::map<std::string,int> senders;    // sender -> article count
 
   size_t senderCount;

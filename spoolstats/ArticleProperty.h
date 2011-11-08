@@ -35,7 +35,7 @@ public:
     long articles;
     std::set<std::string> senders;
     size_t senderCount;
-    inline PropertyValue(const std::string &value_): value(value_), articles(0) {
+    inline PropertyValue(const std::string &value_): value(value_), articles(0), senderCount(0) {
     }
     void addSender(const std::string &s) {
       senders.insert(s);
