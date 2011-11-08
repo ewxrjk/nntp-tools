@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +132,7 @@ Options:\n\
   -8, --big8                        Analyse the Big 8\n\
   -O, --output DIRECTORY            Output directory\n\
   -Q, --quiet                       Quieter operation\n\
+  --no-scan, --no-graph             Suppress phases\n\
   -h, --help                        Display usage message\n\
   -V, --version                     Display version number\n");
       exit(0);

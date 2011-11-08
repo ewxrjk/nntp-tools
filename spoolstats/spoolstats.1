@@ -1,6 +1,6 @@
 .\"
 .\" This file is part of rjk-nntp-tools.
-.\" Copyright (C) 2010 Richard Kettlewell
+.\" Copyright (C) 2010-11 Richard Kettlewell
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -63,6 +63,13 @@ option that lists the Big 8.
 .B -Q\fR, \fB--quiet
 Quieter operation.
 .TP
+.B --no-scan
+Suppresses the scan phase.
+Re-uses the results of the previous scan from the output directory.
+.TP
+.B --no-graph
+Suppresses the reporting phase.
+.TP
 .B -h\fR, \fB--help
 Display a usage message.
 .TP
@@ -115,6 +122,24 @@ formatting, so a table of known clients is used).
 In all cases, if Javascript is supported, the tables can be re-ordered
 by clicking the headings.
 .SH LOGS
+.SS Formatting
+Logfiles use a comma-separated value format.
+In this version of CSV:
+.IP \(bu
+Integers are represented in decimal, and anything starting with a
+digit is always an integer.
+.IP \(bu
+Strings are always introduced and terminated by \fB"\fR.
+.IP \(bu
+Strings use \fB\e\e\fR and \fB\e"\fR to represent \fB\e\fR and \fB"\fR.
+.IP \(bu
+Strings use \e\fIDDD\fR to represent any character in octal.
+This representation never uses more than three digits.
+.IP \(bu
+Apart from the above, \fB\e\fR never appears in strings.
+.PP
+In the descriptions below, all fields are integers unless explicitly
+marked as being strings.
 .SS "Overall Logs"
 .B all.csv
 summarizes all articles scanned.
@@ -131,6 +156,32 @@ The number of bytes in the all sampled articles.
 .TP
 .B articles
 The number of sampled articles.
+.PP
+.I encodings.csv
+records the encodings seen in the most recent scan phase.
+Each line has the following fields:
+.TP
+.B encoding \fR(string)
+The name of the encoding.
+.TP
+.B articles
+The number of articles using this encoding.
+.TP
+.B senders
+The number of unique senders using this encoding.
+.PP
+.I useragents.csv
+records the user agents seen in the most recent scan phase.
+Each line has the following fields:
+.TP
+.B agent \fR(string)
+The full user agent string.
+.TP
+.B articles
+The number of articles using this encoding.
+.TP
+.B senders
+The number of unique senders using this encoding.
 .SS "Hierarchy Logs"
 Each hierarchy has a
 .IB HIERARCHY .csv
@@ -144,7 +195,23 @@ The time_t at the end of the sampling interval.
 The length of the sampling interval in seconds.
 .TP
 .B bytes
-The number of bytes in the all sampled articles.
+The number of bytes in the sampled articles.
+.TP
+.B articles
+The number of sampled articles.
+.TP
+.B senders
+The number of unique senders.
+.PP
+.IB HIERARCHY -groups.csv
+contains per-group data from the most recent scan phase.
+Each line has the following fields:
+.TP
+.B name \fR(string)
+The name of the group.
+.TP
+.B bytes
+The number of bytes in the sampled articles.
 .TP
 .B articles
 The number of sampled articles.
