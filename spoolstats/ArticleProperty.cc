@@ -63,6 +63,7 @@ ArticleProperty::PropertyValue &ArticleProperty::PropertyValue::operator+=(const
       it != that.senders.end();
       ++it)
     senders.insert(*it);
+  senderCount += that.senderCount;
   return *this;
 }
 
@@ -85,6 +86,14 @@ void ArticleProperty::logs(const string &path) {
   }
 }
 
-void ArticleProperty::readLogs(const string &/*path*/) {
-  // TODO
+void ArticleProperty::readLogs(const string &path) {
+  vector<vector<Value> > rows;
+  read_csv(path, rows);
+  for(size_t n = 0; n < rows.size(); ++n) {
+    const vector<Value> &row = rows.at(n);
+    PropertyValue v(row[0]);
+    v.articles = row[1];
+    v.senderCount = row[2];
+    values.insert(pair<string,PropertyValue>(row[0], v));
+  }
 }

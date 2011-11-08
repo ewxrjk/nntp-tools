@@ -35,38 +35,47 @@ void read_csv(const string &path, vector<vector<Value> > &rows) {
     fatal(errno, "opening %s", path.c_str());
   char *l = 0;
   size_t n = 0;
+  string t, ll;
   while(getline(&l, &n, fp) >= 0) {
-    vector<string> bits;
-    split(bits, ',', string(l));
+    ll = l;
+    ll.erase(ll.find('\n'));
     vector<Value> v;
-    for(size_t k = 0; k < bits.size(); ++k) {
-      const std::string bit = bits[k];
-      if(isdigit(bit.at(0))) {
-        stringstream ss(bit);
+    size_t pos = 0;
+    while(pos < ll.size()) {
+      t.clear();
+      if(isdigit(ll.at(pos))) {
+        while(pos < ll.size() && isdigit(ll.at(pos)))
+          t += ll.at(pos++);
+        stringstream ss(t);
         intmax_t i;
         ss >> i;
         v.push_back(i);
-      } else if(bit.at(0) == '"') {
-        string s;
-        size_t i = 1;
-        while(i < bit.size() - 1) {
-          if(bit.at(i) == '\\') {
-            ++i;
+      } else if(ll.at(pos) == '"') {
+        ++pos;
+        while(ll.at(pos) != '"') {
+          if(ll.at(pos) == '\\') {
+            ++pos;
             char ch = 0;
-            int count = 0;
-            while(count < 3 && bit.at(i) >= '0' && bit.at(i) <= '7') {
-              ch = 8 * ch + bit.at(i) - '0';
-              ++i;
-              ++count;
-            }
-            s += ch;
+            if(isdigit(ll.at(pos))) {
+              int count = 0;
+              while(count < 3 && ll.at(pos) >= '0' && ll.at(pos) <= '7') {
+                ch = 8 * ch + ll.at(pos) - '0';
+                ++pos;
+                ++count;
+              }
+            } else
+              ch = ll.at(pos++);
+            t += ch;
           } else
-            s += bit.at(i++);
+            t += ll.at(pos++);
         }
-        v.push_back(s);
-      } else {
-        v.push_back(bit);
-      }
+        ++pos;
+        v.push_back(t);
+      } else
+        throw std::runtime_error("CSV: syntax error");
+      if(pos < ll.size() && ll.at(pos) != ',')
+        throw std::runtime_error("CSV: missing comma");
+      ++pos;
     }
     rows.push_back(v);
   }
