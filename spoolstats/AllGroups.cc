@@ -310,7 +310,8 @@ void AllGroups::logs() {
   } catch(ios::failure) {
     fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
   }
-  // TODO encodings, user agents
+  charsets.logs(Config::output + "/encodings.csv");
+  useragents.logs(Config::output + "/useragents.csv");
 }
 
 void AllGroups::readLogs() {
@@ -320,14 +321,15 @@ void AllGroups::readLogs() {
     Hierarchy *const h = it->second;
     h->readLogs();
   }
-  list<vector<intmax_t> > rows;
+  list<vector<Value> > rows;
   read_csv(Config::output + "/all.csv", rows);
   if(rows.size()) {
-    const vector<intmax_t> &last = rows.back();
+    const vector<Value> &last = rows.back();
     bytes = last[2];
     articles = last[3];
   }
-  // TODO encodings, user agents
+  charsets.readLogs(Config::output + "/encodings.csv");
+  useragents.readLogs(Config::output + "/useragents.csv");
 }
 
 void AllGroups::graphs() {
@@ -361,7 +363,7 @@ void AllGroups::report_agents(const std::string &path,
       uas = &summarized_uas;
     } else
       uas = &useragents;
-    vector<const ArticleProperty::Value *> agents;
+    vector<const ArticleProperty::PropertyValue *> agents;
     uas->order(agents);
 
     for(unsigned n = 0; n < agents.size(); ++n) {
@@ -393,7 +395,7 @@ void AllGroups::report_charsets() {
     os << "<table class=sortable>\n";
     HTML::thead(os, "Character Encoding", "Articles", "Posters", (const char *)NULL);
 
-    vector<const ArticleProperty::Value *> charsets_o;
+    vector<const ArticleProperty::PropertyValue *> charsets_o;
     charsets.order(charsets_o);
 
     for(unsigned n = 0; n < charsets_o.size(); ++n) {

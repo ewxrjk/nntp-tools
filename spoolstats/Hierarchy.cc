@@ -130,13 +130,31 @@ void Hierarchy::logs() {
   } catch(ios::failure) {
     fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
   }
+  const string groupdata = Config::output + "/" + name + "-groups.csv";
+  try {
+    ofstream os(groupdata.c_str(), ios::trunc);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    for(map<string,Group *>::const_iterator it = groups.begin();
+        it != groups.end();
+        ++it) {
+      const Group *g = it->second;
+      os << csv_quote(it->first)
+         << "," << g->bytes
+         << "," << g->articles
+         << "," << g->senderCount
+         << '\n';
+    }
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", groupdata.c_str());
+  }
 }
 
 void Hierarchy::readLogs() {
-  list<vector<intmax_t> > rows;
+  list<vector<Value> > rows;
   read_csv(Config::output + "/" + name + ".csv", rows);
   if(rows.size()) {
-    const vector<intmax_t> &last = rows.back();
+    const vector<Value> &last = rows.back();
     bytes = last[2];
     articles = last[3];
     senderCount = last[4];
