@@ -516,6 +516,9 @@ static void process_archive(const char *dir, int first) {
   const char *branch = NULL;
   char *seenfile, *realdir;
 
+  /* Canonicalize the director name before changing working directory */
+  if(!(realdir = realpath(dir, NULL)))
+    fatal(errno, "realpath %s", dir);
   /* Switch to target directory */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
     fatal(errno, "cannot open .");
@@ -534,8 +537,6 @@ static void process_archive(const char *dir, int first) {
   } else
     if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
   /* Open the right .seen file */
-  if(!(realdir = realpath(dir, NULL)))
-    fatal(errno, "realpath %s", dir);
   if(asprintf(&seenfile, "%s.seen", realdir) < 0)
     fatal(errno, "asprintf");
   init_seen(seenfile);
