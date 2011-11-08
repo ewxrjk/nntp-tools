@@ -39,6 +39,9 @@ public:
   // Generate logs
   void logs();
 
+  // Read logs
+  void readLogs();
+
   // Generate graphs
   void graphs();
 

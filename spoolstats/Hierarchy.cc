@@ -132,6 +132,18 @@ void Hierarchy::logs() {
   }
 }
 
+void Hierarchy::readLogs() {
+  list<vector<intmax_t> > rows;
+  read_csv(Config::output + "/" + name + ".csv", rows);
+  if(rows.size()) {
+    const vector<intmax_t> &last = rows.back();
+    bytes = last[2];
+    articles = last[3];
+    // TODO senders?
+  }
+  // TODO per-group figures
+}
+
 void Hierarchy::graphs() {
   graph(name + ".*",
         Config::output + "/" + name + ".csv",

@@ -35,13 +35,18 @@ int main(int argc, char **argv) {
   Config::Options(argc, argv);
   // Scan everything
   AllGroups all;
-  all.scan();
-  // Generate the logs & report
-  all.logs();
-  all.graphs();
-  all.report();
-  // Auxiliary files
-  extrafile("sorttable.js", sorttable);
-  extrafile("spoolstats.css", css);
+  if(Config::scan) {
+    all.scan();
+    all.logs();
+  } else
+    all.readLogs();
+  if(Config::graph) {
+    // Generate  report
+    all.graphs();
+    all.report();
+    // Auxiliary files
+    extrafile("sorttable.js", sorttable);
+    extrafile("spoolstats.css", css);
+  }
   return 0;
 }

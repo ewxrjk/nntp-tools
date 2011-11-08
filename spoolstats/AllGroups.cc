@@ -310,6 +310,24 @@ void AllGroups::logs() {
   } catch(ios::failure) {
     fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
   }
+  // TODO encodings, user agents
+}
+
+void AllGroups::readLogs() {
+  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end();
+      ++it) {
+    Hierarchy *const h = it->second;
+    h->readLogs();
+  }
+  list<vector<intmax_t> > rows;
+  read_csv(Config::output + "/all.csv", rows);
+  if(rows.size()) {
+    const vector<intmax_t> &last = rows.back();
+    bytes = last[2];
+    articles = last[3];
+  }
+  // TODO encodings, user agents
 }
 
 void AllGroups::graphs() {

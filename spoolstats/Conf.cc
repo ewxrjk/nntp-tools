@@ -36,6 +36,12 @@ string Config::spool = "/var/spool/news/articles";
 // Parse command line options
 void Config::Options(int argc, char **argv) {
   int n;
+  enum {
+    opt_scan = 256,
+    opt_no_scan,
+    opt_graph,
+    opt_no_graph
+  };
 
   // The option table
   static const struct option options[] = {
@@ -46,6 +52,10 @@ void Config::Options(int argc, char **argv) {
     { "days", required_argument, 0, 'N' },
     { "latency", required_argument, 0, 'L' },
     { "output", required_argument, 0, 'O' },
+    { "scan", no_argument, 0, opt_scan },
+    { "no-scan", no_argument, 0, opt_no_scan },
+    { "graph", no_argument, 0, opt_graph },
+    { "no-graph", no_argument, 0, opt_no_graph },
     { "help", no_argument, 0, 'h' },
     { "quiet", no_argument, 0, 'Q' },
     { "version", no_argument, 0, 'V' },
@@ -98,6 +108,18 @@ void Config::Options(int argc, char **argv) {
     case 'O':
       output = optarg;
       break;
+    case opt_scan:
+      scan = true;
+      break;
+    case opt_no_scan:
+      scan = false;
+      break;
+    case opt_graph:
+      graph = true;
+      break;
+    case opt_no_graph:
+      graph = false;
+      break;
     case 'h':
       printf("Usage:\n\
   spoolstats [OPTIONS]\n\
@@ -145,3 +167,6 @@ void Config::footer(ostream &os) {
 }
 
 map<string, Hierarchy *> Config::hierarchies;
+
+bool Config::scan = true;
+bool Config::graph = true;
