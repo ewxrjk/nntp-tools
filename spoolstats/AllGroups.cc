@@ -47,7 +47,7 @@ void AllGroups::scan() {
   }
   // AllGroups::recurse() keeps a running count, erase it now we're done
   if(Config::terminal)
-    cerr << "                    \r";
+    cerr << "                                                                        \r";
 }
 
 // Recurse into one directory
@@ -57,15 +57,31 @@ void AllGroups::recurse(const string &dir) {
   struct dirent *de;
   string nodepath;
   struct stat sb;
+  long low_water_mark = -1;
 
+  ++dirs;
   if(!(dp = opendir(dir.c_str())))
     fatal(errno, "opening %s", dir.c_str());
   errno = 0;
   while((de = readdir(dp))) {
     if(de->d_name[0] != '.') {
-      // TODO we have a further possible optimization; if the article name is
-      // numerically lower than one known to be too early by mtime, we can skip
-      // it before we even stat it.
+      if(Config::terminal && count % 31 == 0)
+        cerr << included << "/" << count
+             << " skip-lwm: " << skip_lwm
+             << " skip-mtime: " << skip_mtime
+             << " dirs: " << dirs
+             << "\r";
+      // Convert filename to article number
+      errno = 0;
+      char *end;
+      long article = strtol(de->d_name, &end, 10);
+      if(errno || end == de->d_name || * end)
+        article = -1;
+      else if(article < low_water_mark) {
+        ++count;
+        ++skip_lwm;
+        continue;
+      }
       nodepath = dir;
       nodepath += "/";
       nodepath += de->d_name;
@@ -74,11 +90,16 @@ void AllGroups::recurse(const string &dir) {
       if(S_ISDIR(sb.st_mode))
         recurse(nodepath);
       else if(S_ISREG(sb.st_mode)) {
-        if(sb.st_mtime >= Config::start_mtime)
-          included += visit(nodepath);
+        // Skip articles that precede articles known to be too early by mtime
+        if(article >= 0) {
+          if(sb.st_mtime >= Config::start_mtime)
+            included += visit(nodepath);
+          else {
+            low_water_mark = article;
+            ++skip_mtime;
+          }
+        }
         count += 1;
-        if(Config::terminal && count % 11 == 0)
-          cerr << included << "/" << count << "\r";
       }
     }
     errno = 0;                          // stupid readdir() API
