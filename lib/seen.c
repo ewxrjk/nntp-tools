@@ -158,6 +158,6 @@ void init_seen(const char *path) {
     close(fd);
     fd = -1;
   }
-  if((fd = open(path, O_RDWR|O_CREAT, 0600)) < 0)
+  if((fd = open(path, O_RDWR|O_CREAT, 0666)) < 0)
     fatal(errno, "opening %s", path);
 }
