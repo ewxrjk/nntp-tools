@@ -148,6 +148,17 @@ int fexists(const char *path) {
   return 1;
 }
 
+/* Return nonzero if PATH is a directory, else 0.  On error, calls fatal(). */
+int isdir(const char *path) {
+  struct stat sb;
+  if(stat(path, &sb) < 0) {
+    if(errno == ENOENT)
+      return 0;
+    fatal(errno, "error statting %s", path);
+  }
+  return S_ISDIR(sb.st_mode);
+}
+
 /* --- convert a W3C date to an RFC822 date -------------------------------- */
 
 /* http://dublincore.org/documents/dces/ says:

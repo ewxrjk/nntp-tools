@@ -516,26 +516,26 @@ static void process_archive(const char *dir, int first) {
   const char *branch = NULL;
   char *seenfile, *realdir;
 
-  /* Canonicalize the director name before changing working directory */
-  if(!(realdir = realpath(dir, NULL)))
-    fatal(errno, "realpath %s", dir);
-  /* Switch to target directory */
+  /* Remember where we started */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
     fatal(errno, "cannot open .");
+  /* Separate out repository from branch */
   if((colon = strrchr(dir, ':'))) {
     /* Separate out base and branch */
     char *base = xstrndup(dir, colon - dir);
     branch = colon + 1;
-    if(chdir(base) < 0) {
-      /* Base directory does not exist, maybe it was really a directory with a
-       * colon in */
-      if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
-      branch = NULL;
-    } else {
+    if(isdir(base)) {
+      if(isdir(dir))
+        fatal(0, "ambiguous repository:branch specification '%s'", dir);
       dir = base;
-    }
-  } else
-    if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+    } else
+      branch = NULL;
+  }
+  /* Canonicalize the director name before changing working directory */
+  if(!(realdir = realpath(dir, NULL)))
+    fatal(errno, "realpath %s", dir);
+  /* Switch to target directory */
+  if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
   /* Open the right .seen file */
   if(asprintf(&seenfile, "%s.seen", realdir) < 0)
     fatal(errno, "asprintf");
