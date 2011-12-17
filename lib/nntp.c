@@ -285,7 +285,7 @@ static void *postthread(void *arg) {
 	  if((fd = socket(ans->ai_family, ans->ai_socktype,
 			  ans->ai_protocol)) < 0)
 	    fatal(errno, "error calling socket");
-          /* TODO does this actually affect the connect timeout? */
+          /* TODO looks from kernel source like we only need SNDTIMEO */
           if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvtimeout, 
                         sizeof tvtimeout) < 0)
             fatal(errno, "setsockopt");
@@ -297,17 +297,17 @@ static void *postthread(void *arg) {
             close(fd);
             fd = -1;
           }
-          /* We use poll() to enforce timeouts on read and write */
-          if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvzero,
-                        sizeof tvzero) < 0)
-            fatal(errno, "setsockopt");
-          if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvzero,
-                        sizeof tvzero) < 0)
-            fatal(errno, "setsockopt");
 	}
 	if(fd == -1)
 	  fatal(0, "cannot connect to node %s service %s", 
                 pts->server, pts->port);
+        /* We use poll() to enforce timeouts on read and write */
+        if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvzero,
+                      sizeof tvzero) < 0)
+          fatal(errno, "setsockopt");
+        if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvzero,
+                      sizeof tvzero) < 0)
+          fatal(errno, "setsockopt");
 	if(!(pts->io = io_create(fd)))
 	  fatal(errno, "error calling fdopen");
         io_set_timeout(pts->io, pts->timeout);
