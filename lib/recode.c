@@ -40,7 +40,7 @@ char *recode(const char *input,
     /* Convert some bytes */
     outptr = outbuffer;
     outleft = sizeof outbuffer;
-    rc = iconv(cd, &inptr, &inleft, &outptr, &outleft);
+    rc = iconv(cd, (void *)&inptr, &inleft, &outptr, &outleft);
     /* Accumulate output */
     outbytes = (sizeof outbuffer) - outleft;
     buffer = xrealloc(buffer, len + outbytes);
