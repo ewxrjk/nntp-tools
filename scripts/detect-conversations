@@ -40,7 +40,7 @@ die "ERROR: excess arguments\n" if @ARGV > 0;
 
 # Compute group pattern
 my $re;
-if(@hierarchies == 0) { $re = ""; }
+if(@hierarchies == 0) { $re = "^\\S+"; }
 else                  { $re = "^(" . join("|", @hierarchies) . ")\\.\\S+"; }
 
 # Get group list
