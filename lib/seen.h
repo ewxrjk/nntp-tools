@@ -1,7 +1,6 @@
-//-*-C++-*-
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2011 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,34 +17,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef BUCKET_H
-#define BUCKET_H
 
-class Article;
+#ifndef SEEN_H
+#define SEEN_H
 
-class Bucket {
-public:
-  int articles;                 // count of articles
-  intmax_t bytes;               // count of bytes
+int seen(const char *id);
+void remember(const char *id);
+void init_seen(const char *path);
 
-  inline Bucket(): articles(0),
-                   bytes(0) {
-  }
-
-  virtual ~Bucket();
-
-  // Supply an article to this bucket
-  inline void visit(const Article *a) {
-    ++articles;
-    bytes += a->get_size();
-  }
-
-  void graph(const std::string &title,
-             const std::string &csv, 
-             const std::string &png);
-
-private:
-  void verticalScale(double max, double &limit, double &chunk, double &count);
-};
-
-#endif /* BUCKET_H */
+#endif /* SEEN_H */

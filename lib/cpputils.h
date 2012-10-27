@@ -1,7 +1,7 @@
 //-*-C++-*-
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010-11 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,30 @@ public:
   inline BadCSV(): std::runtime_error("malformed CSV") { }
 };
 
-void read_csv(const std::string &path, std::list<std::vector<intmax_t> > &rows);
+// Value returned from a CSV file
+class Value {
+  enum Type {
+    t_string,
+    t_integer,
+  };
+  Type type;
+  std::string v_string;
+  intmax_t v_integer;
+public:
+  Value(const std::string &s): type(t_string), v_string(s) {}
+  Value(intmax_t n): type(t_integer), v_integer(n) {}
+  operator std::string() const {
+    if(type != t_string) throw std::runtime_error("type mismatch");
+    return v_string;
+  }
+  operator intmax_t() const {
+    if(type != t_integer) throw std::runtime_error("type mismatch");
+    return v_integer;
+  }
+};
+
+void read_csv(const std::string &path, std::vector<std::vector<Value> > &rows);
+std::string csv_quote(const std::string &s);
 std::string compact_kilo(double n);
 std::string round_kilo(double n);
 

@@ -21,7 +21,8 @@
 #ifndef NNTP_H
 #define NNTP_H
 
-void create_postthread(int pf, const char *server, const char *port);
+void create_postthread(int pf, const char *server, const char *port,
+                       int timeout);
 /* Must be called before first post() */
 
 void join_postthread(void);

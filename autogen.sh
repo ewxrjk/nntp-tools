@@ -25,7 +25,7 @@ mkdir -p config.aux
 
 # Find an automake
 if [ -z "$AUTOMAKE" ]; then
-  for prog in automake automake-1.10 automake-1.9 automake-1.8 automake-1.7; do
+  for prog in automake automake-1.11 automake-1.10 automake-1.9 automake-1.8 automake-1.7; do
     if type $prog >/dev/null 2>&1; then
       AUTOMAKE=$prog
       break
@@ -41,6 +41,8 @@ ACLOCAL=${AUTOMAKE/automake/aclocal}
 # Reject ancient versions of Automake
 amv=`${AUTOMAKE} --version|grep ^automake`
 case "$amv" in
+*11.* )
+  ;;
 *1.4 | *1.4.* | *1.5 | *1.5.* | *1.6 | *1.6.* )
   echo Need Automake 1.7 or better >&2
   exit 1

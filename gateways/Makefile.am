@@ -33,6 +33,17 @@ man_MANS=lj2news.1 bzr2news.1 git2news.1 setup-lj2news.1
 
 EXTRA_DIST=$(man_MANS) setup-lj2news
 
+html: lj2news.1.html bzr2news.1.html setup-lj2news.1.html
+
+lj2news.1.html: lj2news.1
+	${top_srcdir}/scripts/htmlman $^
+
+bzr2news.1.html: bzr2news.1
+	${top_srcdir}/scripts/htmlman $^
+
+setup-lj2news.1.html: setup-lj2news.1
+	${top_srcdir}/scripts/htmlman $^
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(bindir)/git2news$(EXEEXT)
 	ln $(DESTDIR)$(bindir)/bzr2news$(EXEEXT) \

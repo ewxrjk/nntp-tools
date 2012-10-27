@@ -47,13 +47,13 @@ AC_CACHE_CHECK([for fink],[rjk_cv_fink],[
 ])
 
 if test "$rjk_cv_fink" != no; then
-  CPPFLAGS="${CPPFLAGS} -I${rjk_cv_fink}/include"
+  CPPFLAGS="${CPPFLAGS} -isystem ${rjk_cv_fink}/include"
   LDFLAGS="${LDFLAGS} -L${rjk_cv_fink}/lib"
 fi
 
 case `uname -s` in
 FreeBSD )
-  CPPFLAGS="${CPPFLAGS} -I/usr/local/include"
+  CPPFLAGS="${CPPFLAGS} -isystem /usr/local/include"
   LDFLAGS="${LDFLAGS} -L/usr/local/lib"
   ;;
 esac  
@@ -77,6 +77,8 @@ AC_CACHE_CHECK([for Cairomm CFLAGS],[rjk_cv_cairomm_cflags],[
 AC_CACHE_CHECK([for Cairomm LIBS],[rjk_cv_cairomm_libs],[
   rjk_cv_cairomm_libs=`pkg-config --silence-errors --libs cairomm-1.0`
 ])
+AC_CHECK_LIB([iconv],[iconv_open],[],
+             [AC_CHECK_LIB([iconv],[libiconv_open])])
 if test "$rjk_cv_cairomm_libs" = ""; then
   SPOOLSTATS=""
 else
@@ -106,6 +108,7 @@ fi
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_C_INLINE
+AC_C_BIGENDIAN
 
 # Checks for functions
 AC_CHECK_FUNCS([funopen open_memstream getline getdelim])

@@ -62,15 +62,16 @@ Display a usage message and terminate.
 .SS "Rarely-Used Options"
 .TP
 .B -a \fISECONDS\fR, \fB--age \fISECONDS\fR
-The maximum age of changes to post.  The default is 1 week (604800
-seconds).
+The maximum age of changes to post.
+The default is 1 week (604800 seconds).
 .TP
 .B -m \fIMSGIDDOMAIN\fR, \fB--msggid-domain \fIMSGIDDOMAIN\fR
-The message-ID domain.  Normally need not be specified.
+The message-ID domain.
+Normally need not be specified.
 .TP
 .B -p \fIPORT\fR, \fB--port \fIPORT\fR
-Specify the news server port number.  The default is the standard NNTP
-port.
+Specify the news server port number.
+The default is the standard NNTP port.
 .TP
 .B -x \fISALT\fR, \fB--salt \fISALT\fR
 Include \fISALT\fR in the calculation of message IDs.
@@ -87,22 +88,49 @@ Use only IPv6 addresses.
 .B -d, \fB--debug
 Enable debugging.
 .SH NOTES
-.SS Salt
-The
-.B -x
-option is useful in testing your setup.
+.SS "bzr or git?"
+.B git2news
+and
+.B bzr2news
+are actually the same program, which figures out what version control
+system it is dealing with by inspection, only falling back on the
+name it is invoked as if its heuristics fail.
+.SS "Character Encodings"
+.B git2news
+always posts in UTF-8.
+For commit messages this is unproblematic as \fBgit\fR can produce
+UTF-8 on demand.
+For diffs, it assumes that the tracked files, and therefore the diffs,
+following the current locale's encoding, and translates from that to
+UTF-8.
 .PP
 .B bzr2news
-relies on the news server to keep track of which messages have been
-sent and which not, so if you post all your articles in a test group
-but then want to repost them to a "real" group then the message IDs
-will clash and the articles will be silently rejected.  In this case
-you should change the salt value when switching between the test and
-live groups.
+always follows the current locale's encoding.
 .PP
-The suggested approach is to use a nontrivial salt in testing and
-remove it when going live.
+.B --preview
+output reproduces the bytes that would be sent to the news server, so
+it can produce UTF-8 even in a non-UTF-8 locale.
+.SS "Commit Tracking"
+The set of commits already posted is tracked in a \fI.seen\fR file
+adjacent to the repository.
+You can delete this file to force articles to be reposted (for
+instance to another newsgroup or news server).
+.PP
+Message IDs are computed from details of the commit and (if it is
+specified) the "salt" value given to the \fB-x\fR option.
+The news server will reject duplicate message IDs (if they are not
+from so far in the past that it has purged them from its database) so
+if you want to re-post articles you may need to pass a salt value.
+.PP
+The main use of \fB-x\fR is for testing - for instance you might
+initially post to a test group with a random salt value, then delete
+the \fI.seen\fR file and remove the salt for production.
+.PP
+The salt value does not affect the commit tracking in the \fI.seen\fR
+file.
 .SS "NNTP Authentication"
 Currently only AUTHINFO GENERIC is supported.
 .SH AUTHOR
-(c) 2007-2011 Richard Kettlewell.
+Richard Kettlewell <rjk@greenend.org.uk>
+.PP
+http://www.greenend.org.uk/rjk/2006/newstools.html

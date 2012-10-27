@@ -33,6 +33,11 @@ LIBS=${CAIROMM_LIBS}
 
 man_MANS=spoolstats.1
 
+html: spoolstats.1.html
+
+spoolstats.1.html: spoolstats.1
+	${top_srcdir}/scripts/htmlman $^
+
 EXTRA_DIST=$(man_MANS) sorttable.js spoolstats.css spoolstats.cron	\
 spoolstats.default
 

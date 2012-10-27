@@ -30,20 +30,25 @@ class Article;
 
 class ArticleProperty {
 public:
-  struct Value {
+  struct PropertyValue {
     const std::string value;
     long articles;
     std::set<std::string> senders;
-    inline Value(const std::string &value_): value(value_), articles(0) {
+    size_t senderCount;
+    inline PropertyValue(const std::string &value_): value(value_), articles(0), senderCount(0) {
     }
-    Value &operator+=(const Value &that);
+    void addSender(const std::string &s) {
+      senders.insert(s);
+      senderCount = senders.size();
+    }
+    PropertyValue &operator+=(const PropertyValue &that);
     struct ptr_art_compare {
-      bool operator()(const Value *a, const Value *b) {
+      bool operator()(const PropertyValue *a, const PropertyValue *b) {
         return a->articles > b->articles;
       }
     };
   private:
-    Value();                             // not default-constructable
+    PropertyValue();                             // not default-constructable
   };
 
   ArticleProperty();
@@ -52,7 +57,10 @@ public:
   void update(const Article *article,
               const std::string &value);
 
-  void order(std::vector<const Value *> &) const;
+  void logs(const std::string &path);
+  void readLogs(const std::string &path);
+
+  void order(std::vector<const PropertyValue *> &) const;
 
   typedef const std::string &summarize_fn(const std::string &);
 
@@ -60,7 +68,7 @@ public:
                  summarize_fn *summarize);
 
 private:
-  std::map<std::string,Value> values;
+  std::map<std::string,PropertyValue> values;
 };
 
 #endif /* ARTICLEPROPERTY_H */

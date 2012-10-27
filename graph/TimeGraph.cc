@@ -64,10 +64,15 @@ void TimeGraph::define_x(const string &name, time_t start_, time_t end_) {
       range_x(t, nextmonth(t), display(t, "%b"));
   } else {
     const long ys = year(start_), ye = year(end_) + 1;
+    const int ny = ye - ys;
     const time_t ts = yearstart(ys), te = yearstart(ye);
     Graph::define_x(name, ts, te);
     for(time_t t = ts; t < te; t = nextyear(t))
       range_x(t, nextyear(t), display(t, "%Y"));
+    if(ny <= 3) {
+      for(time_t t = ts; t <= te; t = nextmonth(t))
+        marker_x(t, "");
+    }
   }
 }
 

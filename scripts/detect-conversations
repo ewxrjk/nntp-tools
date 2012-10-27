@@ -1,0 +1,101 @@
+#! /usr/bin/perl -w
+#
+# This file is part of rjk-nntp-tools.
+# Copyright (C) 2012 Richard Kettlewell
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+#
+use strict;
+use INN::Config;
+
+# Parse command line
+my @hierarchies = ();
+my $verbose = (-t STDERR);
+while(@ARGV > 0) {
+    local $_ = shift;
+    if($_ eq '--hierarchy') {
+        push(@hierarchies, shift);
+    } elsif($_ eq '--quiet') {
+        $verbose = 0;
+    } elsif($_ eq '--') {
+        last;
+    } else {
+        die "ERROR: unknown option '$_'\n";
+    }
+}
+die "ERROR: excess arguments\n" if @ARGV > 0;
+
+# Compute group pattern
+my $re;
+if(@hierarchies == 0) { $re = "^\\S+"; }
+else                  { $re = "^(" . join("|", @hierarchies) . ")\\.\\S+"; }
+
+# Get group list
+my @groups = ();
+open(ACTIVE, "<", $INN::Config::active)
+    or die "ERROR: $INN::Config::active: $!\n";
+while(defined($_ = <ACTIVE>)) {
+    if(/$re/o) {
+        push(@groups, $&);
+    }
+}
+close ACTIVE;
+@groups = sort @groups;
+
+# Scan groups
+my %groups = ();
+for(my $n = 0; $n < scalar @groups; ++$n) {
+    my $group = $groups[$n];
+    my $gpath = $group;
+    $gpath =~ s!\.!/!g;
+    my $dir = "$INN::Config::spool/$gpath";
+    my $articles = 0;
+    my $references = 0;
+    if(opendir(GROUP, $dir)) {
+        my @files = readdir GROUP;
+        for(my $m = 0; $m < scalar @files; ++$m) {
+            my $file = $files[$m];
+            printf STDERR "\r%6d/%d %6d/%-6d %s",
+                 $n, scalar @groups, $m, scalar @files, $group
+                if $verbose and $m % 100 == 0;
+            next if $file =~ /\D/;
+            open(ARTICLE, "<", "$dir/$file") or die "ERROR: $dir/$file: $!\n";
+            while(defined($_ = <ARTICLE>)) {
+                if(/^References:/i) { ++$references; last; }
+                if(/^$/) { last; }
+            }
+            close ARTICLE;
+            ++$articles;
+        }
+        closedir GROUP;
+    }
+    $groups{$group} = [$articles, $references];
+    printf STDERR "\r                                                                               \r"
+        if $verbose;
+}
+
+# Generate report
+my %ratio = ();
+for my $group (@groups) {
+    my ($articles, $references) = @{$groups{$group}};
+    if($articles == 0) { $ratio{$group} = 0; }
+    else               { $ratio{$group} = $references / $articles; }
+}
+for my $group (sort { $ratio{$a} <=> $ratio{$b} } @groups) {
+    printf "%3d%% %s\n", int(100 * $ratio{$group}), $group
+        or die "ERROR: stdout: $!\n";
+}
+close STDOUT or die "ERROR: stdout: $!\n";

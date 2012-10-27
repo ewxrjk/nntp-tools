@@ -47,7 +47,7 @@ void Hierarchy::visit(const Article *a) {
 void Hierarchy::summary(ostream &os) {
   const intmax_t bytes_per_day = bytes / Config::days;
   const double arts_per_day = (double)articles / Config::days;
-  const long posters = senders.size();
+  const long posters = senderCount;
   os << "<tr>\n";
   os << "<td><a href=" << HTML::Quote(name + ".html") << ">"
      << HTML::Escape(name) << ".*</a></td>\n";
@@ -93,7 +93,7 @@ void Hierarchy::page() {
 
     const intmax_t total_bytes_per_day = bytes / Config::days;
     const double total_arts_per_day = (double)articles / Config::days;
-    const long total_posters = senders.size();
+    const long total_posters = senderCount;
 
     os << "<tfoot>\n";
     os << "<tr>\n";
@@ -124,11 +124,51 @@ void Hierarchy::logs() {
        << ',' << Config::days * 86400
        << ',' << bytes
        << ',' << articles
-       << ',' << senders.size()
+       << ',' << senderCount
        << '\n'
        << flush;
   } catch(ios::failure) {
     fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
+  }
+  const string groupdata = Config::output + "/" + name + "-groups.csv";
+  try {
+    ofstream os(groupdata.c_str(), ios::trunc);
+    os.exceptions(ofstream::badbit|ofstream::failbit);
+    for(map<string,Group *>::const_iterator it = groups.begin();
+        it != groups.end();
+        ++it) {
+      const Group *g = it->second;
+      os << csv_quote(it->first)
+         << "," << g->bytes
+         << "," << g->articles
+         << "," << g->senderCount
+         << '\n';
+    }
+    os << flush;
+  } catch(ios::failure) {
+    fatal(errno, "writing to %s", groupdata.c_str());
+  }
+}
+
+void Hierarchy::readLogs() {
+  vector<vector<Value> > rows;
+  read_csv(Config::output + "/" + name + ".csv", rows);
+  if(rows.size()) {
+    const vector<Value> &last = rows.back();
+    bytes = last[2];
+    articles = last[3];
+    senderCount = last[4];
+  }
+  rows.clear();
+  const string groupdata = Config::output + "/" + name + "-groups.csv";
+  read_csv(groupdata, rows);
+  for(size_t n = 0; n < rows.size(); ++n) {
+    const vector<Value> &row = rows[n];
+    Group *g = new Group(row[0]);
+    g->bytes = row[1];
+    g->articles = row[2];
+    g->senderCount = row[3];
+    groups[row[0]] = g;
   }
 }
 

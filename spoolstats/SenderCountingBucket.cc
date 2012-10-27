@@ -30,4 +30,5 @@ void SenderCountingBucket::visit(const Article *a) {
     senders[sender] = 1;
   else
     ++it->second;
+  senderCount = senders.size();
 }

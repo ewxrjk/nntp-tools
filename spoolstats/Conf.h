@@ -31,6 +31,8 @@ struct Config {
   static int start_latency;
   static int days;
   static std::string spool;
+  static bool scan;
+  static bool graph;
 
   // Parse command line
   static void Options(int argc, char **argv);

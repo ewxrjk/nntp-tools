@@ -34,15 +34,18 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <assert.h>
+#include <locale.h>
+#include <langinfo.h>
 
 #include "utils.h"
 #include "nntp.h"
+#include "seen.h"
 
 /* --- types --------------------------------------------------------------- */
 
 struct logentry {
-  int revno;                            /* bzr only */
-  char *commitid;                       /* git only */
+  int revno;                            /* or -1 */
+  char *commitid;
   time_t timestamp;
   char *branch;
   char *committer;
@@ -52,6 +55,7 @@ struct logentry {
   char *modified;
   char *renamed;
   char *diff;
+  char *encoding;                       /* or NULL to follow LC_CTYPE */
 };
 
 /* --- options ------------------------------------------------------------- */
@@ -70,7 +74,7 @@ const struct option options[] = {
   { "diffs", no_argument, 0, 'D' },     /* in case of typos */
   { "help", no_argument, 0, 'h' },
   { "version", no_argument, 0, 'V' },
- { 0, 0, 0, 0 }
+  { 0, 0, 0, 0 }
 };
 
 static long maxage = 86400 * 7;         /* = a week */
@@ -80,6 +84,7 @@ static const char *salt = "";
 static int preview;
 static int diffs;
 static const char *progname;
+static char *encoding;
 
 /* --- parsing ------------------------------------------------------------- */
 
@@ -112,7 +117,22 @@ static void header(const char *name, char *text, struct logentry *l) {
     l->timestamp = atoll(text);         /* easy l-) */
   else if(!strcmp(name, "commit"))
     l->commitid = xstrdup(text);
-  else
+  else if(!strcmp(name, "revision-id")) {
+    /* bzr revision IDs could be too long, so we convert them into a hash */
+    unsigned char *hash;
+    gcry_error_t gerr;
+    gcry_md_hd_t hd;
+    size_t n;
+
+    if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
+      fatal(0, "error calling gcry_md_open: %s/%s",
+            gcry_strsource(gerr), gcry_strerror(gerr));
+    gcry_md_write(hd, text, strlen(text));
+    hash = gcry_md_read(hd, 0);
+    l->commitid = xmalloc(41);
+    for(n = 0; n < 20; ++n) sprintf(l->commitid + 2 * n, "%02x", hash[n]);
+    gcry_md_close(hd);
+  } else
     D(("...unknown!"));
 }
 
@@ -131,6 +151,7 @@ static void free_log(struct logentry *l) {
   free(l->added);
   free(l->commitid);
   free(l->diff);
+  free(l->encoding);
   memset(l, 0, sizeof *l);
 }
 
@@ -151,10 +172,11 @@ static void post_log(const char *dir, const struct logentry *l) {
   char *subject, *newline;
   int subject_len;
 
-  if(l->commitid)
-    D(("posting commit %s", l->commitid));
-  else
-    D(("posting revision %d", l->revno));
+  if(seen(l->commitid)) {
+    D(("already posted commit %s revision %d", l->commitid));
+    return;
+  }
+  D(("posting commit %s revision %d ", l->commitid, l->revno));
   D(("message: %s", l->message));
   /* Knock up a message ID */
   if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
@@ -163,7 +185,7 @@ static void post_log(const char *dir, const struct logentry *l) {
   gcry_md_write(hd, "bzr2news", 8);
   gcry_md_write(hd, salt, strlen(salt));
   gcry_md_write(hd, dir, strlen(dir));
-  if(l->commitid)
+  if(l->revno < 0)
     gcry_md_write(hd, l->commitid, strlen(l->commitid));
   else
     gcry_md_write(hd, &l->revno, sizeof l->revno);
@@ -175,18 +197,26 @@ static void post_log(const char *dir, const struct logentry *l) {
   /* Construct the article */
   if(!(output = open_memstream(&article, &articlesize)))
     fatal(errno, "error calling open_memstream");
-  /* The header */
+  /* Always use the current date, so that commits from the distant past
+   * that we've only just seen are included. */
+  time_t now;
+  time(&now);
   strftime(date822, sizeof date822, "%a, %d %b %Y %H:%M:%S GMT",
-           gmtime_r(&l->timestamp, &t));
+           gmtime_r(&now, &t));
+  /* Synthesize the header */
   if(fprintf(output,
              "Newsgroups: %s\n"
              "From: %s\n"
              "Date: %s\n"
-             "Message-ID: %s\n",
+             "Message-ID: %s\n"
+             "MIME-Version: 1.0\n"
+             "Content-Type: text/plain; charset=%s\n"
+             "Content-Transfer-Encoding: 8bit\n",
              newsgroup,
              l->committer,
              date822,
-             msgid) < 0)
+             msgid,
+             l->encoding ? l->encoding : encoding) < 0)
     fatal(errno, "error constructing article");
   /* Use the first line of the message in the subject */
   subject = l->message;
@@ -199,7 +229,7 @@ static void post_log(const char *dir, const struct logentry *l) {
     subject_len = strlen(subject);
   if(subject_len > 58 - (int)strlen(l->branch))
     subject_len = 58 - (int)strlen(l->branch);
-  if(l->commitid) {
+  if(l->revno < 0) {
     if(fprintf(output,
                "X-Git-Commit: %s\n"
                "Subject: [%s] %.8s %.*s\n",
@@ -238,6 +268,8 @@ static void post_log(const char *dir, const struct logentry *l) {
     post(msgid, article);
   free(msgid);
   free(article);
+  if(!preview)
+    remember(l->commitid);
 }
 
 /* --- bzr support --------------------------------------------------------- */
@@ -308,7 +340,7 @@ static int read_bzr_log(FILE *fp, struct logentry *l, time_t now) {
   }
   /* l->added might be 0 and that's ok with us */
   rc = 0;
-error:
+ error:
   free(line);
   free(text);
   free(name);
@@ -331,11 +363,11 @@ static void process_bzr_archive(const char *dir, const char *branch, int first) 
     fatal(0, "separate branches not supported for bzr");
   time(&now);
   if(first >= 0) {
-    if(asprintf(&cmd, "bzr log --timezone=utc --forward -r %d..",
+    if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward -r %d..",
                 first) < 0)
       fatal(errno, "asprintf");
   } else {
-    if(asprintf(&cmd, "bzr log --timezone=utc --forward") < 0)
+    if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward") < 0)
       fatal(errno, "asprintf");
   }
   if(!(fp = popen(cmd, "r")))
@@ -370,24 +402,28 @@ static void complete_git_commit(const char *dir,
   time_t now;
   time(&now);
   if(!maxage || now - l->timestamp <= maxage) {
-    size_t message_len;
     char *stem = stem_git_name(dir);
     header("branch nick", stem, l);
     free(stem);
     header("message", message, l);
     message = 0;
-    message_len = 0;
     if(l->commitid) {
       if(diffs) {
         /* Collect the diff */
-        char *diff_cmd;
+        char *diff_cmd, *diff_native;
             
         if(asprintf(&diff_cmd, "git show --format=format: %s", l->commitid) < 0)
           fatal(errno, "error calling asprintf");
-        l->diff = capture(diff_cmd);
+        diff_native = capture(diff_cmd);
+        /* Convert the diff to UTF-8, on the assumption that it is in the
+         * LC_CTYPE locale */
+        l->diff = recode(diff_native, encoding, "UTF-8");
+        free(diff_native);
         free(diff_cmd);
       }
+      l->encoding = xstrdup("UTF-8");
       D(("got commit %s", l->commitid));
+      l->revno = -1;                    /* no revision number */
       post_log(dir, l);
     }
   } else
@@ -409,7 +445,8 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   memset(&l, 0, sizeof l);
   if(first >= 0)
     fatal(0, "--first option is not supported for git archives");/*TODO*/
-  if(asprintf(&cmd, "git log --reverse --date=raw %s",
+  /* We explicitly ask for UTF-8 in case i18.logoutputencoding is set */
+  if(asprintf(&cmd, "git log --encoding=UTF-8 --reverse --date=raw %s",
               branch ? branch : "") < 0)
     fatal(errno, "asprintf");
   if(!(fp = popen(cmd, "r")))
@@ -477,24 +514,34 @@ static void process_archive(const char *dir, int first) {
   int olddir;
   const char *colon;
   const char *branch = NULL;
+  char *seenfile, *realdir;
 
-  /* Switch to target directory */
+  /* Remember where we started */
   if((olddir = open(".", O_RDONLY, 0)) < 0)
     fatal(errno, "cannot open .");
+  /* Separate out repository from branch */
   if((colon = strrchr(dir, ':'))) {
     /* Separate out base and branch */
     char *base = xstrndup(dir, colon - dir);
     branch = colon + 1;
-    if(chdir(base) < 0) {
-      /* Base directory does not exist, maybe it was really a directory with a
-       * colon in */
-      if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
-      branch = NULL;
-    } else {
+    if(isdir(base)) {
+      if(isdir(dir))
+        fatal(0, "ambiguous repository:branch specification '%s'", dir);
       dir = base;
-    }
-  } else
-    if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+    } else
+      branch = NULL;
+  }
+  /* Canonicalize the director name before changing working directory */
+  if(!(realdir = realpath(dir, NULL)))
+    fatal(errno, "realpath %s", dir);
+  /* Switch to target directory */
+  if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+  /* Open the right .seen file */
+  if(asprintf(&seenfile, "%s.seen", realdir) < 0)
+    fatal(errno, "asprintf");
+  init_seen(seenfile);
+  free(seenfile);
+  free(realdir);
   /* Try to guess what kind of revision control system we have.  First we look
    * at files, failing that we choose a default based on the name we were
    * invoked as, if even that doesn't work we default to bzr. */
@@ -517,6 +564,13 @@ int main(int argc, char **argv) {
   int pf = PF_UNSPEC;
   int first = -1;
   
+  if(!setlocale(LC_CTYPE, ""))
+    fatal(errno, "setlocale");
+  if(!(encoding = nl_langinfo(CODESET)))
+    fatal(0, "nl_langinfo returned NULL");
+  if(!*encoding)
+    fatal(0, "nl_langinfo returned \"\"");
+  encoding = xstrdup(encoding);
   progname = argv[0];
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
@@ -570,14 +624,14 @@ Mandatory options:\n\
   -n, --newgroup GROUP               Newsgroup\n\
 Optional options:\n\
   -a, --age SECONDS                  Age limit on commits\n\
-  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER)\n\
+  -s, --server HOSTNAME              NNTP server (default $NNTPSERVER or 'news')\n\
 Rarely used options:\n\
-  -p, --port PORT                    Port number (default 119)\n\
+  -p, --port PORT                    Port number (default 'nntp')\n\
   -m, --msggid-domain DOMAIN         Message-ID domain\n\
-  -x, --salt SALT                    Salt for ID calculation\n\
-  -4, -6                             Use IPv4/IPv6 (latter untested)\n\
+  -x, --salt SALT                    Salt for ID calculation (for test runs)\n\
+  -4, -6                             Use IPv4/IPv6\n\
   -P, --preview                      Preview only, don't post\n\
-  -l, --limit N                      Limit to first N revisions\n\
+  -f, --first REVNO                  First revision to post (bzr only)\n\
   -D, --diff                         Show diffs\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
@@ -587,8 +641,13 @@ Rarely used options:\n\
   }
   if(!newsgroup)
     fatal(0, "no -n option");
+  /* init gcrypt */
+  if(!gcry_check_version(GCRYPT_VERSION))
+    fatal(0, "libgrypt version mismatch");
+  gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
   if(!preview)
-    create_postthread(pf, server, port);
+    create_postthread(pf, server, port, 0);
   for(n = optind; n < argc; ++n)
     process_archive(argv[n], first);
   if(!preview)

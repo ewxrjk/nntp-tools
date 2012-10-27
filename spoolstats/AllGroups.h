@@ -25,6 +25,9 @@ class Hierarchy;
 
 class AllGroups: public Bucket {
 public:
+  AllGroups(): skip_lwm(0), skip_mtime(0), dirs(0) {
+  }
+
   ~AllGroups();
 
   // Visit one article
@@ -35,6 +38,9 @@ public:
 
   // Generate logs
   void logs();
+
+  // Read logs
+  void readLogs();
 
   // Generate graphs
   void graphs();
@@ -69,6 +75,10 @@ private:
 
   // Summarize a user-agent name
   static const std::string &summarize(const std::string &);
+
+  long skip_lwm;
+  long skip_mtime;
+  long dirs;
 };
 
 #endif /* ALL_H */
