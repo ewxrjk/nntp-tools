@@ -561,7 +561,7 @@ Rarely used options:\n\
   /* nnrp posting will happen from a thread */
   create_postthread(pf, server, port, timeout);
   /* init expat */
-  p = XML_ParserCreate(0);
+  p = XML_ParserCreateNS(0, ' ');
   /* process URLs as requested */
   for(n = optind; n < argc; ++n) {
     if(pipe(urlpipe) < 0) fatal(errno, "error calling pipe");
