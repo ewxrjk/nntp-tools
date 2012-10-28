@@ -370,14 +370,21 @@ static void parseabit(const char *path, char *buffer, size_t n, int eof) {
 static void parse(const char *path, FILE *fp) {
   char *line = 0;
   size_t linesize = 0;
+  int lineno = 0;
 
   D(("parse %s", path));
   XML_ParserReset(p,  0);
   XML_SetElementHandler(p, start_element, end_element);
   XML_SetCharacterDataHandler(p, character_data);
   item = 0;
-  while(getline(&line, &linesize, fp) != -1)
+  while(getline(&line, &linesize, fp) != -1) {
+    char *nl = strchr(line, '\n');
+    if(!nl)
+      nl = line + strlen(line);
+    ++lineno;
+    D(("%d: %.*s", lineno, (int)(nl - line), line));
     parseabit(path, line, strlen(line), 0);
+  }
   if(!feof(fp)) fatal(errno, "error reading %s", path);
   parseabit(path, 0, 0, 1);
   free(line);
