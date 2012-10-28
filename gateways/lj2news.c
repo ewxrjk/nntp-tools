@@ -47,7 +47,7 @@
 
 /* --- globals ------------------------------------------------------------- */
 
-static XML_Parser p;
+static XML_Parser xml_parser;
 static int item, subitem;
 static struct element {
   struct element *next;
@@ -359,11 +359,11 @@ static void XMLCALL character_data(void attribute((unused)) *userData,
 
 /* parse some bytes */
 static void parseabit(const char *path, char *buffer, size_t n, int eof) {
-  if(XML_Parse(p, buffer, n, eof) == XML_STATUS_ERROR)
+  if(XML_Parse(xml_parser, buffer, n, eof) == XML_STATUS_ERROR)
     fatal(0, "%s:%d:%d: parse error: %s",
-	  path, XML_GetCurrentLineNumber(p),
-	  XML_GetCurrentColumnNumber(p),
-	  XML_ErrorString(XML_GetErrorCode(p)));
+	  path, XML_GetCurrentLineNumber(xml_parser),
+	  XML_GetCurrentColumnNumber(xml_parser),
+	  XML_ErrorString(XML_GetErrorCode(xml_parser)));
 }
 
 /* parse FP, using PATH in diagnostics */
@@ -373,9 +373,9 @@ static void parse(const char *path, FILE *fp) {
   int lineno = 0;
 
   D(("parse %s", path));
-  XML_ParserReset(p,  0);
-  XML_SetElementHandler(p, start_element, end_element);
-  XML_SetCharacterDataHandler(p, character_data);
+  XML_ParserReset(xml_parser,  0);
+  XML_SetElementHandler(xml_parser, start_element, end_element);
+  XML_SetCharacterDataHandler(xml_parser, character_data);
   item = 0;
   while(getline(&line, &linesize, fp) != -1) {
     char *nl = strchr(line, '\n');
@@ -392,14 +392,110 @@ static void parse(const char *path, FILE *fp) {
 
 /* --- HTTP fetcher thread ------------------------------------------------- */
 
+enum http_state_t {
+  HTTP_INITIAL,                         /* still working */
+  HTTP_ERROR,                           /* an error has been encountered */
+  HTTP_FINAL,                           /* parsing the final response header */
+  HTTP_OK,                              /* final response is suitable */
+};
+
+static const char *const http_state_name[] = {
+  "HTTP_INITIAL",
+  "HTTP_ERROR",
+  "HTTP_FINAL",
+  "HTTP_OK",
+};
+
+struct state {
+  const char *url;
+  enum http_state_t http_state;
+  pthread_mutex_t lock[1];
+  pthread_cond_t cond[1];
+};
+
+static void set_http_state(struct state *s, enum http_state_t new_state) {
+  if(s->http_state != HTTP_ERROR && s->http_state != HTTP_OK) {
+    D(("http_state %s -> %s",
+       http_state_name[s->http_state], http_state_name[new_state]));
+    s->http_state = new_state;
+    pthread_cond_signal(s->cond);
+  }
+}
+
+/* header callback */
+static size_t writeheader(void *ptr,
+                          size_t size,
+                          size_t nmemb,
+                          void *userdata) {
+  struct state *s = userdata;
+  int rc;
+  char *header, *p;
+  size_t len = size * nmemb;
+  while(len > 0 
+        && (((char *)ptr)[len - 1] == '\r'
+            || ((char *)ptr)[len - 1] == '\n'))
+    --len;
+  header = xmalloc(len + 1);
+  memcpy(header, ptr, len);
+  header[len] = 0;
+  D(("header: %s", header));
+  pthread_mutex_lock(s->lock);
+  /* There may be multiple responses in a forwarding chain; each starts with
+   * an HTTP status */
+  if(!strncmp(header, "HTTP/", 5)) {
+    for(p = header; *p && *p != ' '; ++p)
+      ;
+    /* Extact the status code */
+    rc = atoi(p);
+    switch(rc / 100) {
+    case 4: case 5:                     /* error */
+      error(0, "%s: error from server: %s",
+            s->url, header);
+      set_http_state(s, HTTP_ERROR);
+      break;
+    case 3:                             /* redirection */
+      D(("skipping redirect response"));
+      break;
+    case 2:                             /* success */
+      set_http_state(s, HTTP_FINAL);
+      break;
+    default:                            /* ??? */
+      break;
+    }
+  }
+  /* Pay attention to the content type (only) if we've got a final, non-error,
+   * response */
+  if(s->http_state == HTTP_FINAL
+     && !strncasecmp(header, "Content-Type:", 13)) {
+    D(("checking content type"));
+    if(!strcasestr(header, "text/xml")) {
+      error(0, "%s: unrecognized content type from server: %s",
+            s->url, header);
+      set_http_state(s, HTTP_ERROR);
+    }
+  }
+  /* At the end of the final response, set the state to OK if we didn't hit an
+   * error */
+  if(s->http_state == HTTP_FINAL
+     && !*header)
+    set_http_state(s, HTTP_OK);
+  pthread_mutex_unlock(s->lock);
+  free(header);
+  return size * nmemb;
+}
+
 /* write bytes to the pipe back to the parser */
 static size_t writedata(void *buffer,
 			size_t n,
 			size_t count,
-			void attribute((unused)) *u) {
+			void *userdata) {
+  struct state *s = userdata;
   int bytes;
   size_t total = n * count, written = 0;
 
+  /* Only return the body if we liked the headers */
+  if(s->http_state != HTTP_OK)
+    return total;
   while(written < total) {
     bytes = write(urlpipe[1], (char *)buffer + written, total - written);
     if(bytes < 0) {
@@ -412,16 +508,16 @@ static size_t writedata(void *buffer,
 
 /* thread entry point - ARG is the URL to fetch */
 static void *curlthread(void *arg) {
-  const char *url = arg;
+  struct state *s = arg;
   CURLcode cerr;
 
-  D(("curlthread %s", url));
-  if((cerr = curl_easy_setopt(curl, CURLOPT_URL, url)))
+  D(("curlthread %s", s->url));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_URL, s->url)))
     fatal(0, "curl_easy_setopt CURLOPT_URL: %s",
 	  curl_easy_strerror(cerr));
   if((cerr = curl_easy_perform(curl)))
     fatal(0, "curl_easy_perform %s: %s: %s",
-	  url, curl_easy_strerror(cerr), cerrbuf);
+	  s->url, curl_easy_strerror(cerr), cerrbuf);
   D(("curlthread finishing"));
   close(urlpipe[1]);
   return 0;
@@ -430,7 +526,7 @@ static void *curlthread(void *arg) {
 /* --- main ---------------------------------------------------------------- */
 
 int main(int argc, char **argv) {
-  int n, err;
+  int n, err, rc = 0;
   FILE *fp;
   CURLcode cerr;
   pthread_t curlthread_id;
@@ -439,6 +535,7 @@ int main(int argc, char **argv) {
   const char *port = 0;
   int pf = PF_UNSPEC;
   int timeout = 3600;
+  struct state s[1];
 
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
@@ -545,6 +642,15 @@ Rarely used options:\n\
   if((cerr = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writedata)))
     fatal(0, "curl_easy_setopt CURLOPT_WRITEFUNCTION: %s",
 	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, writeheader)))
+    fatal(0, "curl_easy_setopt CURLOPT_HEADERFUNCTION: %s",
+	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)s)))
+    fatal(0, "curl_easy_setopt CURLOPT_WRITEDATA: %s",
+	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_WRITEHEADER, (void *)s)))
+    fatal(0, "curl_easy_setopt CURLOPT_WRITEHEADER: %s",
+	  curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L)))
     fatal(0, "curl_easy_setopt CURLOPT_NOSIGNAL: %s",
 	  curl_easy_strerror(cerr));
@@ -568,16 +674,30 @@ Rarely used options:\n\
   /* nnrp posting will happen from a thread */
   create_postthread(pf, server, port, timeout);
   /* init expat */
-  p = XML_ParserCreateNS(0, ' ');
+  xml_parser = XML_ParserCreateNS(0, ' ');
   /* process URLs as requested */
+  if((err = pthread_mutex_init(s->lock, NULL)))
+    fatal(err, "pthread_mutex_init");
+  if((err = pthread_cond_init(s->cond, NULL)))
+    fatal(err, "pthread_mutex_init");
   for(n = optind; n < argc; ++n) {
+    s->http_state = HTTP_INITIAL;
+    s->url = argv[n];
     if(pipe(urlpipe) < 0) fatal(errno, "error calling pipe");
     cloexec(urlpipe[0]);
     cloexec(urlpipe[1]);
-    if((err = pthread_create(&curlthread_id, 0, curlthread, argv[n])))
+    if((err = pthread_create(&curlthread_id, 0, curlthread, s)))
       fatal(err, "error calling pthread_create");
+    /* Wait for curl to set the HTTP state */
+    pthread_mutex_lock(s->lock);
+    while(s->http_state != HTTP_OK && s->http_state != HTTP_ERROR)
+      pthread_cond_wait(s->cond, s->lock);
+    pthread_mutex_unlock(s->lock);
     if(!(fp = fdopen(urlpipe[0], "r"))) fatal(errno, "error calling fdopen");
-    parse(argv[n], fp);
+    if(s->http_state == HTTP_OK)
+      parse(s->url, fp);
+    else
+      rc = 1;
     fclose(fp);
     if((err = pthread_join(curlthread_id, 0))) 
       fatal(err, "error calling pthread_join");
@@ -585,9 +705,9 @@ Rarely used options:\n\
   D(("main done"));
   /* clean up */
   join_postthread();
-  XML_ParserFree(p);
+  XML_ParserFree(xml_parser);
   curl_easy_cleanup(curl);
-  return 0;
+  return rc;
 }
 
 /* --- elvis has left the building ----------------------------------------- */
