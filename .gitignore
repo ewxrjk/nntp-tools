@@ -18,6 +18,10 @@ config.aux/install-sh
 config.aux/missing
 gateways/bzr2news
 TAGS
+GPATH
+GRTAGS
+GSYMS
+GTAGS
 debian/newstools
 debian/rjk-nntp-tools
 newstools-*.tar.gz

@@ -22,8 +22,7 @@ AM_CXXFLAGS=${CAIROMM_CFLAGS}
 
 noinst_PROGRAMS=t
 t_SOURCES=t.cc
-t_LDADD=libgraph.a
-t_LDFLAGS=${CAIROMM_LIBS}
+t_LDADD=libgraph.a ${CAIROMM_LIBS}
 
 noinst_LIBRARIES=libgraph.a
 libgraph_a_SOURCES=Graph.cc Graph.h TimeGraph.cc TimeGraph.h
