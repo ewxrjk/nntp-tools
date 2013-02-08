@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2005, 2006, 2008, 2009, 2011, 2012 Richard Kettlewell
+ * Copyright (C) 2005, 2006, 2008, 2009, 2011-2013 Richard Kettlewell
  * Copyright (C) 2008 Colin Watson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -662,6 +662,14 @@ Rarely used options:\n\
 	  curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)timeout)))
     fatal(0, "curl_easy_setopt CURLOPT_TIMEOUT: %s",
+	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_PROTOCOLS,
+                              CURLPROTO_HTTP|CURLPROTO_HTTPS)))
+    fatal(0, "curl_easy_setopt CURLOPT_PROTOCOLS: %s",
+	  curl_easy_strerror(cerr));
+  if((cerr = curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS,
+                              CURLPROTO_HTTP|CURLPROTO_HTTPS)))
+    fatal(0, "curl_easy_setopt CURLOPT_REDIR_PROTOCOLS: %s",
 	  curl_easy_strerror(cerr));
   if(pf != PF_UNSPEC) {
     if((cerr = curl_easy_setopt(curl, CURLOPT_IPRESOLVE,
