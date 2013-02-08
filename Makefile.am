@@ -18,8 +18,6 @@
 # USA
 #
 
-ACLOCAL_AMFLAGS=-I aclocal
-
 SUBDIRS=lib gateways ${SPOOLSTATS} debian
 
 echo-distdir:
