@@ -1,3 +1,10 @@
+rjk-nntp-tools (0.23) unstable; urgency=low
+
+  * lj2news: more careful checking of HTTP responses; limit protocols to
+    HTTP(S); more verbose debug output.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Fri, 08 Feb 2013 18:53:30 +0000
+
 rjk-nntp-tools (0.22) unstable; urgency=low
 
   * bzr2news, git2news: character encoding; local tracking of posted
