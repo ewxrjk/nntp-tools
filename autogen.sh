@@ -54,8 +54,10 @@ here=$(pwd)
 cd $srcdir
 if [ -d $HOME/usr/share/aclocal ]; then
   ${ACLOCAL} -I $HOME/usr/share/aclocal -I aclocal
-else
+elif [ -d aclocal ]; then
   ${ACLOCAL} -I aclocal
+else
+  ${ACLOCAL}
 fi
 autoconf
 autoheader
