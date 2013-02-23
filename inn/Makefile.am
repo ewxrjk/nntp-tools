@@ -1,6 +1,6 @@
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2005-2008, 2010-11 Richard Kettlewell
+# Copyright © 2013 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,14 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 #
-
-SUBDIRS=lib gateways ${INN} ${SPOOLSTATS} debian
-
-echo-distdir:
-	@echo $(distdir)
-
-echo-version:
-	@echo $(VERSION)
-
-EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html	\
-scripts/htmlman scripts/detect-conversations
+bin_PROGRAMS=find-unhistorical
+find_unhistorical_SOURCES=unhistorical.c inn-includes.h
+find_unhistorical_LDADD=-linnhist -lstorage -linn ../lib/libmisc.a
+find_unhistorical_LDFLAGS=-L ${INNLIB}
+AM_CPPFLAGS=-I${top_srcdir}/lib
+man_MANS=find-unhistorical.1

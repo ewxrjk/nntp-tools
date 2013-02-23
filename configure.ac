@@ -38,6 +38,8 @@ missing_functions=""
 
 AC_DEFINE(_GNU_SOURCE, 1, [required for e.g. strsignal])
 
+AC_DEFINE([_FILE_OFFSET_BITS], [64], [use 64-bit off_t])
+
 AC_CACHE_CHECK([for fink],[rjk_cv_fink],[
   if test -d /sw; then
     rjk_cv_fink=/sw
@@ -87,6 +89,12 @@ fi
 AC_SUBST([SPOOLSTATS])
 AC_SUBST([CAIROMM_CFLAGS],[$rjk_cv_cairomm_cflags])
 AC_SUBST([CAIROMM_LIBS],[$rjk_cv_cairomm_libs])
+
+RJK_INN
+if test "$rjk_cv_innlib" != no; then
+  INN=inn
+fi
+AC_SUBST([INN])
 
 if test ! -z "$missing_libraries"; then
   AC_MSG_ERROR([missing libraries:$missing_libraries])
@@ -152,5 +160,6 @@ AC_CONFIG_FILES([Makefile
                  gateways/Makefile
                  lib/Makefile
                  graph/Makefile
+                 inn/Makefile
                  spoolstats/Makefile])
 AC_OUTPUT

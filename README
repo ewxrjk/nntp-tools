@@ -76,6 +76,17 @@ for documentation.  You can find example output at:
     http://www.greenend.org.uk/rjk/spoolstats/
 
 
+find-unhistorical
+-----------------
+
+find-unhistorical reads an INN news spool and reports any articles
+that aren't in the history file.  Since INN doesn't know about these
+articles they are "lost" and will never be deleted in the normal
+process of expiry.
+
+This program is only built if the INN libraries can be located.
+
+
 Reporting Bugs
 --------------
 
