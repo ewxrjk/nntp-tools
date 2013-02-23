@@ -37,37 +37,6 @@
 
 /* --- utilities ----------------------------------------------------------- */
 
-/* called by fatal() */
-static void (*exitfn)(int) attribute((noreturn)) = exit;
-
-/* report a non-fatal error */
-void error(int errno_value, const char *msg, ...) {
-  va_list ap;
-
-  fprintf(stderr, "ERROR: ");
-  va_start(ap, msg);
-  vfprintf(stderr, msg, ap);
-  va_end(ap);
-  if(errno_value)
-    fprintf(stderr, ": %s", strerror(errno_value));
-  fputc('\n',  stderr);
-}
-
-/* report a fatal error and exit via EXITFN (which might be _exit, in a
- * subprocess) */
-void fatal(int errno_value, const char *msg, ...) {
-  va_list ap;
-
-  fprintf(stderr, "FATAL: ");
-  va_start(ap, msg);
-  vfprintf(stderr, msg, ap);
-  va_end(ap);
-  if(errno_value)
-    fprintf(stderr, ": %s", strerror(errno_value));
-  fputc('\n',  stderr);
-  exitfn(1);
-}
-
 /* Allocate memory, call fatal() on error */
 void *xmalloc(size_t n) {
   void *ptr;

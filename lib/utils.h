@@ -27,14 +27,14 @@
 #include <pthread.h>
 #include <sys/types.h>
 
+#include "error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Utility functions */
 
-void error(int errno_value, const char *msg, ...);
-void fatal(int errno_value, const char *msg, ...) attribute((noreturn));
 void *xmalloc(size_t n);
 void *xrealloc(void *ptr, size_t n) ;
 char *xstrdup(const char *s);
