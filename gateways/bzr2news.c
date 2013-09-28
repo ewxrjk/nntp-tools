@@ -449,6 +449,7 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   if(asprintf(&cmd, "git log --encoding=UTF-8 --reverse --date=raw %s",
               branch ? branch : "") < 0)
     fatal(errno, "asprintf");
+  D(("in %s: [%s]", dir, cmd));
   if(!(fp = popen(cmd, "r")))
     fatal(errno, "cannot popen git log");
   free(cmd);
