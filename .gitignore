@@ -13,9 +13,7 @@ config.status
 configure
 gateways/lj2news
 stamp-h1
-config.aux/depcomp
-config.aux/install-sh
-config.aux/missing
+config.aux
 gateways/bzr2news
 TAGS
 GPATH
@@ -48,3 +46,4 @@ gateways/setup-lj2news.1.html
 products
 lib/seen-t
 inn/find-unhistorical
+scans
