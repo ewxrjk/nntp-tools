@@ -431,6 +431,7 @@ const string &AllGroups::summarize(const string &ua) {
     { "Direct Read News", "Direct Read News" },
     { "Emas", "Emas" },
     { "Forte Agent", "Forte Agent" },
+    { "ForteAgent", "Forte Agent" },
     { "Forte Free Agent", "Forte Agent" },
     { "^G2", "Google Groups" },
     { "Gnus", "Gnus" },
@@ -520,6 +521,8 @@ const string &AllGroups::summarize(const string &ua) {
     { "Virtual Access", "Virtual Access" },
     { "PenguinReader", "PenguinReader" },
     { "http://www.umailcampaign.com", "http://www.umailcampaign.com" },
+    { "YahooMailWebService", "YahooMailWebService" },
+    { "^Mozilla", "Mozilla-compatible browser" }, // everyone claims to be mozilla!
   };
   // By 'summarize' we mean we throw away version and platform information and
   // just identify the client.  Mostly we do substring match but for very short
