@@ -48,3 +48,6 @@ install-exec-hook:
 	rm -f $(DESTDIR)$(bindir)/git2news$(EXEEXT)
 	ln $(DESTDIR)$(bindir)/bzr2news$(EXEEXT) \
                 $(DESTDIR)$(bindir)/git2news$(EXEEXT)
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(bindir)/git2news$(EXEEXT)

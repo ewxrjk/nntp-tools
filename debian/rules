@@ -20,16 +20,14 @@
 # Options to configure.  This can be overridden by the caller if necessary.
 CONFIGURE=--prefix=/usr --sysconfdir=/etc --localstatedir=/var/lib --mandir=/usr/share/man
 
-# Set DEB_BUILD_OPTIONS=noopt to produce a non-optimized build.
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-CFLAGS=-O0 -g
-CXXFLAGS=-O0 -g
-else
-CFLAGS=-O2 -g
-CXXFLAGS=-O2 -g
-endif
+CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 export CFLAGS
 export CXXFLAGS
+export LDFLAGS
+export CPPFLAGS
 
 # Set DEB_BUILD_OPTIONS=parallel=N for make -jN
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))

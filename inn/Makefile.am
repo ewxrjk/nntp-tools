@@ -23,3 +23,4 @@ find_unhistorical_LDADD=-linnhist -lstorage -linn ../lib/libmisc.a
 find_unhistorical_LDFLAGS=-L ${INNLIB}
 AM_CPPFLAGS=-I${top_srcdir}/lib
 man_MANS=find-unhistorical.1
+EXTRA_DIST=$(man_MANS)
