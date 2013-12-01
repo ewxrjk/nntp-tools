@@ -10,7 +10,7 @@ days=7
 # How early an article may arrive (essentially, clock skew)
 before=60
 
-# How late an article may arrive (essenitally, propagation delay)
+# How late an article may arrive (essentially, propagation delay)
 after=86400
 
 # Hierarchies to analyze
