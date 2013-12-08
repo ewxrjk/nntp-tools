@@ -1,3 +1,10 @@
+rjk-nntp-tools (0.25) unstable; urgency=low
+
+  * Actually include find-unhistorical in a package (spoolstats)
+  * spoolstats: slightl improvements to user-agent summarizing.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 08 Dec 2013 10:03:40 +0000
+
 rjk-nntp-tools (0.24) unstable; urgency=low
 
   * find-unhistorical: history verification tool for INN

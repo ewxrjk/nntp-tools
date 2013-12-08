@@ -19,7 +19,7 @@
 # USA
 #
 
-AC_INIT([rjk-nntp-tools], [0.24], [richard+newstools@sfere.greenend.org.uk])
+AC_INIT([rjk-nntp-tools], [0.25], [richard+newstools@sfere.greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
 AM_INIT_AUTOMAKE([foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
