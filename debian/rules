@@ -66,7 +66,8 @@ build:
 pkg-rjk-nntp-tools:
 	rm -rf debian/rjk-nntp-tools
 	$(MKDIR) debian/rjk-nntp-tools debian/rjk-nntp-tools/DEBIAN \
-		 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools
+		 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools \
+		 debian/rjk-nntp-tools/usr/share/lintian/overrides
 	$(INSTALL_DATA) debian/copyright \
 			debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/copyright
 	$(INSTALL_DATA) debian/changelog \
@@ -74,6 +75,8 @@ pkg-rjk-nntp-tools:
 	gzip -9 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog*
 	$(INSTALL_DATA) CHANGES.html \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
+	$(INSTALL_DATA) debian/override.rjk-nntp-tools \
+		debian/rjk-nntp-tools/usr/share/lintian/overrides/rjk-nntp-tools
 	@for f in preinst postinst prerm postrm conffiles templates config; do\
 	  if test -e debian/$$f.rjk-nntp-tools; then\
 	    echo $(INSTALL_SCRIPT) debian/$$f.rjk-nntp-tools debian/rjk-nntp-tools/DEBIAN/$$f; \
@@ -102,7 +105,8 @@ pkg-rjk-spoolstats:
 	$(MKDIR) debian/rjk-spoolstats debian/rjk-spoolstats/DEBIAN \
 		 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats \
 		 debian/rjk-spoolstats/etc/cron.daily \
-		 debian/rjk-spoolstats/etc/default
+		 debian/rjk-spoolstats/etc/default \
+		 debian/rjk-spoolstats/usr/share/lintian/overrides
 	$(INSTALL_DATA) debian/copyright \
 			debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/copyright
 	$(INSTALL_DATA) debian/changelog \
@@ -110,6 +114,8 @@ pkg-rjk-spoolstats:
 	gzip -9 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
 	$(INSTALL_DATA) CHANGES.html \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
+	$(INSTALL_DATA) debian/override.rjk-spoolstats \
+		debian/rjk-spoolstats/usr/share/lintian/overrides/rjk-spoolstats
 	$(INSTALL_DATA) debian/conffiles.rjk-spoolstats \
 		debian/rjk-spoolstats/DEBIAN/conffiles
 	$(MAKE) -C spoolstats DESTDIR=`pwd`/debian/rjk-spoolstats install

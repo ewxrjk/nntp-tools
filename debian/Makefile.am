@@ -20,5 +20,5 @@
 noinst_SCRIPTS=rules
 
 EXTRA_DIST=changelog control copyright rules conffiles.rjk-spoolstats	\
-README.Debian.spoolstats source/format
-
+README.Debian.spoolstats source/format \
+override.rjk-nntp-tools override.rjk-spoolstats
