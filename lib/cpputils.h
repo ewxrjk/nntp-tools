@@ -1,7 +1,7 @@
 //-*-C++-*-
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010-11 Richard Kettlewell
+ * Copyright (C) 2010-11, 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,8 @@ void split(std::vector<std::string> &bits,
            char sep,
            const std::string &s);
 
-time_t parse_date(const std::string &d);
+time_t parse_date(const std::string &d,
+                  bool warn = false);
 std::string &lower(std::string &s);
 std::string &upper(std::string &s);
 

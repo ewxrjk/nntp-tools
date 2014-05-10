@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010, 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ void Article::get_groups(vector<string> &groups) const {
 time_t Article::date() const {
   if(cached_date == -1) {
     string datestr = headers.find("date")->second;
-    cached_date = parse_date(datestr);
+    cached_date = parse_date(datestr, Config::terminal);
   }
   return cached_date;
 }

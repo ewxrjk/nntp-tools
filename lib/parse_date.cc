@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010-11 Richard Kettlewell
+ * Copyright (C) 2010-11, 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,13 @@ static bool parse_word(const string &s, string::size_type &pos, string &word);
 static bool parse_int(const string &s, string::size_type &pos, int &n);
 
 // Parse a date string and return it as a time_t
-time_t parse_date(const string &d) {
+time_t parse_date(const string &d, bool warn) {
   struct tm bdt;
   int zone;
 
   if(!parse_date_std(d, bdt, zone)) {
-    cerr << "Cannot parse date: '" << d << "'" << endl;
+    if(warn)
+      cerr << "Cannot parse date: '" << d << "'" << endl;
     return 0;
   }
   time_t when = timegm(&bdt);

@@ -1,3 +1,10 @@
+rjk-nntp-tools (0.26) unstable; urgency=low
+
+  * Reduce warning noise from spoolstats.
+  * Suppress doc-base warning.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 10 May 2014 09:04:12 +0100
+
 rjk-nntp-tools (0.25) unstable; urgency=low
 
   * Actually include find-unhistorical in a package (spoolstats)
