@@ -123,7 +123,8 @@ int io_write(IO *io, const void *ptr, size_t len, size_t *wrote) {
   while(written_so_far < len) {
     if(io->written == sizeof(io->output)) {
       if((errno_value = io__flush(io, limit))) {
-        *wrote = written_so_far;
+        if(wrote)
+          *wrote = written_so_far;
         break;
       }
     }
