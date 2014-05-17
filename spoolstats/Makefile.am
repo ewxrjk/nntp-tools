@@ -42,15 +42,9 @@ EXTRA_DIST=$(man_MANS) sorttable.js spoolstats.css spoolstats.cron	\
 spoolstats.default
 
 css.c: spoolstats.css
-	rm -f $@.new
-	echo "char css[] = " >> $@.new
-	sed 's/[\"\\?]/\\&/g;s/^/\"/;s/$$/\\n\"/;' < $< >> $@.new
-	echo ";" >> $@.new
+	xxd -i $^ > $@.new
 	mv $@.new $@
 
 sorttable.c: sorttable.js
-	rm -f $@.new
-	echo "char sorttable[] = " >> $@.new
-	sed 's/[\"\\?]/\\&/g;s/^/\"/;s/$$/\\n\"/;' < $< >> $@.new
-	echo ";" >> $@.new
+	xxd -i $^ > $@.new
 	mv $@.new $@

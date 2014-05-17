@@ -19,13 +19,17 @@
  */
 #include "spoolstats.h"
 
+extern unsigned char sorttable_js[], spoolstats_css[];
+extern unsigned sorttable_js_len, spoolstats_css_len;
+
 using namespace std;
 
-static void extrafile(const char *name, const char *contents) {
+static void extrafile(const char *name, unsigned char *contents, unsigned len) {
   try {
     ofstream os((Config::output + "/" + name).c_str());
     os.exceptions(ofstream::badbit|ofstream::failbit);
-    os << contents << flush;
+    os.write((char *)contents, len);
+    os << flush;
   } catch(ios::failure) {
     fatal(errno, "writing to %s", (Config::output + "/" + name).c_str());
   }
@@ -45,8 +49,8 @@ int main(int argc, char **argv) {
     all.graphs();
     all.report();
     // Auxiliary files
-    extrafile("sorttable.js", sorttable);
-    extrafile("spoolstats.css", css);
+    extrafile("sorttable.js", sorttable_js, sorttable_js_len);
+    extrafile("spoolstats.css", spoolstats_css, spoolstats_css_len);
   }
   return 0;
 }
