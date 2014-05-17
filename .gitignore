@@ -47,3 +47,5 @@ products
 lib/seen-t
 inn/find-unhistorical
 scans
+*.log
+*.trs
