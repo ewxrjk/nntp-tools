@@ -1,0 +1,113 @@
+#! /usr/bin/perl -w
+#
+# This file is part of rjk-nntp-tools.
+# Copyright (C) 2014 Richard Kettlewell
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+#
+use strict;
+use warnings;
+use INN::Config;
+
+our %groupinfo = ();
+
+sub sort_traffic {
+    return $groupinfo{$a}->{articles} <=> $groupinfo{$b}->{articles};
+}
+
+sub sort_age {
+    return $groupinfo{$a}->{latest} <=> $groupinfo{$b}->{latest};
+}
+
+# Parse command line
+our $verbose = (-t STDERR);
+our $sort = \&sort_traffic;
+while(@ARGV > 0 and $ARGV[0] =~ /^-/) {
+    local $_ = shift;
+    if($_ eq '--quiet') {
+        $verbose = 0;
+    } elsif($_ eq '--verbose') {
+        $verbose = 1;
+    } elsif($_ eq '--traffic') {
+        $sort = \&sort_traffic;
+    } elsif($_ eq '--age') {
+        $sort = \&sort_age;
+    } elsif($_ eq '--help') {
+        print <<EOF;
+Usage:
+  dr-death [OPTIONS] [--] HIERARCHY
+Options:
+  --quiet           Quiet operation
+  --verbose         Verbose operation
+  --traffic         Sort by overall traffic level
+  --age             Sort by age of most recent article
+  --help            Display usage message
+EOF
+        exit 0;
+    } elsif($_ eq '--') {
+        last;
+    } else {
+        die "ERROR: unknown option '$_'\n";
+    }
+}
+die "ERROR: must specify a hierarchy\n" if @ARGV == 0;
+our $hierarchy = shift;
+die "ERROR: excess arguments\n" if @ARGV > 0;
+
+# Get group list
+my $re = "^\Q$hierarchy\E\\.\\S+";
+my @groups = ();
+open(my $active, "<", $INN::Config::active)
+    or die "ERROR: $INN::Config::active: $!\n";
+while(defined($_ = <$active>)) {
+    push(@groups, $&) if /$re/o;
+}
+$active->close();
+
+# Analyze groups
+my $maxlen = 8;
+for my $n (0..$#groups) {
+    my $group = $groups[$n];
+    $maxlen = length($group) if length($group) > $maxlen;
+    printf STDERR "\r%d/%d", $n+1, scalar @groups if $verbose;
+    my $group_rel_path = $group;
+    $group_rel_path =~ s!\.!/!g;
+    my $group_path = "$INN::Config::spool/$group_rel_path";
+    $groupinfo{$group}->{latest} = 0;
+    $groupinfo{$group}->{articles} = 0;
+    next if ! -d $group_path;
+    opendir(my $dir, $group_path) or die "ERROR: $group_path: $!\n";
+    while(readdir $dir) {
+        next if /\D/;
+        ++$groupinfo{$group}->{articles};
+        my $mtime = (stat("$group_path/$_"))[9];
+        $groupinfo{$group}->{latest} = $mtime
+            if $mtime > $groupinfo{$group}->{latest};
+    }
+}
+printf STDERR "\r             \r" if $verbose;
+
+# Display a report
+my $now = time;
+printf "%*s %10s %10s\n", $maxlen, "GROUP", "ARTICLES", "LAST"
+    or die "ERROR: stdout: $!\n";
+for my $group (sort $sort @groups) {
+    my $articles = $groupinfo{$group}->{articles};
+    my $age = int(($now - $groupinfo{$group}->{latest}) / 86400);
+    printf "%*s %10d %10d\n", $maxlen, $group, $articles, $age
+        or die "ERROR: stdout: $!\n";
+}
+STDOUT->flush or die "ERROR: stdout: $!\n";

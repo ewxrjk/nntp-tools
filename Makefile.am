@@ -1,6 +1,6 @@
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2005-2008, 2010-13 Richard Kettlewell
+# Copyright (C) 2005-2008, 2010-14 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,4 +27,4 @@ echo-version:
 	@echo $(VERSION)
 
 EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html	\
-scripts/htmlman scripts/detect-conversations
+scripts/htmlman scripts/detect-conversations scripts/dr-death
