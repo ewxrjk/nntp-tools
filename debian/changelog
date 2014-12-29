@@ -1,3 +1,9 @@
+rjk-nntp-tools (0.27) unstable; urgency=medium
+
+  * spoolstats run as news by default.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Mon, 29 Dec 2014 20:42:09 +0000
+
 rjk-nntp-tools (0.26) unstable; urgency=low
 
   * Reduce warning noise from spoolstats.
