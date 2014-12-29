@@ -1,6 +1,6 @@
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010-12 Richard Kettlewell
+ * Copyright (C) 2010-12, 14 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ int Config::start_latency = 60;
 string Config::output = ".";
 int Config::days = 7;
 string Config::spool = "/var/spool/news/articles";
+string Config::user;
 
 // Parse command line options
 void Config::Options(int argc, char **argv) {
@@ -59,6 +60,7 @@ void Config::Options(int argc, char **argv) {
     { "no-graph", no_argument, 0, opt_no_graph },
     { "help", no_argument, 0, 'h' },
     { "quiet", no_argument, 0, 'Q' },
+    { "user", required_argument, 0, 'u' },
     { "version", no_argument, 0, 'V' },
     { 0, 0, 0, 0 }
   };
@@ -109,6 +111,9 @@ void Config::Options(int argc, char **argv) {
     case 'O':
       output = optarg;
       break;
+    case 'u':
+      user = optarg;
+      break;
     case opt_scan:
       scan = true;
       break;
@@ -132,6 +137,7 @@ Options:\n\
   -H, --hierarchies NAME[,NAME...]  Hierachies to analyse\n\
   -8, --big8                        Analyse the Big 8\n\
   -O, --output DIRECTORY            Output directory\n\
+  -u, --user USER                   User to run as\n\
   -Q, --quiet                       Quieter operation\n\
   --no-scan, --no-graph             Suppress phases\n\
   -h, --help                        Display usage message\n\

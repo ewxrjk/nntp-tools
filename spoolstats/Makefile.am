@@ -1,6 +1,6 @@
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2010 Richard Kettlewell
+# Copyright (C) 2010, 11, 14 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ spoolstats_SOURCES=spoolstats.cc spoolstats.h Article.h Article.cc	\
 Group.h Group.cc Bucket.h Bucket.cc SenderCountingBucket.h		\
 SenderCountingBucket.cc AllGroups.h AllGroups.cc Hierarchy.h		\
 Hierarchy.cc Conf.h Conf.cc css.c sorttable.c ArticleProperty.cc	\
-ArticleProperty.h
+ArticleProperty.h User.cc User.h
 
 AM_CXXFLAGS=${CAIROMM_CFLAGS}
 AM_CPPFLAGS=-I${top_srcdir}/lib -I${top_srcdir}/graph

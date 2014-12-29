@@ -1,7 +1,7 @@
 //-*-C++-*-
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010, 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ struct Config {
   static std::string spool;
   static bool scan;
   static bool graph;
+  static std::string user;
 
   // Parse command line
   static void Options(int argc, char **argv);

@@ -1,6 +1,6 @@
 /*
  * spoolstats - news spool stats
- * Copyright (C) 2010 Richard Kettlewell
+ * Copyright (C) 2010, 14 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,9 @@ static void extrafile(const char *name, unsigned char *contents, unsigned len) {
 
 int main(int argc, char **argv) {
   Config::Options(argc, argv);
+  // Become the right user
+  if(Config::user.size())
+    become(Config::user.c_str());
   // Scan everything
   AllGroups all;
   if(Config::scan) {

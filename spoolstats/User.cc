@@ -1,7 +1,6 @@
-//-*-C++-*-
 /*
- * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010, 2014 Richard Kettlewell
+ * spoolstats - news spool stats
+ * Copyright (C) 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,35 +17,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef SPOOLSTATS_H
-#define SPOOLSTATS_H
+#include "spoolstats.h"
+#include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
+#include <unistd.h>
 
-#include <config.h>
-
-#include <set>
-#include <map>
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <cstring>
-#include <cerrno>
-
-#include "utils.h"
-#include "cpputils.h"
-#include "ArticleProperty.h"
-#include "Article.h"
-#include "Bucket.h"
-#include "SenderCountingBucket.h"
-#include "AllGroups.h"
-#include "Hierarchy.h"
-#include "Group.h"
-#include "Conf.h"
-#include "HTML.h"
-#include "TimeGraph.h"
-#include "User.h"
-
-extern "C" const char sorttable[];
-extern "C" const char css[];
-
-#endif /* SPOOLSTATS_H */
+void become(const char *user) {
+  struct passwd *pw = getpwnam(user);
+  if(!pw)
+    fatal(0, "unknown user: %s", user);
+  if(initgroups(user, pw->pw_gid) < 0)
+    fatal(errno, "initgroups");
+  if(setgid(pw->pw_gid) < 0)
+    fatal(errno, "setgid");
+  if(setuid(pw->pw_uid) < 0)
+    fatal(errno, "setuid");
+}

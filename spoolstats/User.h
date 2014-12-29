@@ -1,7 +1,6 @@
-//-*-C++-*-
 /*
- * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010, 2014 Richard Kettlewell
+ * spoolstats - news spool stats
+ * Copyright (C) 2014 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,35 +17,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  */
-#ifndef SPOOLSTATS_H
-#define SPOOLSTATS_H
+#ifndef USER_H
+#define USER_H
 
-#include <config.h>
+void become(const char *user);
 
-#include <set>
-#include <map>
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <cstring>
-#include <cerrno>
-
-#include "utils.h"
-#include "cpputils.h"
-#include "ArticleProperty.h"
-#include "Article.h"
-#include "Bucket.h"
-#include "SenderCountingBucket.h"
-#include "AllGroups.h"
-#include "Hierarchy.h"
-#include "Group.h"
-#include "Conf.h"
-#include "HTML.h"
-#include "TimeGraph.h"
-#include "User.h"
-
-extern "C" const char sorttable[];
-extern "C" const char css[];
-
-#endif /* SPOOLSTATS_H */
+#endif /* USER_H */

@@ -18,3 +18,6 @@ hierarchies="$big8,cam,uk"
 
 # Path to your news spool
 spool=/var/spool/news/articles
+
+# User to run as
+user=news
