@@ -3,7 +3,7 @@ Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
 Section: news
 Priority: optional
 Standards-Version: 3.8.4.0
-Build-Depends: libgcrypt-dev, libcurl4-gnutls-dev|libcurl-dev, libexpat-dev, vim-common
+Build-Depends: libgcrypt-dev, libcurl4-gnutls-dev|libcurl-dev, libexpat-dev, vim-common, pkg-config, libcairomm-1.0-dev, inn2-dev
 Homepage: http://www.greenend.org.uk/rjk/2006/newstools.html
 
 Package: rjk-nntp-tools
