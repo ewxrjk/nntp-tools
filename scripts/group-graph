@@ -1,0 +1,193 @@
+#! /usr/bin/perl -w
+#
+# This file is part of rjk-nntp-tools.
+# Copyright (C) 2015 Richard Kettlewell
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+#
+use strict;
+use INN::Config;
+
+# Parse command line
+my $verbose = (-t STDERR);
+my $min = 5;
+my $age = 31;
+while(@ARGV > 0 and $ARGV[0] =~ /^-/) {
+    local $_ = shift;
+    if($_ eq '--help') {
+        print "Usage:
+  group-graph [OPTIONS] GROUP
+Options:
+  --quiet        No debug chatter
+  --min N        Minimum number of follows
+  --age DAYS     Maximum age of articles to consider
+  --help         Display usage message
+";
+        exit 0;
+    } elsif($_ eq '--quiet') {
+        $verbose = 0;
+    } elsif($_ eq '--age') {
+        $age = shift;
+    } elsif($_ eq '--min') {
+        $min = shift;
+    } elsif($_ eq '--') {
+        last;
+    } else {
+        die "ERROR: unknown option '$_'\n";
+    }
+}
+die "ERROR: missing group name\n" if @ARGV < 1;
+my $group = shift;
+die "ERROR: excess arguments\n" if @ARGV > 0;
+
+my $gpath = $group;
+$gpath =~ s!\.!/!g;
+my $groupdir = "$INN::Config::spool/$gpath";
+
+print STDERR "INFO: scanning $groupdir\n" if $verbose;
+opendir(GROUP, $groupdir) or die "ERROR; $groupdir: $!\n";
+my @files = readdir GROUP;
+
+my %from = ();
+my %parent = ();
+my %name = ();
+
+FILE: for my $file (@files) {
+    next if $file =~ /\D/;      # exclude non-articles
+    my @header = ();
+    next if -M "$groupdir/$file" > $age;
+    open(ARTICLE, "<", "$groupdir/$file") or die "ERROR: $groupdir/$file: $!\n";
+    while(defined($_ = <ARTICLE>)) {
+        last if /^$/;           # end of headers
+        if(/^\s/) {             # continuation
+            next FILE if @header == 0; # malformed
+            s/^\s*//;                  # defend against idiots
+            $header[$#header] =~ s/\r?\n$//; # defend against idiots
+            $header[$#header] .= $_;
+        } else {
+            push(@header, $_);  # new header
+        }
+    }
+    my $from;
+    my $id;
+    my $parent;
+    my $name;
+    for $_ (@header) {
+        # dodgy heuristics
+        if(/^From:\s*(.*?)\s*<([^<>]+)>\s*(.*?)\s*/i) {
+            $from = $2;
+            if(length($1) > 0 or length($3) > 0) {
+                if(length($1) > length($3)) {
+                    $name = $1;
+                } else {
+                    $name = $3;
+                }
+            }
+        } elsif(/From:.*?(\S+\@\S+)/i) {
+            $from = $1;
+            if(/\((.*)\)/) {
+                $name = $1;
+            }
+        }
+        if(/^Message-ID:.*(<.*>)/i) {
+            $id = $1;
+        }
+        if(/^References:.*(<[^<>]+>)\s*$/i) { # parent is last
+            $parent = $1;
+        }
+    }
+    if(!defined $from) {
+        print STDERR "ERROR: no From field found in $file\n";
+        next;
+    }
+    if(!defined $id) {
+        print STDERR "ERROR: no Message-ID field found in $file\n";
+        next;
+    }
+    $from{$id} = $from;
+    $parent{$id} = $parent if defined $parent;
+    $name{$from} = $name if defined $name;
+}
+
+print STDERR "INFO: analyzing\n" if $verbose;
+my %follows = ();
+my %seq = ();
+my $seq = 0;
+my %mentioned = ();
+my %weight = ();
+my $maxweight = 0;
+
+for my $id (keys %from) {
+    my $from = $from{$id};
+    next if exists $seq{$from};
+    $seq{$from} = ++$seq;
+}
+
+for my $id (keys %parent) {
+    my $parent = $parent{$id};
+    next unless exists $from{$parent};
+    my $op = $from{$parent};
+    my $follower = $from{$id};
+    $follows{$follower}->{$op}++;
+}
+
+for my $follower (sort keys %follows) {
+    for my $op (sort keys %{$follows{$follower}}) {
+        my $weight = $follows{$follower}->{$op};
+        if($weight >= $min) {
+            $weight{$follower}->{$op} = $weight;
+            $maxweight = $weight if $weight > $maxweight;
+            $mentioned{$op} = 1;
+            $mentioned{$follower} = 1;
+        }
+    }
+}
+
+print STDERR "INFO: reporting\n" if $verbose;
+my @graph = ();
+push(@graph, "digraph follows {");
+for my $from (sort keys %mentioned) {
+    my $nfrom = "n$seq{$from}";
+    my $qfrom = $from;
+    $qfrom =~ s/[\"\\]/\\\"/g;
+    if(exists $name{$from}) {
+        my $qname = $name{$from};
+        $qname =~ s/[\"\\]/\\\"/g;
+        push(@graph, "  $nfrom [ label=\"$qfrom\\n$qname\" ]");
+    } else {
+        push(@graph, "  $nfrom [ label=\"$qfrom\" ]");
+    }
+}
+for my $follower (sort keys %weight) {
+    my $nfollower = "n$seq{$follower}";
+    for my $op (sort keys %{$weight{$follower}}) {
+        my $nop = "n$seq{$op}";
+        my $weight = $weight{$follower}->{$op};
+        my $rating = ($weight - $min) / ($maxweight - $min);
+        $rating = sqrt($rating); # boost low values a bit
+        my $r = int(255 * $rating);
+        my $g = 0;
+        my $b = int(255 * (1 - $rating));
+        my $color = sprintf("#%02x%02x%02x", $r, $g, $b);
+        #my $len = $maxweight - $weight + 1;
+        push(@graph, "  $nfollower -> $nop [ color=\"$color\",label=$weight,fontcolor=\"$color\" ]");
+    }
+}
+push(@graph, "}");
+
+((print map("$_\n", @graph))
+ and close STDOUT)
+    or die "ERROR: stdout: $!\n";
