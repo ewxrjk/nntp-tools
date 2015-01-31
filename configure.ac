@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2005-2014 Richard Kettlewell
+# Copyright (C) 2005-2015 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_SET_MAKE
 AC_PROG_RANLIB
+AM_PROG_AR
 
 missing_libraries=""
 missing_headers=""
