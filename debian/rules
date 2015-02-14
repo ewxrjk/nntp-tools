@@ -1,6 +1,6 @@
 #! /usr/bin/make -f
 #
-# Copyright (C) 2008-11, 13 Richard Kettlewell
+# Copyright (C) 2008-11, 13, 15 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ pkg-rjk-nntp-tools:
 			debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/copyright
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog
-	gzip -9 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog*
+	gzip -9n debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog*
 	$(INSTALL_DATA) CHANGES.html \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
 	$(INSTALL_DATA) debian/override.rjk-nntp-tools \
@@ -89,7 +89,7 @@ pkg-rjk-nntp-tools:
 	dpkg-shlibdeps -Tdebian/substvars.rjk-nntp-tools \
 		debian/rjk-nntp-tools/usr/bin/*
 	$(INSTALL_DATA) README debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
-	gzip -9f debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/README \
+	gzip -9nf debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/README \
 		 debian/rjk-nntp-tools/usr/share/man/man*/*
 	cd debian/rjk-nntp-tools && \
 		find -name DEBIAN -prune -o -type f -print \
@@ -111,7 +111,7 @@ pkg-rjk-spoolstats:
 			debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/copyright
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog
-	gzip -9 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
+	gzip -9n debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
 	$(INSTALL_DATA) CHANGES.html \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
 	$(INSTALL_DATA) debian/override.rjk-spoolstats \
@@ -131,7 +131,7 @@ pkg-rjk-spoolstats:
 	$(INSTALL_DATA) README debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
 	$(INSTALL_DATA) debian/README.Debian.spoolstats \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README.Debian
-	gzip -9f debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README* \
+	gzip -9nf debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README* \
 		 debian/rjk-spoolstats/usr/share/man/man*/*
 	cd debian/rjk-spoolstats && \
 		find -name DEBIAN -prune -o -type f -print \
