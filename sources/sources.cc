@@ -534,6 +534,27 @@ static void draw_graph(const std::string &day,
   // Save to PNG
   surface_articles->write_to_png(output + "/" + day + "-articles.png");
   surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
+  // Generate an HTML wrapper
+  const std::string &html = output + "/" + day + ".html";
+  FILE *fp;
+  if(!(fp = fopen(html.c_str(), "w")))
+    fatal(errno, "creating %s", html.c_str());
+  fprintf(fp, "<head><title>Peering data for %s</title>\n", day.c_str());
+  fprintf(fp, "<body><h1>Peering data for %s</h1>\n", day.c_str());
+  fprintf(fp, "<p><img src=\"%s-articles.png\"></p>\n", day.c_str());
+  fprintf(fp, "<p><img src=\"%s-bytes.png\"></p>\n", day.c_str());
+  int npeer = info.size();
+  std::for_each(info.rbegin(), info.rend(),
+                  [&] (const std::pair<std::string,map_entry *> &m) {
+                  --npeer;
+                  fprintf(fp, "<p><span style=\"float:left;margin-right:1em;height:20px;width:32px;background-color: #%02x%02x%02x\"></span> %s</p>\n",
+                          (int)(255 * colors[npeer][0]),
+                          (int)(255 * colors[npeer][1]),
+                          (int)(255 * colors[npeer][2]),
+                          m.first.c_str());
+                });
+  if(ferror(fp) || fclose(fp) < 0)
+    fatal(errno, "writing %s", html.c_str());
 }
 
 static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
