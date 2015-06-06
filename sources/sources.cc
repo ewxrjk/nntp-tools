@@ -439,19 +439,25 @@ static void process_day(const std::string &day) {
 
 static void draw_graph(const std::string &day,
                        const std::map<std::string,map_entry *> &info) {
-  // Find the maximum size
-  double max_articles = 0;
-  double max_bytes = 0;
+  double range_articles[MAP_BUCKETS], range_bytes[MAP_BUCKETS];
+  memset(range_articles, 0, sizeof range_articles);
+  memset(range_bytes, 0, sizeof range_bytes);
   for(int n = 0; n < MAP_BUCKETS; ++n) {
     double articles = 0, bytes = 0;
     std::for_each(info.begin(), info.end(),
                   [&] (const std::pair<std::string,map_entry *> &m) {
+                    range_articles[n] += m.second[n].articles;
+                    range_bytes[n] += m.second[n].bytes;
                     articles += m.second[n].articles;
                     bytes += m.second[n].bytes;
                   });
-    max_articles = std::max(articles, max_articles);
-    max_bytes = std::max(bytes, max_bytes);
   }
+  std::sort(&range_articles[0], &range_articles[MAP_BUCKETS]);
+  std::sort(&range_bytes[0], &range_bytes[MAP_BUCKETS]);
+  // Find the maximum size; the top 1% is excluded to avoid spikes dominating
+  // the graph too much.
+  double max_articles = range_articles[MAP_BUCKETS * 99 / 100];
+  double max_bytes = range_bytes[MAP_BUCKETS * 99 / 100];
 
   Cairo::RefPtr<Cairo::Surface> surface_articles
     = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
