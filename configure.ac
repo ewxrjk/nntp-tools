@@ -157,6 +157,7 @@ if test "x$GXX" = xyes; then
   CXX="${CXX} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
 -Wmissing-noreturn -Wredundant-decls"
   CXX="${CXX} -Werror"
+  CXX="${CXX} -std=c++11"
 fi
 
 AH_BOTTOM([#ifdef __GNUC__

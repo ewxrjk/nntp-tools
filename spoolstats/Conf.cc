@@ -171,7 +171,7 @@ void Config::footer(ostream &os) {
      << "</p>\n";
   os << "<p class=credits><a href="
      << HTML::Quote("http://www.greenend.org.uk/rjk/2006/newstools.html")
-     << ">spoolstats "VERSION"</a></p>\n";
+     << ">spoolstats " VERSION "</a></p>\n";
 }
 
 map<string, Hierarchy *> Config::hierarchies;
