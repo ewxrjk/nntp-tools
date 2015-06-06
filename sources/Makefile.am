@@ -1,6 +1,6 @@
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2005-2008, 2010-15 Richard Kettlewell
+# Copyright (C) 2015 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,20 @@
 # USA
 #
 
-SUBDIRS=lib gateways ${INN} ${SPOOLSTATS} sources debian
+bin_PROGRAMS=news-sources
 
-echo-distdir:
-	@echo $(distdir)
+news_sources_SOURCES=sources.cc
 
-echo-version:
-	@echo $(VERSION)
+AM_CXXFLAGS=${CAIROMM_CFLAGS}
+AM_CPPFLAGS=-I${top_srcdir}/lib -I${top_srcdir}/graph
+LDADD=../lib/libmiscpp.a ../lib/libmisc.a ../graph/libgraph.a
+LIBS=${CAIROMM_LIBS}
 
-EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html	\
-scripts/htmlman scripts/detect-conversations scripts/dr-death
+man_MANS=news-sources.1
+
+html: news-sources.1.html
+
+news-sources.1.html: news-sources.1
+	${top_srcdir}/scripts/htmlman $^
+
+EXTRA_DIST=$(man_MANS)

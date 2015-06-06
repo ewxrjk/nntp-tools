@@ -172,5 +172,6 @@ AC_CONFIG_FILES([Makefile
                  lib/Makefile
                  graph/Makefile
                  inn/Makefile
+                 sources/Makefile
                  spoolstats/Makefile])
 AC_OUTPUT

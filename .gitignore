@@ -49,3 +49,4 @@ inn/find-unhistorical
 scans
 *.log
 *.trs
+sources/news-sources
