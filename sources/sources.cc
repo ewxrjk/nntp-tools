@@ -600,15 +600,7 @@ static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
   context->fill();
   double q;
   for(int n = 0; (q = n * base) <= max; ++n) {
-    char quantity[32];
-    if(q >= 1000000000)
-      snprintf(quantity, sizeof quantity, "%gG", q / 1000000000);
-    else if(q >= 1000000)
-      snprintf(quantity, sizeof quantity, "%gM", q / 1000000);
-    else if(q >= 1000)
-      snprintf(quantity, sizeof quantity, "%gK", q / 1000);
-    else
-      snprintf(quantity, sizeof quantity, "%g", q);
+    std::string quantity = compact_kilo(q);
     double x = margin - 2;
     double y = margin + height - height * q / max;
     context->rectangle(x, y, 1, 1);
