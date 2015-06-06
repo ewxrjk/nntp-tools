@@ -50,7 +50,8 @@ struct map_entry {
   uint64_t bytes;
 };
 
-#define MAP_SIZE (60 * 24 * sizeof (map_entry))
+#define MAP_BUCKETS (60 * 24)
+#define MAP_SIZE (MAP_BUCKETS * sizeof (map_entry))
 #define MAP_EXTENSION ".nsdat"
 
 static struct tm start_time;
@@ -61,7 +62,7 @@ static struct map_entry *current_map;
 static struct timeval latest_time;
 static uint64_t time_counter;
 static std::set<std::string> days_changed;
-static double width = 60 * 24 / 2;
+static double width = MAP_BUCKETS / 2;
 static double height = 256;
 
 static const double colors[][3]  = {
@@ -441,7 +442,7 @@ static void draw_graph(const std::string &day,
   // Find the maximum size
   double max_articles = 0;
   double max_bytes = 0;
-  for(int n = 0; n < 24 * 60; ++n) {
+  for(int n = 0; n < MAP_BUCKETS; ++n) {
     double articles = 0, bytes = 0;
     std::for_each(info.begin(), info.end(),
                   [&] (const std::pair<std::string,map_entry *> &m) {
@@ -464,7 +465,7 @@ static void draw_graph(const std::string &day,
   context_articles->paint();
   context_bytes->set_source_rgb(1.0, 1.0, 1.0);
   context_bytes->paint();
-  for(int n = 0; n < 24 * 60; ++n) {
+  for(int n = 0; n < MAP_BUCKETS; ++n) {
     uint64_t articles_below = 0;
     uint64_t bytes_below = 0;
     int npeer = 0;
@@ -478,8 +479,8 @@ static void draw_graph(const std::string &day,
                                                        colors[npeer][2]);
                       double y0 = bytes_below * height / max_bytes;
                       double y1 = (bytes_below + bytes) * height / max_bytes;
-                      double x0 = n * width / (24 * 60);
-                      double x1 = (n + 1) * width / (24 * 60);
+                      double x0 = n * width / MAP_BUCKETS;
+                      double x1 = (n + 1) * width / MAP_BUCKETS;
                       context_bytes->rectangle(x0, height - y1, x1 - x0, y1 - y0);
                       context_bytes->fill();
                       bytes_below += bytes;
@@ -490,8 +491,8 @@ static void draw_graph(const std::string &day,
                                                        colors[npeer][2]);
                       double y0 = articles_below * height / max_articles;
                       double y1 = (articles_below + articles) * height / max_articles;
-                      double x0 = n * width / (24 * 60);
-                      double x1 = (n + 1) * width / (24 * 60);
+                      double x0 = n * width / MAP_BUCKETS;
+                      double x1 = (n + 1) * width / MAP_BUCKETS;
                       context_articles->rectangle(x0, height - y1, x1 - x0, y1 - y0);
                       context_articles->fill();
                       articles_below += articles;
