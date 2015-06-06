@@ -106,6 +106,9 @@ static void update_timestamp();
 static void process_day(const std::string &day);
 static void draw_graph(const std::string &day,
                        const std::map<std::string,map_entry *> &info);
+static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
+                      double max, double base,
+                      const std::string &title);
 
 int main(int argc, char **argv) {
   static const struct option options[] = {
@@ -438,6 +441,15 @@ static void process_day(const std::string &day) {
                 });
 }
 
+static double round_scale(double n, double &base) {
+  double limit;
+  base = exp10(floor(log10(n)));
+  limit = base;
+  while(limit < n)
+    limit += base;
+  return limit;
+}
+
 static void draw_graph(const std::string &day,
                        const std::map<std::string,map_entry *> &info) {
   double range_articles[MAP_BUCKETS], range_bytes[MAP_BUCKETS];
@@ -457,8 +469,11 @@ static void draw_graph(const std::string &day,
   std::sort(&range_bytes[0], &range_bytes[MAP_BUCKETS]);
   // Find the maximum size; the top 1% is excluded to avoid spikes dominating
   // the graph too much.
-  double max_articles = range_articles[MAP_BUCKETS * 99 / 100];
-  double max_bytes = range_bytes[MAP_BUCKETS * 99 / 100];
+  double base_articles, base_bytes, max_articles, max_bytes;
+  max_articles = round_scale(range_articles[MAP_BUCKETS * 99 / 100],
+                             base_articles);
+  max_bytes = round_scale(range_bytes[MAP_BUCKETS * 99 / 100],
+                          base_bytes);
 
   Cairo::RefPtr<Cairo::Surface> surface_articles
     = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
@@ -470,10 +485,12 @@ static void draw_graph(const std::string &day,
                                   width + 2 * margin, height + 2 * margin);
   Cairo::RefPtr<Cairo::Context> context_bytes
     = Cairo::Context::create(surface_bytes);
+  // White background
   context_articles->set_source_rgb(1.0, 1.0, 1.0);
   context_articles->paint();
   context_bytes->set_source_rgb(1.0, 1.0, 1.0);
   context_bytes->paint();
+  // Draw the data
   for(int n = 0; n < MAP_BUCKETS; ++n) {
     uint64_t articles_below = 0;
     uint64_t bytes_below = 0;
@@ -511,6 +528,68 @@ static void draw_graph(const std::string &day,
                     ++npeer;
                   });
   }
+  // Axes
+  draw_axes(context_bytes, max_bytes, base_bytes, "Bytes/minute");
+  draw_axes(context_articles, max_articles, base_articles, "Articles/minute");
+  // Save to PNG
   surface_articles->write_to_png(output + "/" + day + "-articles.png");
   surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
+}
+
+static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
+                      double max, double base,
+                      const std::string &title) {
+  Cairo::TextExtents te;
+  Cairo::FontExtents fe;
+
+  context->select_font_face("serif",
+                            Cairo::FONT_SLANT_NORMAL,
+                            Cairo::FONT_WEIGHT_NORMAL);
+  context->set_font_size(12.0);
+  context->get_font_extents(fe);
+
+  // Time
+  context->set_source_rgb(0.0, 0.0, 0.0);
+  context->rectangle(margin, margin + height, width, 1);
+  context->fill();
+  for(int h = 0; h < 24; ++h) {
+    char hour[32];
+    snprintf(hour, sizeof hour, "%02d", h);
+    double x = margin + h * width / 24;
+    double y = margin + height + 1;
+    context->rectangle(x, y, 1, 1);
+    context->fill();
+    context->move_to(x + 1, y + 1 + fe.height);
+    context->show_text(hour);
+  }
+
+  // Quantity
+  context->rectangle(margin - 1, margin, 1, height + 1);
+  context->fill();
+  double q;
+  for(int n = 0; (q = n * base) <= max; ++n) {
+    char quantity[32];
+    if(q >= 1000000000)
+      snprintf(quantity, sizeof quantity, "%gG", q / 1000000000);
+    else if(q >= 1000000)
+      snprintf(quantity, sizeof quantity, "%gM", q / 1000000);
+    else if(q >= 1000)
+      snprintf(quantity, sizeof quantity, "%gK", q / 1000);
+    else
+      snprintf(quantity, sizeof quantity, "%g", q);
+    double x = margin - 2;
+    double y = margin + height - height * q / max;
+    context->rectangle(x, y, 1, 1);
+    context->fill();
+    context->get_text_extents(quantity, te);
+    context->move_to(x - te.width - 2, y + te.height / 2);
+    context->show_text(quantity);
+  }
+
+  // Title
+  context->get_text_extents(title, te);
+  context->move_to((2 * margin + width - te.width) / 2,
+                   (margin - te.height) / 2);
+  context->show_text(title);
+
 }
