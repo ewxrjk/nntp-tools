@@ -1,7 +1,7 @@
 //-*-C++-*-
 /*
  * This file is part of rjk-nntp-tools.
- * Copyright (C) 2010-11, 2014 Richard Kettlewell
+ * Copyright (C) 2010-11, 2014, 2015 Richard Kettlewell
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,5 +70,7 @@ void read_csv(const std::string &path, std::vector<std::vector<Value> > &rows);
 std::string csv_quote(const std::string &s);
 std::string compact_kilo(double n);
 std::string round_kilo(double n);
+void read_file(const std::string &path, std::vector<std::string> &lines);
+void write_file(const std::string &path, std::vector<std::string> &lines);
 
 #endif /* CPPUTILS */

@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cpputils.h"
 #include "error.h"
 
 // from art.c
@@ -109,6 +110,7 @@ static void draw_graph(const std::string &day,
 static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
                       double max, double base,
                       const std::string &title);
+static void fixup_html();
 
 int main(int argc, char **argv) {
   static const struct option options[] = {
@@ -181,6 +183,9 @@ Options:\n\
 
   // Render graphs for every day for which new data was gathered.
   std::for_each(days_changed.begin(), days_changed.end(), process_day);
+
+  // Fix up links & index
+  fixup_html();
 
   return 0;
 }
@@ -358,7 +363,7 @@ static void close_map(struct map_entry *map) {
     if(munmap(current_map, MAP_SIZE) < 0)
       fatal(errno, "munmap");
   }
- }
+}
 
 static void process_accepted(const details &d) {
   char day[32];
@@ -416,24 +421,42 @@ static void update_timestamp() {
   time_counter = 0;
 }
 
-static void process_day(const std::string &day) {
-  std::map<std::string,map_entry *> info;
+template<typename T, class P>
+static void list_directory(const std::string &path,
+                           T &names,
+                           P pred) {
   DIR *dp;
   struct dirent *de;
-  if(!(dp = opendir(state.c_str())))
-    fatal(errno, "opendir %s", state.c_str());
-  while((de = readdir(dp))) {
-    std::string name = de->d_name;
-    if(starts_with(name, day)
-       && name[day.size()] == '-'
-       && ends_with(name, MAP_EXTENSION)) {
-      std::string path = state + "/" + name;
-      std::string peer(name, day.size() + 1,
-                       name.size() - (1 + day.size() + strlen(MAP_EXTENSION)));
-      info[peer] = open_map(path);
-    }
-  }
+  if(!(dp = opendir(path.c_str())))
+    fatal(errno, "opendir %s", path.c_str());
+  while((de = readdir(dp)))
+    if(pred(de->d_name))
+      names.push_back(de->d_name);
   closedir(dp);
+}
+
+template<typename T>
+static void list_directory(const std::string &path,
+                           T &names) {
+  list_directory(path, names, [](const std::string &) { return true; });
+}
+
+static void process_day(const std::string &day) {
+  std::map<std::string,map_entry *> info;
+  std::vector<std::string> names;
+  list_directory(state, names);
+  std::for_each(names.begin(), names.end(),
+                [&] (std::string &name) {
+                  if(starts_with(name, day)
+                     && name[day.size()] == '-'
+                     && ends_with(name, MAP_EXTENSION)) {
+                    std::string path = state + "/" + name;
+                    std::string peer(name, day.size() + 1,
+                                     name.size() - (1 + day.size()
+                                                    + strlen(MAP_EXTENSION)));
+                    info[peer] = open_map(path);
+                  }
+               });
   draw_graph(day, info);
   std::for_each(info.begin(), info.end(),
                 [] (const std::pair<std::string,map_entry *> &m) {
@@ -535,7 +558,7 @@ static void draw_graph(const std::string &day,
   surface_articles->write_to_png(output + "/" + day + "-articles.png");
   surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
   // Generate an HTML wrapper
-  const std::string &html = output + "/" + day + ".html";
+  const std::string &html = output + "/" + day + "-peers.html";
   FILE *fp;
   if(!(fp = fopen(html.c_str(), "w")))
     fatal(errno, "creating %s", html.c_str());
@@ -557,6 +580,10 @@ static void draw_graph(const std::string &day,
                           (int)(255 * colors[npeer][2]),
                           m.first.c_str());
                 });
+  fprintf(fp, "<p>\n");
+  fprintf(fp, "<span class=prev></span>\n");
+  fprintf(fp, "<span class=next></span>\n");
+  fprintf(fp, "</p>\n");
   if(ferror(fp) || fclose(fp) < 0)
     fatal(errno, "writing %s", html.c_str());
 }
@@ -617,4 +644,38 @@ static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
                    (margin - te.height) / 2);
   context->show_text(title);
 
+}
+
+static void fixup_html() {
+  std::vector<std::string> names;
+  list_directory(output, names, [] (const std::string &name) {
+      return ends_with(name, "-peers.html");
+    });
+  std::sort(names.begin(), names.end());
+  for(size_t n = 0; n < names.size(); ++n) {
+    const std::string path = output + "/" + names[n];
+    std::vector<std::string> lines;
+    read_file(path, lines);
+    bool changes = false;
+    std::for_each(lines.begin(), lines.end(),
+                  [&] (std::string &line) {
+                    const std::string oldline = line;
+                    if(line.find("class=prev") != std::string::npos) {
+                      if(n > 0)
+                        line = "<span class=prev><a href=\""+names[n-1]+"\">next</a></span>\n";
+                      else
+                        line = "<span class=prev></span>\n";
+                    }
+                    if(line.find("class=next") != std::string::npos) {
+                      if(n < names.size() - 1)
+                        line = "<span class=next><a href=\""+names[n+1]+"\">next</a></span>\n";
+                      else
+                        line = "<span class=next></span>\n";
+                    }
+                    if(line != oldline)
+                      changes = true;
+                  });
+    if(changes)
+      write_file(path, lines);
+  }
 }

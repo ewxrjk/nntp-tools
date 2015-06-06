@@ -1,6 +1,6 @@
 #
 # This file is part of rjk-nntp-tools.
-# Copyright (C) 2010, 2011, 13 Richard Kettlewell
+# Copyright (C) 2010, 2011, 13, 15 Richard Kettlewell
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
 nntp.h utils.h capture.c io.h io.c recode.c seen.c seen.h error.h error.c
 libmiscpp_a_SOURCES=cpputils.h split.cc Timezones.h Timezones.cc	\
 HTML.h Escape.cc Quote.cc Header.cc case.cc parse_date.cc parse_csv.cc	\
-compact_kilo.cc round_kilo.cc thead.cc
+compact_kilo.cc round_kilo.cc thead.cc read_file.cc write_file.cc
 
 TESTS=seen-t
 
