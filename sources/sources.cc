@@ -64,6 +64,7 @@ static uint64_t time_counter;
 static std::set<std::string> days_changed;
 static double width = MAP_BUCKETS / 2;
 static double height = 256;
+static double margin = 64;
 
 static const double colors[][3]  = {
   { 1.0, 0.0, 0.0 },
@@ -460,11 +461,13 @@ static void draw_graph(const std::string &day,
   double max_bytes = range_bytes[MAP_BUCKETS * 99 / 100];
 
   Cairo::RefPtr<Cairo::Surface> surface_articles
-    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
+    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                  width + 2 * margin, height + 2 * margin);
   Cairo::RefPtr<Cairo::Context> context_articles
     = Cairo::Context::create(surface_articles);
   Cairo::RefPtr<Cairo::Surface> surface_bytes
-    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
+    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                  width + 2 * margin, height + 2 * margin);
   Cairo::RefPtr<Cairo::Context> context_bytes
     = Cairo::Context::create(surface_bytes);
   context_articles->set_source_rgb(1.0, 1.0, 1.0);
@@ -487,7 +490,8 @@ static void draw_graph(const std::string &day,
                       double y1 = (bytes_below + bytes) * height / max_bytes;
                       double x0 = n * width / MAP_BUCKETS;
                       double x1 = (n + 1) * width / MAP_BUCKETS;
-                      context_bytes->rectangle(x0, height - y1, x1 - x0, y1 - y0);
+                      context_bytes->rectangle(margin + x0, margin + height - y1,
+                                               x1 - x0, y1 - y0);
                       context_bytes->fill();
                       bytes_below += bytes;
                     }
@@ -499,7 +503,8 @@ static void draw_graph(const std::string &day,
                       double y1 = (articles_below + articles) * height / max_articles;
                       double x0 = n * width / MAP_BUCKETS;
                       double x1 = (n + 1) * width / MAP_BUCKETS;
-                      context_articles->rectangle(x0, height - y1, x1 - x0, y1 - y0);
+                      context_articles->rectangle(margin + x0, margin + height - y1,
+                                                  x1 - x0, y1 - y0);
                       context_articles->fill();
                       articles_below += articles;
                     }
