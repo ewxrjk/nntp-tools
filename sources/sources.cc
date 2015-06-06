@@ -24,7 +24,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <dirent.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <map>
@@ -38,6 +37,7 @@
 
 #include "cpputils.h"
 #include "error.h"
+#include "listdir.h"
 
 // from art.c
 #define ART_ACCEPT '+'
@@ -419,26 +419,6 @@ static void update_timestamp() {
      || fclose(fp) < 0)
     fatal(errno, "writing timestamp");
   time_counter = 0;
-}
-
-template<typename T, class P>
-static void list_directory(const std::string &path,
-                           T &names,
-                           P pred) {
-  DIR *dp;
-  struct dirent *de;
-  if(!(dp = opendir(path.c_str())))
-    fatal(errno, "opendir %s", path.c_str());
-  while((de = readdir(dp)))
-    if(pred(de->d_name))
-      names.push_back(de->d_name);
-  closedir(dp);
-}
-
-template<typename T>
-static void list_directory(const std::string &path,
-                           T &names) {
-  list_directory(path, names, [](const std::string &) { return true; });
 }
 
 static void process_day(const std::string &day) {
