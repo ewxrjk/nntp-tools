@@ -735,15 +735,17 @@ static void fixup_html() {
   }
   if(!names.empty() && index_path.size()) {
     const char *target;
-    unlink(index_path.c_str());
+    std::string index_abs = index_path.at(0) == '/' ? index_path
+      : output + "/" + index_path;
+    unlink(index_abs.c_str());
     if(index_path.find('/') != std::string::npos) {
-      target = realpath(names.back().c_str(), NULL);
+      target = realpath((output + "/" + names.back()).c_str(), NULL);
       if(!target)
         fatal(errno, "realpath");
       assert(target[0] == '/');
     } else
       target = names.back().c_str();
-    if(symlink(target, index_path.c_str()) < 0)
-      fatal(errno, "symlink %s", index_path.c_str());
+    if(symlink(target, index_abs.c_str()) < 0)
+      fatal(errno, "symlink %s", index_abs.c_str());
   }
 }
