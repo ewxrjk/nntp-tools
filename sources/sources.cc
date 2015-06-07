@@ -634,6 +634,10 @@ static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
   }
 
   // Title
+  context->select_font_face("serif",
+                            Cairo::FONT_SLANT_NORMAL,
+                            Cairo::FONT_WEIGHT_BOLD);
+  context->set_font_size(14.0);
   context->get_text_extents(title, te);
   context->move_to((2 * margin + width - te.width) / 2,
                    (margin - te.height) / 2);
