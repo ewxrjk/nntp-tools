@@ -710,7 +710,7 @@ static void fixup_html() {
                     const std::string oldline = line;
                     if(line.find("class=prev") != std::string::npos) {
                       if(n > 0)
-                        line = "<span class=prev><a href=\""+names[n-1]+"\">next</a></span>\n";
+                        line = "<span class=prev><a href=\""+names[n-1]+"\">prev</a></span>\n";
                       else
                         line = "<span class=prev></span>\n";
                     }
