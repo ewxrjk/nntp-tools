@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
     { "output", required_argument, 0, 'o' },
     { "type", required_argument, 0, 'T' },
     { "index", required_argument, 0, 'i' },
+    { "size", required_argument, 0, 'S' },
     { "help", no_argument, 0, 'h' },
     { "version", no_argument, 0, 'V' },
     { 0, 0, 0, 0 }
@@ -131,7 +132,7 @@ int main(int argc, char **argv) {
 
   int n;
 
-  while((n = getopt_long(argc, argv, "hVs:o:T:i:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "hVs:o:T:i:S:", options, 0)) >= 0) {
     switch(n) {
     case 'h':
       printf("Usage:\n\
@@ -142,6 +143,7 @@ Options:\n\
   -o, --output DIR                  Output directory (default: .)\n\
   -T, --type svg|png                Image type (default: png)\n\
   -i, --index PATH                  Index filename (defaut: index.html)\n\
+  -S, --size WIDTHxHEIGHT           Graph size (default: 720x256)\n\
   -h, --help                        Display usage message\n\
   -V, --version                     Display version number\n");
       return 0;
@@ -161,6 +163,12 @@ Options:\n\
       break;
     case 'i':
       index_path = optarg;
+      break;
+    case 'S':
+      if(sscanf(optarg, "%lfx%lf", &width, &height) != 2)
+        fatal(0, "cannot parse size '%s'", optarg);
+      if(width <= 1 || height <= 1)
+        fatal(0, "size too small", optarg);
       break;
     default:
       return 1;
