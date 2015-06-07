@@ -26,7 +26,11 @@ news-sources \- visualize news sources by peer
 .RB [ -- ]
 .RI [ INPUT ...]
 .SH DESCRIPTION
-TODO
+This program reads INN's news log file and generates daily graphs
+showing the contributon of each peer.
+The graphs are generated as PNG or SVG files, with HTML files to
+display them.
+All files are named for the date they correspond to.
 .SH OPTIONS
 .TP
 .B -s\fR, \fB--state \fIPATH
@@ -53,7 +57,23 @@ Display a usage message.
 .TP
 .B -V\fR, \fB--version
 Display version number.
+.SH NOTES
+In order to avoid double-counting, input can only go forward in time;
+if it goes backwards, it will be ignored.
+So it's important to order input files correctly.
+.PP
+INN's article log doesn't include years, so some guesswork is involved
+at the start of a new year.
+It also uses local time, so the output will reflect that, and there
+are likely to be anomalies (e.g. undercounting) around DST shifts.
+.PP
+You may want to set up a cron job to clear out old state and output
+files.
+.SH EXAMPLE
+.EX
+news-sources /var/log/news/OLD/news.1.gz /var/log/news/news
+.EE
 .SH AUTHOR
 Richard Kettlewell <rjk@greenend.org.uk>
 .PP
-http://www.greenend.org.uk/rjk/2006/newstools.html
+http://www.greenend.org.uk/rjk/nntptools.html
