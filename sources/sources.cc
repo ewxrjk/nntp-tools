@@ -28,6 +28,7 @@
 #include <getopt.h>
 #include <map>
 #include <set>
+#include <sigc++/bind.h>
 #include <string>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -68,6 +69,7 @@ static std::set<std::string> days_changed;
 static double width = MAP_BUCKETS / 2;
 static double height = 256;
 static double margin = 64;
+static int svg;
 
 static const double colors[][3]  = {
   { 1.0, 0.0, 0.0 },
@@ -118,6 +120,7 @@ int main(int argc, char **argv) {
   static const struct option options[] = {
     { "state", required_argument, 0, 's' },
     { "output", required_argument, 0, 'o' },
+    { "type", required_argument, 0, 'T' },
     { "help", no_argument, 0, 'h' },
     { "version", no_argument, 0, 'V' },
     { 0, 0, 0, 0 }
@@ -125,7 +128,7 @@ int main(int argc, char **argv) {
 
   int n;
 
-  while((n = getopt_long(argc, argv, "hVs:o:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "hVs:o:T:", options, 0)) >= 0) {
     switch(n) {
     case 'h':
       printf("Usage:\n\
@@ -134,6 +137,7 @@ int main(int argc, char **argv) {
 Options:\n\
   -s, --state DIR                   State directory (default: .)\n\
   -o, --output DIR                  Ouptut directory (default: .)\n\
+  -T, --type svg|png                Image type (default: png)\n\
   -h, --help                        Display usage message\n\
   -V, --version                     Display version number\n");
       return 0;
@@ -145,6 +149,11 @@ Options:\n\
       break;
     case 'o':
       output = optarg;
+      break;
+    case 'T':
+      if(!strcmp(optarg, "svg")) svg = 1;
+      else if(!strcmp(optarg, "png")) svg = 0;
+      else fatal(0, "unrecognized image type '%s'", optarg);
       break;
     default:
       return 1;
@@ -476,6 +485,14 @@ static double round_scale(double n, double &base) {
   return limit;
 }
 
+static Cairo::ErrorStatus cairo_writer(const unsigned char *data, unsigned len,
+                                       FILE *fp, const std::string &path) {
+  fwrite(data, 1, len, fp);
+  if(ferror(fp))
+    fatal(errno, "writing %s", path.c_str());
+  return CAIRO_STATUS_SUCCESS;
+}
+
 static void draw_graph(const std::string &day,
                        const std::map<std::string,map_entry *> &info) {
   double range_articles[MAP_BUCKETS], range_bytes[MAP_BUCKETS];
@@ -501,14 +518,35 @@ static void draw_graph(const std::string &day,
   max_bytes = round_scale(range_bytes[MAP_BUCKETS * 99 / 100],
                           base_bytes);
 
-  Cairo::RefPtr<Cairo::Surface> surface_articles
-    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                  width + 2 * margin, height + 2 * margin);
+  Cairo::RefPtr<Cairo::Surface> surface_articles;
+  Cairo::RefPtr<Cairo::Surface> surface_bytes;
+  if(svg) {
+    const std::string path_articles = output + "/" + day + "-articles.svg";
+    FILE *file_articles = fopen(path_articles.c_str(), "w");
+    if(!file_articles)
+      fatal(errno, "opening %s", path_articles.c_str());
+    surface_articles = Cairo::SvgSurface::create_for_stream
+      (sigc::bind(&cairo_writer, file_articles, path_articles),
+       width + 2 * margin,
+       height + 2 * margin);
+    const std::string path_bytes = output + "/" + day + "-bytes.svg";
+    FILE *file_bytes = fopen(path_bytes.c_str(), "w");
+    if(!file_bytes)
+      fatal(errno, "opening %s", path_bytes.c_str());
+    surface_bytes = Cairo::SvgSurface::create_for_stream
+      (sigc::bind(&cairo_writer, file_bytes, path_bytes),
+       width + 2 * margin,
+       height + 2 * margin);
+  } else {
+    surface_articles = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                                   width + 2 * margin,
+                                                   height + 2 * margin);
+    surface_bytes = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                                width + 2 * margin,
+                                                height + 2 * margin);
+  }
   Cairo::RefPtr<Cairo::Context> context_articles
     = Cairo::Context::create(surface_articles);
-  Cairo::RefPtr<Cairo::Surface> surface_bytes
-    = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                  width + 2 * margin, height + 2 * margin);
   Cairo::RefPtr<Cairo::Context> context_bytes
     = Cairo::Context::create(surface_bytes);
   // White background
@@ -557,9 +595,13 @@ static void draw_graph(const std::string &day,
   // Axes
   draw_axes(context_bytes, max_bytes, base_bytes, "Bytes/minute");
   draw_axes(context_articles, max_articles, base_articles, "Articles/minute");
-  // Save to PNG
-  surface_articles->write_to_png(output + "/" + day + "-articles.png");
-  surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
+  if(!svg) {
+    // Save to PNG
+    surface_articles->write_to_png(output + "/" + day + "-articles.png");
+    surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
+  }
+  surface_articles->finish();
+  surface_bytes->finish();
   // Generate an HTML wrapper
   const std::string &html = output + "/" + day + "-peers.html";
   FILE *fp;
@@ -571,8 +613,15 @@ static void draw_graph(const std::string &day,
   fprintf(fp, "img { border: 1px solid black; }\n");
   fprintf(fp, "</style>\n");
   fprintf(fp, "<body><h1>Peering data for %s</h1>\n", day.c_str());
-  fprintf(fp, "<p><img src=\"%s-articles.png\"></p>\n", day.c_str());
-  fprintf(fp, "<p><img src=\"%s-bytes.png\"></p>\n", day.c_str());
+  if(svg) {
+    fprintf(fp, "<p><img src=\"%s-articles.svg\" width=%g height=%g></p>\n",
+            day.c_str(), width + 2 * margin, height + 2 * margin);
+    fprintf(fp, "<p><img src=\"%s-bytes.svg\" width=%g height=%g></p>\n",
+            day.c_str(), width + 2 * margin, height + 2 * margin);
+  } else {
+    fprintf(fp, "<p><img src=\"%s-articles.png\"></p>\n", day.c_str());
+    fprintf(fp, "<p><img src=\"%s-bytes.png\"></p>\n", day.c_str());
+  }
   int npeer = info.size();
   std::for_each(info.rbegin(), info.rend(),
                   [&] (const std::pair<std::string,map_entry *> &m) {
