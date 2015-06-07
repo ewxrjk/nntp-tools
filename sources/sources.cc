@@ -275,7 +275,7 @@ public:
     n = 0;
     if(pos < limit && isdigit(line.at(pos))) {
       while(pos < limit && isdigit(line.at(pos)))
-        n += 10 * n + line.at(pos++) - '0';
+        n = 10 * n + line.at(pos++) - '0';
       return true;
     } else
       return false;
