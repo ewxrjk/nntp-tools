@@ -18,7 +18,7 @@
 # USA
 #
 
-SUBDIRS=lib gateways ${INN} ${SPOOLSTATS} sources debian
+SUBDIRS=lib gateways ${INN} ${SPOOLSTATS} debian
 
 echo-distdir:
 	@echo $(distdir)

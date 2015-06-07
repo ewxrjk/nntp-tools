@@ -85,7 +85,7 @@ AC_CHECK_LIB([iconv],[iconv_open],[],
 if test "$rjk_cv_cairomm_libs" = ""; then
   SPOOLSTATS=""
 else
-  SPOOLSTATS="graph spoolstats"
+  SPOOLSTATS="graph spoolstats sources"
 fi
 AC_SUBST([SPOOLSTATS])
 AC_SUBST([CAIROMM_CFLAGS],[$rjk_cv_cairomm_cflags])
