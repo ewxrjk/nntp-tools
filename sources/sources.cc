@@ -20,6 +20,7 @@
 #include <config.h>
 #include <algorithm>
 #include <cairomm/cairomm.h>
+#include <cassert>
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
@@ -70,6 +71,7 @@ static double width = MAP_BUCKETS / 2;
 static double height = 256;
 static double margin = 64;
 static int svg;
+static std::string index_path = "index.html";
 
 static const double colors[][3]  = {
   { 1.0, 0.0, 0.0 },
@@ -121,6 +123,7 @@ int main(int argc, char **argv) {
     { "state", required_argument, 0, 's' },
     { "output", required_argument, 0, 'o' },
     { "type", required_argument, 0, 'T' },
+    { "index", required_argument, 0, 'i' },
     { "help", no_argument, 0, 'h' },
     { "version", no_argument, 0, 'V' },
     { 0, 0, 0, 0 }
@@ -128,7 +131,7 @@ int main(int argc, char **argv) {
 
   int n;
 
-  while((n = getopt_long(argc, argv, "hVs:o:T:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "hVs:o:T:i:", options, 0)) >= 0) {
     switch(n) {
     case 'h':
       printf("Usage:\n\
@@ -136,8 +139,9 @@ int main(int argc, char **argv) {
 \n\
 Options:\n\
   -s, --state DIR                   State directory (default: .)\n\
-  -o, --output DIR                  Ouptut directory (default: .)\n\
+  -o, --output DIR                  Output directory (default: .)\n\
   -T, --type svg|png                Image type (default: png)\n\
+  -i, --index PATH                  Index filename (defaut: index.html)\n\
   -h, --help                        Display usage message\n\
   -V, --version                     Display version number\n");
       return 0;
@@ -154,6 +158,9 @@ Options:\n\
       if(!strcmp(optarg, "svg")) svg = 1;
       else if(!strcmp(optarg, "png")) svg = 0;
       else fatal(0, "unrecognized image type '%s'", optarg);
+      break;
+    case 'i':
+      index_path = optarg;
       break;
     default:
       return 1;
@@ -725,5 +732,18 @@ static void fixup_html() {
                   });
     if(changes)
       write_file(path, lines);
+  }
+  if(!names.empty() && index_path.size()) {
+    const char *target;
+    unlink(index_path.c_str());
+    if(index_path.find('/') != std::string::npos) {
+      target = realpath(names.back().c_str(), NULL);
+      if(!target)
+        fatal(errno, "realpath");
+      assert(target[0] == '/');
+    } else
+      target = names.back().c_str();
+    if(symlink(target, index_path.c_str()) < 0)
+      fatal(errno, "symlink %s", index_path.c_str());
   }
 }
