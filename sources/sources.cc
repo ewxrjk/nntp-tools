@@ -500,115 +500,86 @@ static Cairo::ErrorStatus cairo_writer(const unsigned char *data, unsigned len,
   return CAIRO_STATUS_SUCCESS;
 }
 
-static void draw_graph(const std::string &day,
-                       const std::map<std::string,map_entry *> &info) {
-  double range_articles[MAP_BUCKETS], range_bytes[MAP_BUCKETS];
-  memset(range_articles, 0, sizeof range_articles);
-  memset(range_bytes, 0, sizeof range_bytes);
+template<typename GET_DATA>
+void draw_one_graph(const std::string &day,
+                    const std::map<std::string,map_entry *> &info,
+                    const std::string &type,
+                    const std::string &title,
+                    GET_DATA get_data) {
+  double range[MAP_BUCKETS];
+  memset(range, 0, sizeof range);
   for(int n = 0; n < MAP_BUCKETS; ++n) {
-    double articles = 0, bytes = 0;
     std::for_each(info.begin(), info.end(),
                   [&] (const std::pair<std::string,map_entry *> &m) {
-                    range_articles[n] += m.second[n].articles;
-                    range_bytes[n] += m.second[n].bytes;
-                    articles += m.second[n].articles;
-                    bytes += m.second[n].bytes;
+                    range[n] += get_data(m.second[n]);
                   });
   }
-  std::sort(&range_articles[0], &range_articles[MAP_BUCKETS]);
-  std::sort(&range_bytes[0], &range_bytes[MAP_BUCKETS]);
+  std::sort(&range[0], &range[MAP_BUCKETS]);
   // Find the maximum size; the top 1% is excluded to avoid spikes dominating
   // the graph too much.
-  double base_articles, base_bytes, max_articles, max_bytes;
-  max_articles = round_scale(range_articles[MAP_BUCKETS * 99 / 100],
-                             base_articles);
-  max_bytes = round_scale(range_bytes[MAP_BUCKETS * 99 / 100],
-                          base_bytes);
-
-  Cairo::RefPtr<Cairo::Surface> surface_articles;
-  Cairo::RefPtr<Cairo::Surface> surface_bytes;
+  double base, max;
+  max = round_scale(range[MAP_BUCKETS * 99 / 100], base);
+  Cairo::RefPtr<Cairo::Surface> surface;
   if(svg) {
-    const std::string path_articles = output + "/" + day + "-articles.svg";
-    FILE *file_articles = fopen(path_articles.c_str(), "w");
-    if(!file_articles)
-      fatal(errno, "opening %s", path_articles.c_str());
-    surface_articles = Cairo::SvgSurface::create_for_stream
-      (sigc::bind(&cairo_writer, file_articles, path_articles),
-       width + 2 * margin,
-       height + 2 * margin);
-    const std::string path_bytes = output + "/" + day + "-bytes.svg";
-    FILE *file_bytes = fopen(path_bytes.c_str(), "w");
-    if(!file_bytes)
-      fatal(errno, "opening %s", path_bytes.c_str());
-    surface_bytes = Cairo::SvgSurface::create_for_stream
-      (sigc::bind(&cairo_writer, file_bytes, path_bytes),
+    const std::string path = output + "/" + day + "-" + type + ".svg";
+    FILE *file = fopen(path.c_str(), "w");
+    if(!file)
+      fatal(errno, "opening %s", path.c_str());
+    surface = Cairo::SvgSurface::create_for_stream
+      (sigc::bind(&cairo_writer, file, path),
        width + 2 * margin,
        height + 2 * margin);
   } else {
-    surface_articles = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                                   width + 2 * margin,
-                                                   height + 2 * margin);
-    surface_bytes = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                                width + 2 * margin,
-                                                height + 2 * margin);
+    surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+                                          width + 2 * margin,
+                                          height + 2 * margin);
   }
-  Cairo::RefPtr<Cairo::Context> context_articles
-    = Cairo::Context::create(surface_articles);
-  Cairo::RefPtr<Cairo::Context> context_bytes
-    = Cairo::Context::create(surface_bytes);
+  Cairo::RefPtr<Cairo::Context> context = Cairo::Context::create(surface);
   // White background
-  context_articles->set_source_rgb(1.0, 1.0, 1.0);
-  context_articles->paint();
-  context_bytes->set_source_rgb(1.0, 1.0, 1.0);
-  context_bytes->paint();
+  context->set_source_rgb(1.0, 1.0, 1.0);
+  context->paint();
   // Draw the data
   for(int n = 0; n < MAP_BUCKETS; ++n) {
-    uint64_t articles_below = 0;
-    uint64_t bytes_below = 0;
+    uint64_t data_below = 0;
     int npeer = 0;
     std::for_each(info.begin(), info.end(),
                   [&] (const std::pair<std::string,map_entry *> &m) {
-                    uint64_t articles = m.second[n].articles;
-                    uint64_t bytes = m.second[n].bytes;
-                    if(bytes) {
-                      context_bytes->set_source_rgb(colors[npeer][0],
-                                                       colors[npeer][1],
-                                                       colors[npeer][2]);
-                      double y0 = bytes_below * height / max_bytes;
-                      double y1 = (bytes_below + bytes) * height / max_bytes;
+                    uint64_t data = get_data(m.second[n]);
+                    if(data) {
+                      context->set_source_rgb(colors[npeer][0],
+                                              colors[npeer][1],
+                                              colors[npeer][2]);
+                      double y0 = data_below * height / max;
+                      double y1 = (data_below + data) * height / max;
                       double x0 = n * width / MAP_BUCKETS;
                       double x1 = (n + 1) * width / MAP_BUCKETS;
-                      context_bytes->rectangle(margin + x0, margin + height - y1,
-                                               x1 - x0, y1 - y0);
-                      context_bytes->fill();
-                      bytes_below += bytes;
-                    }
-                    if(articles) {
-                      context_articles->set_source_rgb(colors[npeer][0],
-                                                       colors[npeer][1],
-                                                       colors[npeer][2]);
-                      double y0 = articles_below * height / max_articles;
-                      double y1 = (articles_below + articles) * height / max_articles;
-                      double x0 = n * width / MAP_BUCKETS;
-                      double x1 = (n + 1) * width / MAP_BUCKETS;
-                      context_articles->rectangle(margin + x0, margin + height - y1,
+                      context->rectangle(margin + x0, margin + height - y1,
                                                   x1 - x0, y1 - y0);
-                      context_articles->fill();
-                      articles_below += articles;
+                      context->fill();
+                      data_below += data;
                     }
                     ++npeer;
                   });
   }
   // Axes
-  draw_axes(context_bytes, max_bytes, base_bytes, "Bytes/minute");
-  draw_axes(context_articles, max_articles, base_articles, "Articles/minute");
+  draw_axes(context, max, base, title);
   if(!svg) {
     // Save to PNG
-    surface_articles->write_to_png(output + "/" + day + "-articles.png");
-    surface_bytes->write_to_png(output + "/" + day + "-bytes.png");
+    surface->write_to_png(output + "/" + day + "-" + type + ".png");
   }
-  surface_articles->finish();
-  surface_bytes->finish();
+  surface->finish();
+}
+
+static void draw_graph(const std::string &day,
+                       const std::map<std::string,map_entry *> &info) {
+  draw_one_graph(day, info, "articles", "Articles/minute",
+                 [] (const map_entry &m) {
+                   return m.articles;
+                 });
+  draw_one_graph(day, info, "bytes", "Bytes/minute",
+                 [] (const map_entry &m) {
+                   return m.bytes;
+                 });
   // Generate an HTML wrapper
   const std::string &html = output + "/" + day + "-peers.html";
   FILE *fp;
