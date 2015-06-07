@@ -72,6 +72,9 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 #endif
 
+FILE *popenvp(const char *type, pid_t *pidp,
+              const char *file, char *const argv[]);
+
 #ifdef __cplusplus
 }
 #endif

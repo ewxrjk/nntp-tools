@@ -33,8 +33,10 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
+#include "utils.h"
 #include "cpputils.h"
 #include "error.h"
 #include "listdir.h"
@@ -114,7 +116,6 @@ static void fixup_html();
 
 int main(int argc, char **argv) {
   static const struct option options[] = {
-    { "input", required_argument, 0, 'i' },
     { "state", required_argument, 0, 's' },
     { "output", required_argument, 0, 'o' },
     { "help", no_argument, 0, 'h' },
@@ -123,16 +124,14 @@ int main(int argc, char **argv) {
   };
 
   int n;
-  const char *input = 0;
 
-  while((n = getopt_long(argc, argv, "hVi:s:o:", options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "hVs:o:", options, 0)) >= 0) {
     switch(n) {
     case 'h':
       printf("Usage:\n\
-  news-sources [OPTIONS]\n\
+  news-sources [OPTIONS] [INPUT...]\n\
 \n\
 Options:\n\
-  -i, --input PATH                  Input file (default: stdin)\n\
   -s, --state DIR                   State directory (default: .)\n\
   -o, --output DIR                  Ouptut directory (default: .)\n\
   -h, --help                        Display usage message\n\
@@ -141,9 +140,6 @@ Options:\n\
     case 'V':
       printf("news-sources from rjk-nntp-tools version " VERSION "\n");
       return 0;
-    case 'i':
-      input = optarg;
-      break;
     case 's':
       state = optarg;
       break;
@@ -166,13 +162,40 @@ Options:\n\
   read_timestamp();
 
   // Read the input.
-  if(input) {
-    FILE *fp = fopen(input, "r");
-    if(!fp)
-      fatal(errno, "opening %s", input);
-    if(!process_file(fp))
-      fatal(errno, "reading %s", input);
-    fclose(fp);
+  if(optind < argc) {
+    while(optind < argc) {
+      if(!strcmp(argv[optind], "-")) {
+        if(!process_file(stdin))
+          fatal(errno, "reading stdin");
+      } else if(ends_with(argv[optind], ".gz")
+                || ends_with(argv[optind], ".Z")) {
+        std::vector<const char *> command;
+        command.push_back("gzip");
+        command.push_back("-cd");
+        command.push_back(argv[optind]);
+        command.push_back(NULL);
+        pid_t pid;
+        FILE *fp = popenvp("r", &pid, command[0], (char *const *)&command[0]);
+        if(!fp)
+          fatal(errno, "opening %s", argv[optind]);
+        if(!process_file(fp))
+          fatal(errno, "reading %s", argv[optind]);
+        fclose(fp);
+        int w;
+        if(waitpid(pid, &w, 0) < 0)
+          fatal(errno, "waitpid");
+        if(w)
+          fatal(0, "%s: wait status %#x", command[0], w);
+      } else {
+        FILE *fp = fopen(argv[optind], "r");
+        if(!fp)
+          fatal(errno, "opening %s", argv[optind]);
+        if(!process_file(fp))
+          fatal(errno, "reading %s", argv[optind]);
+        fclose(fp);
+      }
+      ++optind;
+    }
   } else {
     if(!process_file(stdin))
       fatal(errno, "reading stdin");
