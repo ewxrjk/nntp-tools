@@ -158,6 +158,7 @@ if test "x$GXX" = xyes; then
 -Wmissing-noreturn -Wredundant-decls"
   CXX="${CXX} -Werror"
   CXX="${CXX} -std=c++11"
+  CXX="${CXX} -Wno-deprecated-register"
 fi
 
 AH_BOTTOM([#ifdef __GNUC__
