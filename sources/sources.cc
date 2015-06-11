@@ -502,7 +502,7 @@ static void process_day(const std::string &day) {
 
 static double round_scale(double n, double &base) {
   double limit;
-  base = exp10(floor(log10(n)));
+  base = pow(10, floor(log10(n)));
   limit = base;
   while(limit < n)
     limit += base;
