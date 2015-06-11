@@ -131,6 +131,7 @@ if test "x$GCC" = xyes; then
   AC_CACHE_CHECK([whether -Werror is usable],[rjk_cv_werror],[
     old_CC="${CC}"
     CC="${CC} -Werror"
+    AC_LANG([C])
     AC_TRY_COMPILE([#include <unistd.h>
 		    #include <stdio.h>
 		    #include <getopt.h>],
@@ -158,7 +159,21 @@ if test "x$GXX" = xyes; then
 -Wmissing-noreturn -Wredundant-decls"
   CXX="${CXX} -Werror"
   CXX="${CXX} -std=c++11"
-  CXX="${CXX} -Wno-deprecated-register"
+  # Required with Clang 3.7
+  # Won't compile with Clang 3.3, which is too stupid to turn off
+  # warnings it doesn't support(!)
+  AC_CACHE_CHECK([whether -Wno-deprecated-register is usable],
+                 [rjk_cv_ndr],[
+    old_CXX="${CXX}"
+    CXX="${CXX} -Wno-deprecated-register"
+    AC_LANG([C++])
+    AC_TRY_COMPILE([#include <cstdio>],[],
+                   [rjk_cv_ndr=yes],[rjk_cv_ndr=no])
+    CXX="${old_CXX}"
+  ])
+  if test $rjk_cv_ndr = yes; then
+    CXX="${CXX} -Wno-deprecated-register"
+  fi
 fi
 
 AH_BOTTOM([#ifdef __GNUC__
