@@ -24,6 +24,16 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#if ! HAVE_PIPE2
+static int pipe2(int *fds, int flags) {
+  if(flags) {
+    errno = EINVAL;
+    return -1;
+  }
+  return pipe(fds);
+}
+#endif
+
 FILE *popenvp(const char *type, pid_t *pidp,
               const char *file, char *const argv[]) {
   int type_read = 0, type_write = 0, type_cloexec = 0;
