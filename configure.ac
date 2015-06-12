@@ -124,13 +124,13 @@ AC_CHECK_FUNCS([funopen open_memstream getline getdelim])
 
 if test "x$GCC" = xyes; then
   # a reasonable default set of warnings
-  CC="${CC} -Wall -W -Wpointer-arith -Wbad-function-cast \
+  CFLAGS="${CFLAGS} -Wall -W -Wpointer-arith -Wbad-function-cast \
 	-Wwrite-strings -Wmissing-prototypes \
 	-Wmissing-declarations -Wnested-externs -Wshadow -Wredundant-decls"
 
   AC_CACHE_CHECK([whether -Werror is usable],[rjk_cv_werror],[
-    old_CC="${CC}"
-    CC="${CC} -Werror"
+    old_CFLAGS="${CFLAGS}"
+    CFLAGS="${CFLAGS} -Werror"
     AC_LANG([C])
     AC_TRY_COMPILE([#include <unistd.h>
 		    #include <stdio.h>
@@ -138,10 +138,10 @@ if test "x$GCC" = xyes; then
                    [],
  		   [rjk_cv_werror=yes],
  		   [rjk_cv_werror=no])
-    CC="${old_CC}"
+    CFLAGS="${old_CFLAGS}"
   ])
   if test $rjk_cv_werror = yes; then
-    CC="${CC} -Werror"
+    CFLAGS="${CFLAGS} -Werror"
   fi    
 fi
 
@@ -155,24 +155,24 @@ if test "$with_cxx11" = no; then
 fi
 
 if test "x$GXX" = xyes; then
-  CXX="${CXX} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
+  CXXFLAGS="${CXXFLAGS} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
 -Wmissing-noreturn -Wredundant-decls"
-  CXX="${CXX} -Werror"
-  CXX="${CXX} -std=c++11"
+  CXXFLAGS="${CXXFLAGS} -Werror"
+  CXXFLAGS="${CXXFLAGS} -std=c++11"
   # Required with Clang 3.7
   # Won't compile with Clang 3.3, which is too stupid to turn off
   # warnings it doesn't support(!)
   AC_CACHE_CHECK([whether -Wno-deprecated-register is usable],
                  [rjk_cv_ndr],[
-    old_CXX="${CXX}"
-    CXX="${CXX} -Wno-deprecated-register"
+    old_CXXFLAGS="${CXXFLAGS}"
+    CXXFLAGS="${CXXFLAGS} -Wno-deprecated-register"
     AC_LANG([C++])
     AC_TRY_COMPILE([#include <cstdio>],[],
                    [rjk_cv_ndr=yes],[rjk_cv_ndr=no])
-    CXX="${old_CXX}"
+    CXXFLAGS="${old_CXXFLAGS}"
   ])
   if test $rjk_cv_ndr = yes; then
-    CXX="${CXX} -Wno-deprecated-register"
+    CXXFLAGS="${CXXFLAGS} -Wno-deprecated-register"
   fi
 fi
 
