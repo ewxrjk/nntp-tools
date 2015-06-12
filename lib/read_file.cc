@@ -18,6 +18,8 @@
  * USA
  */
 #include <config.h>
+#include <cstdio>
+#include <cerrno>
 #include "cpputils.h"
 #include "error.h"
 
