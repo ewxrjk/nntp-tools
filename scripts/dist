@@ -95,8 +95,8 @@ source=${srcpkg}-${version}     # source directory
 archive=${srcpkg}-${version}.tar.gz # tarball
 
 # Build .deb files
-s build araminta amd64          # wheezy
-s build schroot:wheezy32 i386   # wheezy
+s build araminta amd64          # jessie
+s build schroot:jessie32 i386   # jessie
 
 mv "$archive" products/
 
