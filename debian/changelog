@@ -1,3 +1,10 @@
+rjk-nntp-tools (28) unstable; urgency=medium
+
+  * New program, news-sources, for graphically representing the share of
+    news sent by each peer.
+
+ -- Richard Kettlewell <rjk@terraraq.org.uk>  Sun, 09 Oct 2016 08:51:16 +0100
+
 rjk-nntp-tools (0.27) unstable; urgency=medium
 
   * spoolstats run as news by default.
