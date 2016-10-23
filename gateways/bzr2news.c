@@ -484,6 +484,7 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
     case 2:                             /* reading comment */
       /* non-space at the start is the start of the next commit */
       if(*line && !isspace((unsigned char)*line)) {
+        assert(message != NULL);
         complete_git_commit(dir, message, &l);
         free(message);
         message = NULL;
@@ -500,8 +501,10 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
     }
   }
   if(ferror(fp)) fatal(errno, "error reading from git log pipe");
-  if(l.commitid)
+  if(l.commitid) {
+    assert(message != NULL);
     complete_git_commit(dir, message, &l);
+  }
   free_log(&l);
   free(line);
   free(message);
