@@ -27,8 +27,8 @@ dnl
 dnl 2. You need to know whether to define HAVE_SSL to ensure that the
 dnl    installed libraries are compatible with the headers.
 dnl
-dnl 3. They are static libraries so you need to recompile after any
-dnl    updates.
+dnl 3. They are (sometimes) static libraries so you need to recompile
+dnl    after any updates.
 dnl
 dnl This macro addresses 1 and 2 up to a point.  You're on your own
 dnl with 3.
