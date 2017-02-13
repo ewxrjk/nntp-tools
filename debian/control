@@ -10,7 +10,7 @@ Package: rjk-nntp-tools
 Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: lynx,bzr,git
-Description: Miscellanous Usenet news tools
+Description: Miscellaneous Usenet news tools
  lj2news: post Livejournal articles fetched by RSS to news
  bzr2news: post bzr changelog entries to news
  git2news: post git changelog entries to news

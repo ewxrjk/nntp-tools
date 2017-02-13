@@ -227,7 +227,7 @@ static void process(const struct element *ehead) {
   if(pipe(lynxinpipe) < 0) fatal(errno, "error calling pipe");
   if(pipe(lynxoutpipe) < 0) fatal(errno, "error calling pipe");
   if(!(wds->fp = fdopen(lynxinpipe[1], "w")))
-    fatal(errno, "eror calling fdopen");
+    fatal(errno, "error calling fdopen");
   cloexec(lynxinpipe[1]);
   cloexec(lynxoutpipe[0]);
   if(!(lynxpid = fork())) {

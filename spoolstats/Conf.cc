@@ -134,7 +134,7 @@ Options:\n\
   -N, --days DAYS                   Number of days to analyse\n\
   -L, --latency BEFORE, AFTER       Set latencies in seconds\n\
   -S, --spool PATH                  Path to spool\n\
-  -H, --hierarchies NAME[,NAME...]  Hierachies to analyse\n\
+  -H, --hierarchies NAME[,NAME...]  Hierarchies to analyse\n\
   -8, --big8                        Analyse the Big 8\n\
   -O, --output DIRECTORY            Output directory\n\
   -u, --user USER                   User to run as\n\
