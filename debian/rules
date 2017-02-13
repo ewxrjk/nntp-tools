@@ -20,14 +20,9 @@
 # Options to configure.  This can be overridden by the caller if necessary.
 CONFIGURE=--prefix=/usr --sysconfdir=/etc --localstatedir=/var/lib --mandir=/usr/share/man
 
-CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
-CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
-CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
-LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
-export CFLAGS
-export CXXFLAGS
-export LDFLAGS
-export CPPFLAGS
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS=1
+include /usr/share/dpkg/buildflags.mk
 
 # Set DEB_BUILD_OPTIONS=parallel=N for make -jN
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
