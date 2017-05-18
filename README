@@ -47,7 +47,7 @@ cron job:
   set -e
   export NNTPAUTH="md5cookie1way richard"
   lj2news \
-    -a "http://www.greenend.org.uk/rjk/;richard+ljua@sfere.greenend.org.uk" \
+    -a "http://www.greenend.org.uk/rjk/;rjk+ljua@greenend.org.uk" \
     -t ewx \
     -f "Richard Kettlewell <rjk@greenend.org.uk>" \
     -n chiark.journals \
