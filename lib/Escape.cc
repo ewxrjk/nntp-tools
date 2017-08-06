@@ -31,6 +31,7 @@ namespace HTML {
         if(c >= 32 && c <= 126)
           os << c;
         else {
+          //-fallthrough
         case '"':
         case '<':
         case '&':

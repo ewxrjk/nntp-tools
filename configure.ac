@@ -146,8 +146,8 @@ if test "x$GCC" = xyes; then
 fi
 
 if test "x$GXX" = xyes; then
-  CXXFLAGS="${CXXFLAGS} -Wall -W -Wformat=2 -Wshadow -Wpointer-arith \
--Wmissing-noreturn -Wredundant-decls"
+  CXXFLAGS="${CXXFLAGS} -Wall -W -Wformat=2 -Wno-format-nonliteral -Wshadow \
+-Wpointer-arith -Wmissing-noreturn -Wredundant-decls"
   CXXFLAGS="${CXXFLAGS} -Werror"
   CXXFLAGS="${CXXFLAGS} -std=c++11"
   # Required with Clang 3.7

@@ -465,6 +465,7 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
       if(isspace((unsigned char)*line)) /* leading comment text!?! */
         continue;
       state = 1;                        /* fall through to read a header */
+      //-fallthrough
 
     case 1:                             /* reading header */
     collect_header:
@@ -480,6 +481,7 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
       }
       /* else fall through into reading comment */
       state = 2;
+      //-fallthrough
 
     case 2:                             /* reading comment */
       /* non-space at the start is the start of the next commit */
