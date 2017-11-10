@@ -1,3 +1,12 @@
+rjk-nntp-tools (29) stable; urgency=medium
+
+  * Update UA for domain retiral.
+  * Spelling fixes.
+  * Safety-check bzr output parsing.
+  * Rebuild for stretch.
+
+ -- Richard Kettlewell <rjk@terraraq.org.uk>  Fri, 10 Nov 2017 18:05:01 +0000
+
 rjk-nntp-tools (28) unstable; urgency=medium
 
   * New program, news-sources, for graphically representing the share of
