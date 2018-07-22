@@ -238,7 +238,7 @@ void AllGroups::report_hierarchies() {
     os << "</div>\n";
     Config::footer(os);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/index.html").c_str());
   }
 }
@@ -287,7 +287,7 @@ void AllGroups::report_groups() {
     os << "</div>\n";
     Config::footer(os);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/allgroups.html").c_str());
   }
 }
@@ -308,7 +308,7 @@ void AllGroups::logs() {
        << ',' << articles
        << '\n'
        << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
   }
   charsets.logs(Config::output + "/encodings.csv");
@@ -380,7 +380,7 @@ void AllGroups::report_agents(const std::string &path,
     os << "</table>\n";
     Config::footer(os);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", path.c_str());
   }
 }
@@ -412,7 +412,7 @@ void AllGroups::report_charsets() {
     os << "</table>\n";
     Config::footer(os);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", path.c_str());
   }
 }

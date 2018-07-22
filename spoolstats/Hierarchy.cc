@@ -110,7 +110,7 @@ void Hierarchy::page() {
     os << "</div>\n";
     Config::footer(os);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s",
           (Config::output + "/" + name + ".html").c_str());
   }
@@ -127,7 +127,7 @@ void Hierarchy::logs() {
        << ',' << senderCount
        << '\n'
        << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
   }
   const string groupdata = Config::output + "/" + name + "-groups.csv";
@@ -145,7 +145,7 @@ void Hierarchy::logs() {
          << '\n';
     }
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", groupdata.c_str());
   }
 }

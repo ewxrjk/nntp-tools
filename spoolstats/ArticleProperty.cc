@@ -81,7 +81,7 @@ void ArticleProperty::logs(const string &path) {
          << '\n';
     }
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", path.c_str());
   }
 }

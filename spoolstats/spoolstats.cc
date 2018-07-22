@@ -30,7 +30,7 @@ static void extrafile(const char *name, unsigned char *contents, unsigned len) {
     os.exceptions(ofstream::badbit|ofstream::failbit);
     os.write((char *)contents, len);
     os << flush;
-  } catch(ios::failure) {
+  } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/" + name).c_str());
   }
 }
