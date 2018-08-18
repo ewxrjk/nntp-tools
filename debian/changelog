@@ -1,3 +1,9 @@
+rjk-nntp-tools (30) unstable; urgency=medium
+
+  * Build fixes
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 18 Aug 2018 21:08:09 +0100
+
 rjk-nntp-tools (29) stable; urgency=medium
 
   * Update UA for domain retiral.
