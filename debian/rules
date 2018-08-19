@@ -22,7 +22,7 @@ CONFIGURE=--prefix=/usr --sysconfdir=/etc --localstatedir=/var/lib --mandir=/usr
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 DPKG_EXPORT_BUILDFLAGS=1
-include /usr/share/dpkg/buildflags.mk
+include /usr/share/dpkg/default.mk
 
 # Set DEB_BUILD_OPTIONS=parallel=N for make -jN
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))

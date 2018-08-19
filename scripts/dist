@@ -81,6 +81,7 @@ mkdir products
 
 # Build the source archive
 s make distcheck
+s fakeroot make dist
 s make -C gateways html
 s make -C spoolstats html
 cp gateways/*.1.html products/
