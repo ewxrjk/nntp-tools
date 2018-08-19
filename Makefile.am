@@ -27,4 +27,4 @@ echo-version:
 	@echo $(VERSION)
 
 EXTRA_DIST=COPYING.sorttable autogen.sh .dir-locals.el CHANGES.html	\
-scripts/htmlman scripts/detect-conversations scripts/dr-death
+scripts/htmlman scripts/detect-conversations scripts/dr-death README.md

@@ -83,9 +83,8 @@ pkg-rjk-nntp-tools:
 					debian/rjk-nntp-tools/usr/bin/lj2news
 	dpkg-shlibdeps -Tdebian/substvars.rjk-nntp-tools \
 		debian/rjk-nntp-tools/usr/bin/*
-	$(INSTALL_DATA) README debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
-	gzip -9nf debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/README \
-		 debian/rjk-nntp-tools/usr/share/man/man*/*
+	$(INSTALL_DATA) README.md debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
+	gzip -9nf debian/rjk-nntp-tools/usr/share/man/man*/*
 	cd debian/rjk-nntp-tools && \
 		find -name DEBIAN -prune -o -type f -print \
 			| sed 's/^\.\///' \
@@ -123,11 +122,10 @@ pkg-rjk-spoolstats:
 		debian/rjk-spoolstats/etc/cron.daily/spoolstats
 	$(INSTALL_DATA) spoolstats/spoolstats.default \
 		debian/rjk-spoolstats/etc/default/spoolstats
-	$(INSTALL_DATA) README debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
+	$(INSTALL_DATA) README.md debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
 	$(INSTALL_DATA) debian/README.Debian.spoolstats \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README.Debian
-	gzip -9nf debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/README* \
-		 debian/rjk-spoolstats/usr/share/man/man*/*
+	gzip -9nf debian/rjk-spoolstats/usr/share/man/man*/*
 	cd debian/rjk-spoolstats && \
 		find -name DEBIAN -prune -o -type f -print \
 			| sed 's/^\.\///' \
