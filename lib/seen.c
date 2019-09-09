@@ -43,24 +43,28 @@ struct node {
 /* Open tracking file */
 static int fd = -1;
 
-static uint64_t native_order(uint64_t n) {
+static int64_t native_order(int64_t n) {
 #ifndef WORDS_BIGENDIAN
 #if __amd64__ && __GNUC__
   __asm__("bswap %0" : "+q"(n));
   return n;
 #else
-  return ((uint64_t)htonl(n & 0xFFFFFFFF) << 32) | (htonl(n >> 32));
+  uint64_t u = (uint64_t)n;
+  u = ((uint64_t)htonl(u & 0xFFFFFFFF) << 32) | (htonl(u >> 32));
+  return (int64_t)u;
 #endif
 #endif
 }
 
-static uint64_t file_order(uint64_t n) {
+static int64_t file_order(int64_t n) {
 #ifndef WORDS_BIGENDIAN
 #if __amd64__ && __GNUC__
   __asm__("bswap %0" : "+q"(n));
   return n;
 #else
-  return ((uint64_t)ntohl(n & 0xFFFFFFFF) << 32) | (ntohl(n >> 32));
+  uint64_t u = (uint64_t)n;
+  u = ((uint64_t)ntohl(u & 0xFFFFFFFF) << 32) | (ntohl(u >> 32));
+  return (int64_t)u;
 #endif
 #endif
 }
