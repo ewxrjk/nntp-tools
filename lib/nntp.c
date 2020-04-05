@@ -45,7 +45,7 @@ static struct postjob {
   struct postjob *next;
   char *msgid;
   char *article;
-} *postjobs;
+} * postjobs;
 
 /* Set when the last postjob is queued */
 static int postdone;
@@ -61,13 +61,13 @@ static pthread_t postthread_id;
 
 /* Internal state of the posting thread */
 struct postthreadstate {
-  IO *io;                               /* input from and output to NNRPD */
-  char *line;                           /* latest response line */
-  size_t n;                             /* buffer size for io_getline */
-  int timeout;                          /* IO timeout */
-  int pf;                               /* Protocol family */
-  int unwanted;                         /* Count of unwanted articles */
-  char *server, *port;                  /* Server to talk to */
+  IO *io;              /* input from and output to NNRPD */
+  char *line;          /* latest response line */
+  size_t n;            /* buffer size for io_getline */
+  int timeout;         /* IO timeout */
+  int pf;              /* Protocol family */
+  int unwanted;        /* Count of unwanted articles */
+  char *server, *port; /* Server to talk to */
 };
 
 /* Fetch an NNTP response.  Returns the 3-digit status as an int. */
@@ -136,16 +136,18 @@ static void pts_auth(struct postthreadstate *pts) {
   int cookiefd = -1;
   FILE *cookiefp;
   pid_t helperpid, r;
-  int w, flags,fd;
+  int w, flags, fd;
   char *new_nntp_auth_fds;
 
   D(("pts_auth"));
-  if(!(nntpauth = getenv("NNTPAUTH"))) fatal(0, "NNTPAUTH not set");
+  if(!(nntpauth = getenv("NNTPAUTH")))
+    fatal(0, "NNTPAUTH not set");
   nntpauth = xstrdup(nntpauth);
   if((nntp_auth_fds = getenv("NNTP_AUTH_FDS")))
     sscanf(nntp_auth_fds, "%*u.%*u.%d", &cookiefd);
   if(cookiefd == -1) {
-    if(!(cookiefp = tmpfile())) fatal(errno, "error calling tmpfile");
+    if(!(cookiefp = tmpfile()))
+      fatal(errno, "error calling tmpfile");
     cookiefd = fileno(cookiefp);
   }
   pts_write(pts, "AUTHINFO GENERIC %s\r\n", nntpauth);
@@ -157,8 +159,8 @@ static void pts_auth(struct postthreadstate *pts) {
       fatal(errno, "fcntl");
   D(("starting helper"));
   if(!(helperpid = xfork())) {
-    if(asprintf(&new_nntp_auth_fds, "NNTP_AUTH_FDS=%d.%d.%d",
-		fd, fd, cookiefd) < 0)
+    if(asprintf(&new_nntp_auth_fds, "NNTP_AUTH_FDS=%d.%d.%d", fd, fd, cookiefd)
+       < 0)
       fatal(errno, "error calling asprintf");
     if(putenv(new_nntp_auth_fds))
       fatal(errno, "error calling putenv");
@@ -168,8 +170,10 @@ static void pts_auth(struct postthreadstate *pts) {
   D(("waiting for helper"));
   while((r = waitpid(helperpid, &w, 0)) < 0 && errno == EINTR)
     ;
-  if(r < 0) fatal(errno, "error calling waitpid");
-  if(w) fatal(0, "NNTP AUTHINFO GENERIC helper exited with status %#x", w);
+  if(r < 0)
+    fatal(errno, "error calling waitpid");
+  if(w)
+    fatal(0, "NNTP AUTHINFO GENERIC helper exited with status %#x", w);
   D(("helper finished"));
   if(flags & O_NONBLOCK)
     if(fcntl(fd, F_SETFL, flags) < 0)
@@ -187,12 +191,14 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
     pts_post(pts, article);
     return;
   }
-  if(r != 340) fatal(0, "cannot post: %s", pts->line);
+  if(r != 340)
+    fatal(0, "cannot post: %s", pts->line);
   s = article;
   while((c = (unsigned char)*s++)) {
     switch(c) {
     case '.':
-      if(sol) pts_putc(pts, '.');
+      if(sol)
+        pts_putc(pts, '.');
       /* fall thru */
     default:
       pts_putc(pts, c);
@@ -205,10 +211,11 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
       break;
     }
   }
-  if(!sol) pts_write(pts, "\r\n");
+  if(!sol)
+    pts_write(pts, "\r\n");
   pts_write(pts, ".\r\n");
   if((errno_value = io_flush(pts->io)))
-     fatal(errno_value, "error writing to news server");
+    fatal(errno_value, "error writing to news server");
   switch(pts_response(pts)) {
   case 240: break;
   case 441:
@@ -216,8 +223,7 @@ static void pts_post(struct postthreadstate *pts, const char *article) {
      * doesn't seem to be a standard way to convey this.  nntp-merge screws it
      * up by prefixing its own report, but the string from INN is still
      * there. */
-    if(!strstr(pts->line, "441 437")
-       || !strstr(pts->line, "441 435"))
+    if(!strstr(pts->line, "441 437") || !strstr(pts->line, "441 435"))
       ++pts->unwanted;
     else
       error(0, "article rejected: %s", pts->line);
@@ -237,14 +243,9 @@ static int pts_stat(struct postthreadstate *pts, const char *msgid) {
   switch(r = pts_response(pts)) {
   case 223:
   case 423:
-  case 430:
-    break;
-  case 480:
-    pts_auth(pts);
-    return pts_stat(pts, msgid);
-  default:
-    error(0, "STAT %s failed: %s", msgid, pts->line);
-    break;
+  case 430: break;
+  case 480: pts_auth(pts); return pts_stat(pts, msgid);
+  default: error(0, "STAT %s failed: %s", msgid, pts->line); break;
   }
   return r;
 }
@@ -280,42 +281,42 @@ static void *postthread(void *arg) {
         D(("connect to news swerver"));
         /* unlock the queue while we're connecting */
         unlock(&postlock);
-	/* connect to it */
-	for(ans = res; ans && fd == -1; ans = ans->ai_next) {
-	  if((fd = socket(ans->ai_family, ans->ai_socktype,
-			  ans->ai_protocol)) < 0)
-	    fatal(errno, "error calling socket");
+        /* connect to it */
+        for(ans = res; ans && fd == -1; ans = ans->ai_next) {
+          if((fd = socket(ans->ai_family, ans->ai_socktype, ans->ai_protocol))
+             < 0)
+            fatal(errno, "error calling socket");
           /* TODO looks from kernel source like we only need SNDTIMEO */
-          if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvtimeout, 
-                        sizeof tvtimeout) < 0)
+          if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvtimeout,
+                        sizeof tvtimeout)
+             < 0)
             fatal(errno, "setsockopt");
           if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvtimeout,
-                        sizeof tvtimeout) < 0)
+                        sizeof tvtimeout)
+             < 0)
             fatal(errno, "setsockopt");
-	  if(connect(fd, ans->ai_addr, ans->ai_addrlen) < 0) {
-	    error(errno, "error connecting to %s", ans->ai_canonname);
+          if(connect(fd, ans->ai_addr, ans->ai_addrlen) < 0) {
+            error(errno, "error connecting to %s", ans->ai_canonname);
             close(fd);
             fd = -1;
           }
-	}
-	if(fd == -1)
-	  fatal(0, "cannot connect to node %s service %s", 
-                pts->server, pts->port);
+        }
+        if(fd == -1)
+          fatal(0, "cannot connect to node %s service %s", pts->server,
+                pts->port);
         /* We use poll() to enforce timeouts on read and write */
-        if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvzero,
-                      sizeof tvzero) < 0)
+        if(setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tvzero, sizeof tvzero) < 0)
           fatal(errno, "setsockopt");
-        if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvzero,
-                      sizeof tvzero) < 0)
+        if(setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tvzero, sizeof tvzero) < 0)
           fatal(errno, "setsockopt");
-	if(!(pts->io = io_create(fd)))
-	  fatal(errno, "error calling fdopen");
+        if(!(pts->io = io_create(fd)))
+          fatal(errno, "error calling fdopen");
         io_set_timeout(pts->io, pts->timeout);
-	/* initial banner */
-	pts_banner(pts);
-	/* make sure we are talking to an NNRP server */
-	pts_write(pts, "MODE READER\r\n");
-	pts_banner(pts);
+        /* initial banner */
+        pts_banner(pts);
+        /* make sure we are talking to an NNRP server */
+        pts_write(pts, "MODE READER\r\n");
+        pts_banner(pts);
         lock(&postlock);
       }
       /* do any work that is now available */
@@ -325,7 +326,7 @@ static void *postthread(void *arg) {
         D(("posting..."));
         if(pts_stat(pts, pj->msgid) != 223)
           pts_post(pts, pj->article);
-	postjobs = postjobs->next;
+        postjobs = postjobs->next;
         free(pj->msgid);
         free(pj->article);
         free(pj);

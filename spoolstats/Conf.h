@@ -47,7 +47,6 @@ struct Config {
 private:
   // Add a hierarchy
   static void hierarchy(const std::string &h);
-
 };
 
 #endif /* CONF_H */

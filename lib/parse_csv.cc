@@ -27,7 +27,7 @@
 using namespace std;
 
 // Parse a CSV file with numeric contents
-void read_csv(const string &path, vector<vector<Value> > &rows) {
+void read_csv(const string &path, vector<vector<Value>> &rows) {
   // istream (at least as actually implemented) doesn't give us a way
   // to distinguish error from eof, so we don't use it.
   FILE *fp;
@@ -90,9 +90,7 @@ string csv_quote(const string &s) {
   for(size_t n = 0; n < s.size(); ++n) {
     switch(s.at(n)) {
     case '"':
-    case '\\':
-      quoted << '\\' << s.at(n);
-      break;
+    case '\\': quoted << '\\' << s.at(n); break;
     default:
       if(s.at(n) < 0x20 || s.at(n) > 0x7E)
         quoted << '\\' << oct << setw(3) << setfill('0')

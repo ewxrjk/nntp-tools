@@ -36,7 +36,7 @@ extern "C" {
 /* Utility functions */
 
 void *xmalloc(size_t n);
-void *xrealloc(void *ptr, size_t n) ;
+void *xrealloc(void *ptr, size_t n);
 char *xstrdup(const char *s);
 char *xstrndup(const char *s, size_t n);
 void cloexec(int fd);
@@ -50,30 +50,32 @@ time_t rfc822date_to_time_t(const char *rfc822date);
 int fexists(const char *path);
 int isdir(const char *path);
 char *capture(const char *cmd);
-char *recode(const char *input,
-             const char *from,
-             const char *to);
+char *recode(const char *input, const char *from, const char *to);
 
 /* Debugging */
 
 void do_debug(const char *s, ...);
-extern int debug;                       /* debug output */
-#define D(x) do { if(debug) do_debug x ; } while(0)
+extern int debug; /* debug output */
+#define D(x)                                                                   \
+  do {                                                                         \
+    if(debug)                                                                  \
+      do_debug x;                                                              \
+  } while(0)
 
-#if ! HAVE_OPEN_MEMSTREAM
+#if !HAVE_OPEN_MEMSTREAM
 FILE *open_memstream(char **ptr, size_t *sizeloc);
 #endif
 
-#if ! HAVE_GETLINE
+#if !HAVE_GETLINE
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 #endif
 
-#if ! HAVE_GETDELIM
+#if !HAVE_GETDELIM
 ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 #endif
 
-FILE *popenvp(const char *type, pid_t *pidp,
-              const char *file, char *const argv[]);
+FILE *popenvp(const char *type, pid_t *pidp, const char *file,
+              char *const argv[]);
 
 #ifdef __cplusplus
 }

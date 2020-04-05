@@ -27,7 +27,7 @@ using namespace std;
 static void extrafile(const char *name, unsigned char *contents, unsigned len) {
   try {
     ofstream os((Config::output + "/" + name).c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
     os.write((char *)contents, len);
     os << flush;
   } catch(ios::failure &) {

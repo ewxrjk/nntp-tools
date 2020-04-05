@@ -23,16 +23,14 @@
 using namespace std;
 
 // Split S into BITS on separator SEP
-void split(vector<string> &bits,
-           char sep,
-           const string &s) {
+void split(vector<string> &bits, char sep, const string &s) {
   string::size_type pos = 0;
   for(;;) {
     string::size_type n = s.find(sep, pos);
     if(n != string::npos) {
       bits.push_back(string(s, pos, n - pos));
       pos = n + 1;
-    } else  {
+    } else {
       bits.push_back(string(s, pos, string::npos));
       break;
     }

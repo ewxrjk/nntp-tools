@@ -29,10 +29,9 @@ void write_file(const std::string &path, std::vector<std::string> &lines) {
   const std::string tmp = path + ".new";
   if(!(fp = fopen(tmp.c_str(), "w")))
     fatal(errno, "opening %s", tmp.c_str());
-  std::for_each(lines.begin(), lines.end(),
-               [&](const std::string &line) {
-                  fwrite(line.data(), 1, line.size(), fp);
-               });
+  std::for_each(lines.begin(), lines.end(), [&](const std::string &line) {
+    fwrite(line.data(), 1, line.size(), fp);
+  });
   if(ferror(fp) || fclose(fp) < 0)
     fatal(errno, "writing %s", tmp.c_str());
   if(rename(tmp.c_str(), path.c_str()) < 0)

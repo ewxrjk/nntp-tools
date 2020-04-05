@@ -40,7 +40,7 @@ void error(int errno_value, const char *msg, ...) {
   va_end(ap);
   if(errno_value)
     fprintf(stderr, ": %s", strerror(errno_value));
-  fputc('\n',  stderr);
+  fputc('\n', stderr);
   ++errors;
 }
 
@@ -55,6 +55,6 @@ void fatal(int errno_value, const char *msg, ...) {
   va_end(ap);
   if(errno_value)
     fprintf(stderr, ": %s", strerror(errno_value));
-  fputc('\n',  stderr);
+  fputc('\n', stderr);
   exitfn(1);
 }

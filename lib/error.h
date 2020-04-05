@@ -21,7 +21,6 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

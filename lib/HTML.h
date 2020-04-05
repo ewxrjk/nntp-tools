@@ -25,57 +25,53 @@
 #include <ostream>
 
 namespace HTML {
-  /* os << Escape(s) writes S to os with escaping */
-  class Escape {
-  public:
-    inline Escape(const std::string &s): str(s) {}
-    const std::string &str;
-    static std::ostream &write(std::ostream &os, const std::string &str);
-  };
-
-  inline std::ostream &operator<<(std::ostream &os, Escape e) {
-    return e.write(os, e.str);
-  }
-
-  /* os << Quote(s) writes S to os with quoting and escaping (i.e. suitable for
-   * use as an attribute value) */
-  class Quote {
-  public:
-    inline Quote(const std::string &s): str(s) {}
-    const std::string &str;
-    static std::ostream &write(std::ostream &os, const std::string &str);
-  };
-
-  inline std::ostream &operator<<(std::ostream &os, const Quote &e) {
-    return e.write(os, e.str);
-  }
-
-  /* os << HEader(title, css, js) writes an HTML header to OS.  TITLE is the
-   * title and also the contents of an initial H1, CSS an optional style sheet
-   * to embed and JS an optional fragment of Javascript. */
-  class Header {
-  public:
-    inline Header(const std::string &t,
-                  const char *c = NULL,
-                  const char *j = NULL): title(t),
-                                         css(c),
-                                         js(j) {}
-    const std::string &title;
-    const char *css;
-    const char *js;
-    static std::ostream &write(std::ostream &os, 
-                               const std::string &title,
-                               const char *css,
-                               const char *js);
-  };
-
-  inline std::ostream &operator<<(std::ostream &os, 
-                                  const Header &h) {
-    return h.write(os, h.title, h.css, h.js);
-  }
-
-  void thead(std::ostream &os, const char *heading, ...);
-
+/* os << Escape(s) writes S to os with escaping */
+class Escape {
+public:
+  inline Escape(const std::string &s): str(s) {}
+  const std::string &str;
+  static std::ostream &write(std::ostream &os, const std::string &str);
 };
+
+inline std::ostream &operator<<(std::ostream &os, Escape e) {
+  return e.write(os, e.str);
+}
+
+/* os << Quote(s) writes S to os with quoting and escaping (i.e. suitable for
+ * use as an attribute value) */
+class Quote {
+public:
+  inline Quote(const std::string &s): str(s) {}
+  const std::string &str;
+  static std::ostream &write(std::ostream &os, const std::string &str);
+};
+
+inline std::ostream &operator<<(std::ostream &os, const Quote &e) {
+  return e.write(os, e.str);
+}
+
+/* os << HEader(title, css, js) writes an HTML header to OS.  TITLE is the
+ * title and also the contents of an initial H1, CSS an optional style sheet
+ * to embed and JS an optional fragment of Javascript. */
+class Header {
+public:
+  inline Header(const std::string &t, const char *c = NULL,
+                const char *j = NULL):
+      title(t),
+      css(c), js(j) {}
+  const std::string &title;
+  const char *css;
+  const char *js;
+  static std::ostream &write(std::ostream &os, const std::string &title,
+                             const char *css, const char *js);
+};
+
+inline std::ostream &operator<<(std::ostream &os, const Header &h) {
+  return h.write(os, h.title, h.css, h.js);
+}
+
+void thead(std::ostream &os, const char *heading, ...);
+
+}; // namespace HTML
 
 #endif /* HTML_H */

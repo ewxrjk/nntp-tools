@@ -41,13 +41,15 @@
 void *xmalloc(size_t n) {
   void *ptr;
 
-  if(!(ptr = malloc(n)) && n) fatal(errno, "error calling malloc");
+  if(!(ptr = malloc(n)) && n)
+    fatal(errno, "error calling malloc");
   return ptr;
 }
 
 /* Realloc memory, call fatal() on error */
 void *xrealloc(void *ptr, size_t n) {
-  if(!(ptr = realloc(ptr, n)) && n) fatal(errno, "error calling realloc");
+  if(!(ptr = realloc(ptr, n)) && n)
+    fatal(errno, "error calling realloc");
   return ptr;
 }
 
@@ -68,8 +70,7 @@ char *xstrndup(const char *s, size_t n) {
 void cloexec(int fd) {
   int flags;
 
-  if((flags = fcntl(fd, F_GETFD)) < 0
-     || fcntl(fd, F_SETFD, flags | FD_CLOEXEC))
+  if((flags = fcntl(fd, F_GETFD)) < 0 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC))
     fatal(errno, "error calling fcntl");
 }
 
@@ -78,11 +79,8 @@ pid_t xfork(void) {
   pid_t pid;
 
   switch(pid = fork()) {
-  case 0:
-    exitfn = _exit;
-    break;
-  case -1:
-    fatal(errno, "error calling fork");
+  case 0: exitfn = _exit; break;
+  case -1: fatal(errno, "error calling fork");
   }
   return pid;
 }
@@ -144,7 +142,7 @@ int isdir(const char *path) {
  * present, with exactly this punctuation. Note that the "T" appears
  * literally in the string, to indicate the beginning of the time
  * element, as specified in ISO 8601.
- *  
+ *
  *     Year:
  *        YYYY (eg 1997)
  *     Year and month:
@@ -158,9 +156,9 @@ int isdir(const char *path) {
  *     Complete date plus hours, minutes, seconds and a decimal fraction of a
  *     second
  *        YYYY-MM-DDThh:mm:ss.sTZD (eg 1997-07-16T19:20:30.45+01:00)
- *  
+ *
  *  where:
- *  
+ *
  *       YYYY = four-digit year
  *       MM   = two-digit month (01=January, etc.)
  *       DD   = two-digit day of month (01 through 31)
@@ -181,10 +179,13 @@ static int do_strtol(const char **ptrp) {
 
   errno = 0;
   n = strtol(*ptrp, &end, 10);
-  if(errno) fatal(errno, "error converting integer");
-  if(end == *ptrp) fatal(0, "no integer found");
+  if(errno)
+    fatal(errno, "error converting integer");
+  if(end == *ptrp)
+    fatal(0, "no integer found");
   *ptrp = end;
-  if(n < INT_MIN || n > INT_MAX) fatal(0, "integer %ld out of range", n);
+  if(n < INT_MIN || n > INT_MAX)
+    fatal(0, "integer %ld out of range", n);
   return n;
 }
 
@@ -196,36 +197,44 @@ static time_t w3date_to_time_t(const char *w3date) {
   struct tm bdt;
 
   year = do_strtol(&ptr);
-  if(year < 1900) fatal(0, "year too early");
+  if(year < 1900)
+    fatal(0, "year too early");
   if(*ptr == '-') {
     ++ptr;
     mon = do_strtol(&ptr);
-    if(mon < 1 || mon > 12) fatal(0, "invalid month number");
+    if(mon < 1 || mon > 12)
+      fatal(0, "invalid month number");
     if(*ptr == '-') {
       ++ptr;
       day = do_strtol(&ptr);
-      if(day < 1 || day > 31) fatal(0, "invalid day number");
+      if(day < 1 || day > 31)
+        fatal(0, "invalid day number");
       if(*ptr == 'T') {
         ++ptr;
         hour = do_strtol(&ptr);
-        if(hour < 0 || hour > 23) fatal(0, "invalid hour number");
-        if(*ptr != ':') fatal(0, "no minutes field found");
+        if(hour < 0 || hour > 23)
+          fatal(0, "invalid hour number");
+        if(*ptr != ':')
+          fatal(0, "no minutes field found");
         ++ptr;
         min = do_strtol(&ptr);
-        if(min < 0 || min > 59) fatal(0, "invalid minute number");
+        if(min < 0 || min > 59)
+          fatal(0, "invalid minute number");
         if(*ptr == ':') {
           ++ptr;
           sec = do_strtol(&ptr);
           /* W3 may be ignorant of leap-seconds but we can choose not to be */
-          if(sec < 0 || sec > 61) fatal(0, "invalid second number");
+          if(sec < 0 || sec > 61)
+            fatal(0, "invalid second number");
           if(*ptr == '.') {
             ++ptr;
-            do_strtol(&ptr);          /* throw away fractional seconds */
+            do_strtol(&ptr); /* throw away fractional seconds */
           }
         }
         if(*ptr == '+' || *ptr == '-') {
           tzh = do_strtol(&ptr);
-          if(*ptr != ':') fatal(0, "no minutes field found in timezone");
+          if(*ptr != ':')
+            fatal(0, "no minutes field found in timezone");
           ++ptr;
           tzm = do_strtol(&ptr);
         } else if(*ptr == 'Z')
@@ -235,8 +244,10 @@ static time_t w3date_to_time_t(const char *w3date) {
       }
     }
   }
-  if(*ptr) fatal(0, "invalid W3 date");
-  fprintf(stderr, "w3date: %s\n"
+  if(*ptr)
+    fatal(0, "invalid W3 date");
+  fprintf(stderr,
+          "w3date: %s\n"
           "%d-%d-%d %d:%d:%d %d, %d\n",
           w3date, year, mon, day, hour, min, sec, tzh, tzm);
   /* Timezone offset in seconds */
@@ -252,7 +263,7 @@ static time_t w3date_to_time_t(const char *w3date) {
   /* We clobbered TZ in main() so mktime() should give us UTC */
   if((t = mktime(&bdt)) == (time_t)-1)
     fatal(errno, "error calling mktime");
-  return t - tz;                        /* Correct for timezone */
+  return t - tz; /* Correct for timezone */
 }
 
 const char *time_t_to_822date(time_t when) {
@@ -274,7 +285,7 @@ time_t rfc822date_to_time_t(const char *rfc822date) {
   time_t t;
 
   /* strptime doesn't handle timezones usefully, so must use GMT */
-  if (!strptime(rfc822date, "%a, %d %b %Y %H:%M:%S", &bdt))
+  if(!strptime(rfc822date, "%a, %d %b %Y %H:%M:%S", &bdt))
     fatal(0, "RFC822 date not understood: %s", rfc822date);
   if((t = mktime(&bdt)) == (time_t)-1)
     fatal(errno, "error calling mktime");
@@ -290,35 +301,44 @@ time_t bzrdate_to_time_t(const char *bzrdate) {
   struct tm bdt;
   time_t t;
 
-  if(!isalpha((unsigned char)ptr[0])
-     || !isalpha((unsigned char)ptr[1])
-     || !isalpha((unsigned char)ptr[2])
-     || ptr[3] != ' ')
+  if(!isalpha((unsigned char)ptr[0]) || !isalpha((unsigned char)ptr[1])
+     || !isalpha((unsigned char)ptr[2]) || ptr[3] != ' ')
     fatal(0, "unexpected date format: %s", bzrdate);
   ptr += 4;
   year = do_strtol(&ptr);
-  if(year < 1900) fatal(0, "year too early: %s", bzrdate);
-  if(*ptr++ != '-') fatal(0, "expected '-' after year: %s", bzrdate);
+  if(year < 1900)
+    fatal(0, "year too early: %s", bzrdate);
+  if(*ptr++ != '-')
+    fatal(0, "expected '-' after year: %s", bzrdate);
   mon = do_strtol(&ptr);
-  if(mon < 1 || mon > 12) fatal(0, "month out of range: %s", bzrdate);
-  if(*ptr++ != '-') fatal(0, "expected '-' after month: %s", bzrdate);
+  if(mon < 1 || mon > 12)
+    fatal(0, "month out of range: %s", bzrdate);
+  if(*ptr++ != '-')
+    fatal(0, "expected '-' after month: %s", bzrdate);
   day = do_strtol(&ptr);
-  if(day < 1 || day > 31) fatal(0, "day out of range: %s", bzrdate);
-  if(*ptr++ != ' ') fatal(0, "expected ' ' after month: %s", bzrdate);
+  if(day < 1 || day > 31)
+    fatal(0, "day out of range: %s", bzrdate);
+  if(*ptr++ != ' ')
+    fatal(0, "expected ' ' after month: %s", bzrdate);
   hour = do_strtol(&ptr);
-  if(hour < 0 || hour > 23) fatal(0, "hour out of range: %s", bzrdate);
-  if(*ptr++ != ':') fatal(0, "expected ':' after day: %s", bzrdate);
+  if(hour < 0 || hour > 23)
+    fatal(0, "hour out of range: %s", bzrdate);
+  if(*ptr++ != ':')
+    fatal(0, "expected ':' after day: %s", bzrdate);
   min = do_strtol(&ptr);
-  if(min < 0 || min > 59) fatal(0, "minute out of range: %s", bzrdate);
-  if(*ptr++ != ':') fatal(0, "expected ':' after day: %s", bzrdate);
+  if(min < 0 || min > 59)
+    fatal(0, "minute out of range: %s", bzrdate);
+  if(*ptr++ != ':')
+    fatal(0, "expected ':' after day: %s", bzrdate);
   sec = do_strtol(&ptr);
-  if(min < 0 || min > 61) fatal(0, "second out of range: %s", bzrdate);
-  if(*ptr++ != ' ') fatal(0, "expected ' ' after day: %s", bzrdate);
+  if(min < 0 || min > 61)
+    fatal(0, "second out of range: %s", bzrdate);
+  if(*ptr++ != ' ')
+    fatal(0, "expected ' ' after day: %s", bzrdate);
   switch(*ptr++) {
   case '+': tzs = 60; break;
   case '-': tzs = -60; break;
-  default:
-    fatal(0, "expected sign at start of timezone: %s", bzrdate);
+  default: fatal(0, "expected sign at start of timezone: %s", bzrdate);
   }
   tz = do_strtol(&ptr);
   if(tz < 0 || tz / 100 > 23 || tz % 100 > 59)
@@ -326,7 +346,8 @@ time_t bzrdate_to_time_t(const char *bzrdate) {
   tz = tzs * (tz % 100 + 60 * (tz / 100)); /* convert to seconds */
   while(isspace((unsigned char)*ptr))
     ++ptr;
-  if(*ptr) fatal(0, "junk at end of timestamp: %s", bzrdate);
+  if(*ptr)
+    fatal(0, "junk at end of timestamp: %s", bzrdate);
   memset(&bdt, 0, sizeof bdt);
   bdt.tm_year = year - 1900;
   bdt.tm_mon = mon - 1;
@@ -338,7 +359,7 @@ time_t bzrdate_to_time_t(const char *bzrdate) {
   /* We clobbered TZ in main() so mktime() should give us UTC */
   if((t = mktime(&bdt)) == (time_t)-1)
     fatal(errno, "error calling mktime");
-  return t - tz;                        /* Correct for timezone */
+  return t - tz; /* Correct for timezone */
 }
 
 /* --- debugging support --------------------------------------------------- */
@@ -350,7 +371,7 @@ void do_debug(const char *s, ...) {
   pthread_t me = pthread_self();
   char idbuf[2 * sizeof me + 1];
   size_t n;
-  
+
   for(n = 0; n < sizeof me; ++n)
     sprintf(idbuf + 2 * n, "%02x", ((unsigned char *)&me)[n]);
   fprintf(stderr, "%s: ", idbuf);
@@ -360,4 +381,8 @@ void do_debug(const char *s, ...) {
   fputc('\n', stderr);
 }
 
-#define D(x) do { if(debug) do_debug x ; } while(0)
+#define D(x)                                                                   \
+  do {                                                                         \
+    if(debug)                                                                  \
+      do_debug x;                                                              \
+  } while(0)

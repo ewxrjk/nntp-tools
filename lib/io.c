@@ -33,10 +33,10 @@ struct IO_data {
   int fd;
   int timeout;
   char input[BUFFER_SIZE];
-  size_t available;                     /* total bytes available in INPUT */
-  size_t inptr;                         /* bytes read so far from INPUT */
+  size_t available; /* total bytes available in INPUT */
+  size_t inptr;     /* bytes read so far from INPUT */
   char output[BUFFER_SIZE];
-  size_t written;                       /* bytes written so far in OUTPUT */
+  size_t written; /* bytes written so far in OUTPUT */
 };
 
 IO *io_create(int fd) {
@@ -97,9 +97,9 @@ static int io__flush(IO *io, time_t limit) {
   while(written_so_far < io->written) {
     if((errno_value = io__wait(io, limit, POLLOUT)))
       break;
-    if((write_count = write(io->fd,
-                            io->output + written_so_far,
-                            io->written - written_so_far)) < 0) {
+    if((write_count = write(io->fd, io->output + written_so_far,
+                            io->written - written_so_far))
+       < 0) {
       if(errno != EINTR && errno != EAGAIN) {
         errno_value = errno;
         break;
@@ -107,7 +107,8 @@ static int io__flush(IO *io, time_t limit) {
     } else
       written_so_far += write_count;
   }
-  memmove(io->output, io->output + written_so_far, io->written - written_so_far);
+  memmove(io->output, io->output + written_so_far,
+          io->written - written_so_far);
   io->written -= written_so_far;
   return errno_value;
 }
@@ -210,14 +211,13 @@ int io_getline(IO *io, char **line, size_t *linesize) {
     if(c == '\n')
       break;
   }
-  if(errno_value == 0
-     || (errno_value < 0 && used > 0)) {
+  if(errno_value == 0 || (errno_value < 0 && used > 0)) {
     if(used >= *linesize) {
       *linesize = *linesize ? 2 * *linesize : 64;
       buffer = xrealloc(buffer, *linesize);
     }
     buffer[used] = 0;
-    errno_value = 0;              /* suppress EOF if a partial line was read */
+    errno_value = 0; /* suppress EOF if a partial line was read */
   } else {
     free(buffer);
     buffer = NULL;

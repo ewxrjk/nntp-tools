@@ -24,20 +24,20 @@ using namespace std;
 
 namespace HTML {
 
-  // Write out a table heading row.  The arguments are a
-  // null-pointer-terminated list of char *s.
-  void thead(ostream &os, const char *heading, ...) {
-    va_list ap;
-    os << "<thead>\n";
-    os << "<tr>\n";
-    va_start(ap, heading);
-    do {
-      os << "<th>" << Escape(heading) << "</th>\n";
-      heading = va_arg(ap, const char *);
-    } while(heading);
-    va_end(ap);
-    os << "</tr>\n";
-    os << "</thead>\n";
-  }
-
+// Write out a table heading row.  The arguments are a
+// null-pointer-terminated list of char *s.
+void thead(ostream &os, const char *heading, ...) {
+  va_list ap;
+  os << "<thead>\n";
+  os << "<tr>\n";
+  va_start(ap, heading);
+  do {
+    os << "<th>" << Escape(heading) << "</th>\n";
+    heading = va_arg(ap, const char *);
+  } while(heading);
+  va_end(ap);
+  os << "</tr>\n";
+  os << "</thead>\n";
 }
+
+} // namespace HTML

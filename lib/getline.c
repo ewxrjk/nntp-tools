@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#if ! HAVE_GETLINE
+#if !HAVE_GETLINE
 
 #include <stdio.h>
 

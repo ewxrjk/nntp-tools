@@ -30,8 +30,7 @@ public:
   typedef time_t compose_time_type(struct tm *);
 
   // Define graph dimensions
-  TimeGraph(int width_,
-            int height_,
+  TimeGraph(int width_, int height_,
             decompose_time_type *decompose_ = localtime_r,
             compose_time_type *compose_ = mktime);
 
@@ -56,10 +55,18 @@ private:
   time_t monthstart(long m);
   time_t yearstart(long y);
 
-  inline time_t nexthour(time_t t) { return hourstart(hour(t) + 1); }
-  inline time_t nextday(time_t t) { return daystart(day(t) + 1); }
-  inline time_t nextmonth(time_t t) { return monthstart(month(t) + 1); }
-  inline time_t nextyear(time_t t) { return yearstart(year(t) + 1); }
+  inline time_t nexthour(time_t t) {
+    return hourstart(hour(t) + 1);
+  }
+  inline time_t nextday(time_t t) {
+    return daystart(day(t) + 1);
+  }
+  inline time_t nextmonth(time_t t) {
+    return monthstart(month(t) + 1);
+  }
+  inline time_t nextyear(time_t t) {
+    return yearstart(year(t) + 1);
+  }
 
   time_t compose(struct tm &dc);
 

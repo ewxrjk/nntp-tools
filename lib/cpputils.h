@@ -29,19 +29,16 @@
 #include <ctime>
 #include <stdexcept>
 
-void split(std::vector<std::string> &bits,
-           char sep,
-           const std::string &s);
+void split(std::vector<std::string> &bits, char sep, const std::string &s);
 
-time_t parse_date(const std::string &d,
-                  bool warn = false);
+time_t parse_date(const std::string &d, bool warn = false);
 std::string &lower(std::string &s);
 std::string &upper(std::string &s);
 
 // Thrown by parse_csv()
 class BadCSV: public std::runtime_error {
 public:
-  inline BadCSV(): std::runtime_error("malformed CSV") { }
+  inline BadCSV(): std::runtime_error("malformed CSV") {}
 };
 
 // Value returned from a CSV file
@@ -53,20 +50,23 @@ class Value {
   Type type;
   std::string v_string;
   intmax_t v_integer;
+
 public:
   Value(const std::string &s): type(t_string), v_string(s) {}
   Value(intmax_t n): type(t_integer), v_integer(n) {}
   operator std::string() const {
-    if(type != t_string) throw std::runtime_error("type mismatch");
+    if(type != t_string)
+      throw std::runtime_error("type mismatch");
     return v_string;
   }
   operator intmax_t() const {
-    if(type != t_integer) throw std::runtime_error("type mismatch");
+    if(type != t_integer)
+      throw std::runtime_error("type mismatch");
     return v_integer;
   }
 };
 
-void read_csv(const std::string &path, std::vector<std::vector<Value> > &rows);
+void read_csv(const std::string &path, std::vector<std::vector<Value>> &rows);
 std::string csv_quote(const std::string &s);
 std::string compact_kilo(double n);
 std::string round_kilo(double n);

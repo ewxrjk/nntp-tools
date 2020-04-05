@@ -25,7 +25,7 @@ using namespace std;
 void SenderCountingBucket::visit(const Article *a) {
   Bucket::visit(a);
   const string &sender = a->sender();
-  map<string,int>::iterator it = senders.find(sender);
+  map<string, int>::iterator it = senders.find(sender);
   if(it == senders.end())
     senders[sender] = 1;
   else

@@ -24,7 +24,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#if ! HAVE_PIPE2
+#if !HAVE_PIPE2
 static int pipe2(int *fds, int flags) {
   if(flags) {
     errno = EINVAL;
@@ -34,8 +34,8 @@ static int pipe2(int *fds, int flags) {
 }
 #endif
 
-FILE *popenvp(const char *type, pid_t *pidp,
-              const char *file, char *const argv[]) {
+FILE *popenvp(const char *type, pid_t *pidp, const char *file,
+              char *const argv[]) {
   int type_read = 0, type_write = 0, type_cloexec = 0;
   int p[2];
   pid_t pid;
@@ -64,8 +64,7 @@ FILE *popenvp(const char *type, pid_t *pidp,
     if(execvp(file, argv) < 0)
       _exit(-1);
     _exit(-1);
-  case -1:
-    return 0;
+  case -1: return 0;
   }
   if(close(p[type_read]) < 0)
     return NULL;

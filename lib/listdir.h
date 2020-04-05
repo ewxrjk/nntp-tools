@@ -22,10 +22,8 @@
 
 #include <dirent.h>
 
-template<typename T, class P>
-void list_directory(const std::string &path,
-                           T &names,
-                           P pred) {
+template <typename T, class P>
+void list_directory(const std::string &path, T &names, P pred) {
   DIR *dp;
   struct dirent *de;
   if(!(dp = opendir(path.c_str())))
@@ -36,9 +34,7 @@ void list_directory(const std::string &path,
   closedir(dp);
 }
 
-template<typename T>
-void list_directory(const std::string &path,
-                           T &names) {
+template <typename T> void list_directory(const std::string &path, T &names) {
   list_directory(path, names, [](const std::string &) { return true; });
 }
 

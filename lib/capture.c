@@ -47,7 +47,7 @@ char *capture(const char *cmd) {
   /* 0 = no change, 1/2 = changes, other = error */
   if(!WIFEXITED(w) || (WIFEXITED(w) && WEXITSTATUS(w) > 2))
     fatal(0, "command '%s' failed: wstat=%#x", cmd, w);
-  /* Update diffsize */ 
+  /* Update diffsize */
   if(fflush(mfp) < 0)
     fatal(errno, "error calling fflush on memory stream");
   /* Make sure there's a final newline if nonempty */

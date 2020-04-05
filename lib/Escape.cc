@@ -23,23 +23,22 @@ using namespace std;
 
 namespace HTML {
 
-  ostream &Escape::write(ostream &os, const string &str) {
-    for(string::size_type pos = 0; pos < str.size(); ++pos) {
-      const unsigned char c = str[pos];
-      switch(c) {
-      default:
-        if(c >= 32 && c <= 126)
-          os << c;
-        else {
-          //-fallthrough
-        case '"':
-        case '<':
-        case '&':
-          os << "&#" << (int)c << ';';
-        }
+ostream &Escape::write(ostream &os, const string &str) {
+  for(string::size_type pos = 0; pos < str.size(); ++pos) {
+    const unsigned char c = str[pos];
+    switch(c) {
+    default:
+      if(c >= 32 && c <= 126)
+        os << c;
+      else {
+        //-fallthrough
+      case '"':
+      case '<':
+      case '&': os << "&#" << (int)c << ';';
       }
     }
-    return os;
   }
-
+  return os;
 }
+
+} // namespace HTML

@@ -23,9 +23,9 @@ using namespace std;
 
 namespace HTML {
 
-  ostream &Quote::write(ostream &os, const string &str) {
-    os << '"' << Escape(str) << '"';
-    return os;
-  }
-
+ostream &Quote::write(ostream &os, const string &str) {
+  os << '"' << Escape(str) << '"';
+  return os;
 }
+
+} // namespace HTML

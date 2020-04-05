@@ -21,14 +21,10 @@
 
 using namespace std;
 
-TimeGraph::TimeGraph(int width_,
-		     int height_,
-		     decompose_time_type decompose_,
-		     compose_time_type compose_):
-  Graph(width_, height_),
-  decompose_fn(decompose_),
-  compose_fn(compose_) {
-}
+TimeGraph::TimeGraph(int width_, int height_, decompose_time_type decompose_,
+                     compose_time_type compose_):
+    Graph(width_, height_),
+    decompose_fn(decompose_), compose_fn(compose_) {}
 
 void TimeGraph::define_x(const string &name, time_t start_, time_t end_) {
   if(hour(start_) == hour(end_)) {
@@ -47,7 +43,7 @@ void TimeGraph::define_x(const string &name, time_t start_, time_t end_) {
     for(time_t t = ts; t < te; t = nexthour(t)) {
       range_x(t, nexthour(t), "");
       if(hour(t) % 32 % 3 == 0)
-	marker_x(t, display(t, "%H:%M"));
+        marker_x(t, display(t, "%H:%M"));
     }
     marker_x(te, display(te, "%H:%M"));
   } else if(month(start_) == month(end_)) {
@@ -80,16 +76,20 @@ long TimeGraph::hour(time_t t) {
   struct tm dc;
 
   decompose_fn(&t, &dc);
-  return dc.tm_hour + 32 * (dc.tm_mday - 1 + 32 * (dc.tm_mon + 16 * dc.tm_year));
+  return dc.tm_hour
+         + 32 * (dc.tm_mday - 1 + 32 * (dc.tm_mon + 16 * dc.tm_year));
   // Good for ~100,000 years with a 32-bit long, or hundreds of trillions of
   // years with 64 bits.
 }
 
 time_t TimeGraph::hourstart(long h) {
   struct tm dc;
-  dc.tm_hour = h % 32; h /= 32;
-  dc.tm_mday = 1 + h % 32; h /= 32;
-  dc.tm_mon = h % 16; h /= 16;
+  dc.tm_hour = h % 32;
+  h /= 32;
+  dc.tm_mday = 1 + h % 32;
+  h /= 32;
+  dc.tm_mon = h % 16;
+  h /= 16;
   dc.tm_year = h;
   return compose(dc);
 }
@@ -104,8 +104,10 @@ long TimeGraph::day(time_t t) {
 time_t TimeGraph::daystart(long d) {
   struct tm dc;
   dc.tm_hour = 0;
-  dc.tm_mday = 1 + d % 32; d /= 32;
-  dc.tm_mon = d % 16; d /= 16;
+  dc.tm_mday = 1 + d % 32;
+  d /= 32;
+  dc.tm_mon = d % 16;
+  d /= 16;
   dc.tm_year = d;
   return compose(dc);
 }
@@ -121,7 +123,8 @@ time_t TimeGraph::monthstart(long m) {
   struct tm dc;
   dc.tm_hour = 0;
   dc.tm_mday = 1;
-  dc.tm_mon = m % 16; m /= 16;
+  dc.tm_mon = m % 16;
+  m /= 16;
   dc.tm_year = m;
   return compose(dc);
 }

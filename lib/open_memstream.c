@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#if ! HAVE_OPEN_MEMSTREAM
+#if !HAVE_OPEN_MEMSTREAM
 
 #include <stdio.h>
 #include <errno.h>
@@ -46,7 +46,7 @@ static int memstream_writefn(void *u, const char *buffer, int bytes) {
   size_t needed = m->size + bytes + 1;
   size_t newspace;
   char *newbuffer;
-  
+
   assert(bytes >= 0);
   if(needed > m->space) {
     newspace = m->space ? m->space : 32;
@@ -64,7 +64,7 @@ static int memstream_writefn(void *u, const char *buffer, int bytes) {
   memcpy(m->buffer + m->size, buffer, bytes);
   m->size += bytes;
   m->buffer[m->size] = 0;
-  
+
   *m->ptr = m->buffer;
   *m->sizeloc = m->size;
   return bytes;
@@ -73,7 +73,8 @@ static int memstream_writefn(void *u, const char *buffer, int bytes) {
 FILE *open_memstream(char **ptr, size_t *sizeloc) {
   struct memstream *m;
 
-  if(!(m = malloc(sizeof *m))) return 0;
+  if(!(m = malloc(sizeof *m)))
+    return 0;
   m->buffer = 0;
   m->size = 0;
   m->space = 0;
@@ -81,11 +82,9 @@ FILE *open_memstream(char **ptr, size_t *sizeloc) {
   m->sizeloc = sizeloc;
   *ptr = 0;
   *sizeloc = 0;
-  return funopen(m,
-                 0,                     /* read */
-                 memstream_writefn,
-                 0,                     /* seek */
-                 0);                    /* close */
+  return funopen(m, 0,                 /* read */
+                 memstream_writefn, 0, /* seek */
+                 0);                   /* close */
 }
 #endif
 

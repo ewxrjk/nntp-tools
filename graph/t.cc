@@ -66,8 +66,10 @@ static void generic() {
   for(double n = 0.0; n <= 100.0; ++n) {
     g.plot(1, n, y);
     y += (double)rand() / RAND_MAX - 0.5;
-    if(y < 0) y = 0.0;
-    if(y > 5) y = 5.0;
+    if(y < 0)
+      y = 0.0;
+    if(y > 5)
+      y = 5.0;
   }
   g.save("generic.png");
 }

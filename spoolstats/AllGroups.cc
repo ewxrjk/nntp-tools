@@ -27,8 +27,7 @@
 
 using namespace std;
 
-AllGroups::~AllGroups() {
-}
+AllGroups::~AllGroups() {}
 
 // Visit one article
 void AllGroups::visit(const Article *a) {
@@ -39,16 +38,16 @@ void AllGroups::visit(const Article *a) {
 
 // Scan the spool
 void AllGroups::scan() {
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
+  for(map<string, Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end(); ++it) {
     Hierarchy *const h = it->second;
     recurse(Config::spool + "/" + h->name);
     // TODO we could report and delete h here if we introduced an end_mtime.
   }
   // AllGroups::recurse() keeps a running count, erase it now we're done
   if(Config::terminal)
-    cerr << "                                                                        \r";
+    cerr << "                                                                  "
+            "      \r";
 }
 
 // Recurse into one directory
@@ -67,16 +66,13 @@ void AllGroups::recurse(const string &dir) {
   while((de = readdir(dp))) {
     if(de->d_name[0] != '.') {
       if(Config::terminal && count % 31 == 0)
-        cerr << included << "/" << count
-             << " skip-lwm: " << skip_lwm
-             << " skip-mtime: " << skip_mtime
-             << " dirs: " << dirs
-             << "\r";
+        cerr << included << "/" << count << " skip-lwm: " << skip_lwm
+             << " skip-mtime: " << skip_mtime << " dirs: " << dirs << "\r";
       // Convert filename to article number
       errno = 0;
       char *end;
       long article = strtol(de->d_name, &end, 10);
-      if(errno || end == de->d_name || * end)
+      if(errno || end == de->d_name || *end)
         article = -1;
       else if(article < low_water_mark) {
         ++count;
@@ -103,7 +99,7 @@ void AllGroups::recurse(const string &dir) {
         count += 1;
       }
     }
-    errno = 0;                          // stupid readdir() API
+    errno = 0; // stupid readdir() API
   }
   if(errno)
     fatal(errno, "reading %s", dir.c_str());
@@ -152,13 +148,13 @@ int AllGroups::visit(const string &path) {
   int visited = 0;
   for(size_t n = 0; n < groups.size(); ++n) {
     // De-dupe groups
-    if(n > 0 && groups[n-1] == groups[n])
+    if(n > 0 && groups[n - 1] == groups[n])
       continue;
     // Identify hierarchy
     const string hname(groups[n], 0, groups[n].find('.'));
     // Eliminate unwanted hierarchies
-    const map<string,Hierarchy *>::const_iterator it
-      = Config::hierarchies.find(hname); // TODO encapsulate in Config
+    const map<string, Hierarchy *>::const_iterator it =
+        Config::hierarchies.find(hname); // TODO encapsulate in Config
     if(it == Config::hierarchies.end())
       continue;
     Hierarchy *const h = it->second;
@@ -183,9 +179,8 @@ void AllGroups::report() {
   report_agents((Config::output + "/agents.html"), false);
   report_agents((Config::output + "/agents-summary.html"), true);
   report_charsets();
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
+  for(map<string, Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end(); ++it) {
     Hierarchy *const h = it->second;
     h->page();
   }
@@ -195,7 +190,7 @@ void AllGroups::report_hierarchies() {
   // TODO lots of scope to de-dupe with Hierarchy::page() here
   try {
     ofstream os((Config::output + "/index.html").c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
 
     os << HTML::Header("Spool report", "spoolstats.css", "sorttable.js");
 
@@ -213,9 +208,9 @@ void AllGroups::report_hierarchies() {
     HTML::thead(os, "Hierarchy", "Articles/day", "Bytes/day", "Posters",
                 (const char *)NULL);
 
-    for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-        it != Config::hierarchies.end();
-        ++it) {
+    for(map<string, Hierarchy *>::const_iterator it =
+            Config::hierarchies.begin();
+        it != Config::hierarchies.end(); ++it) {
       Hierarchy *const h = it->second;
       h->summary(os);
     }
@@ -227,10 +222,8 @@ void AllGroups::report_hierarchies() {
     os << "<tr>\n";
     os << "<td><a href=" << HTML::Quote("allgroups.html") << ">"
        << "All groups</a></td>\n";
-    os << "<td>"
-       << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
-       << setprecision(6)
-       << "</td>\n";
+    os << "<td>" << setprecision(total_arts_per_day >= 10 ? 0 : 1)
+       << total_arts_per_day << setprecision(6) << "</td>\n";
     os << "<td>" << round_kilo(total_bytes_per_day) << "</td>\n";
     os << "</tr>\n";
     os << "</tfoot>\n";
@@ -246,7 +239,7 @@ void AllGroups::report_hierarchies() {
 void AllGroups::report_groups() {
   try {
     ofstream os((Config::output + "/allgroups.html").c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
 
     os << HTML::Header("All groups", "spoolstats.css", "sorttable.js");
 
@@ -257,14 +250,13 @@ void AllGroups::report_groups() {
     HTML::thead(os, "Group", "Articles/day", "Bytes/day", "Posters",
                 (const char *)NULL);
 
-    for(map<string,Hierarchy *>::const_iterator jt = Config::hierarchies.begin();
-        jt != Config::hierarchies.end();
-        ++jt) {
+    for(map<string, Hierarchy *>::const_iterator jt =
+            Config::hierarchies.begin();
+        jt != Config::hierarchies.end(); ++jt) {
       Hierarchy *const h = jt->second;
-      for(map<string,Group *>::const_iterator it = h->groups.begin();
-          it != h->groups.end();
-          ++it) {
-        Group *g = it->second;              // Summary line
+      for(map<string, Group *>::const_iterator it = h->groups.begin();
+          it != h->groups.end(); ++it) {
+        Group *g = it->second; // Summary line
         g->summary(os);
       }
     }
@@ -275,12 +267,10 @@ void AllGroups::report_groups() {
     os << "<tfoot>\n";
     os << "<tr>\n";
     os << "<td>Total</td>\n";
-    os << "<td>"
-       << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
-       << setprecision(6)
-       << "</td>\n";
+    os << "<td>" << setprecision(total_arts_per_day >= 10 ? 0 : 1)
+       << total_arts_per_day << setprecision(6) << "</td>\n";
     os << "<td>" << round_kilo(total_bytes_per_day) << "</td>\n";
-    os << "<td></td>\n";                  // TODO?
+    os << "<td></td>\n"; // TODO?
     os << "</tr>\n";
     os << "</tfoot>\n";
     os << "</table>\n";
@@ -293,20 +283,16 @@ void AllGroups::report_groups() {
 }
 
 void AllGroups::logs() {
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
+  for(map<string, Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end(); ++it) {
     Hierarchy *const h = it->second;
     h->logs();
   }
   try {
     ofstream os((Config::output + "/all.csv").c_str(), ios::app);
-    os.exceptions(ofstream::badbit|ofstream::failbit);
-    os << Config::end_time
-       << ',' << Config::days * 86400
-       << ',' << bytes
-       << ',' << articles
-       << '\n'
+    os.exceptions(ofstream::badbit | ofstream::failbit);
+    os << Config::end_time << ',' << Config::days * 86400 << ',' << bytes << ','
+       << articles << '\n'
        << flush;
   } catch(ios::failure &) {
     fatal(errno, "writing to %s", (Config::output + "/all.csv").c_str());
@@ -316,13 +302,12 @@ void AllGroups::logs() {
 }
 
 void AllGroups::readLogs() {
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
+  for(map<string, Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end(); ++it) {
     Hierarchy *const h = it->second;
     h->readLogs();
   }
-  vector<vector<Value> > rows;
+  vector<vector<Value>> rows;
   read_csv(Config::output + "/all.csv", rows);
   if(rows.size()) {
     const vector<Value> &last = rows.back();
@@ -334,22 +319,18 @@ void AllGroups::readLogs() {
 }
 
 void AllGroups::graphs() {
-  for(map<string,Hierarchy *>::const_iterator it = Config::hierarchies.begin();
-      it != Config::hierarchies.end();
-      ++it) {
+  for(map<string, Hierarchy *>::const_iterator it = Config::hierarchies.begin();
+      it != Config::hierarchies.end(); ++it) {
     Hierarchy *const h = it->second;
     h->graphs();
   }
-  graph("All groups",
-        Config::output + "/all.csv",
-        Config::output + "/all.png");
+  graph("All groups", Config::output + "/all.csv", Config::output + "/all.png");
 }
 
-void AllGroups::report_agents(const std::string &path,
-                              bool summarized) {
+void AllGroups::report_agents(const std::string &path, bool summarized) {
   try {
     ofstream os(path.c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
 
     os << HTML::Header("User agents", "spoolstats.css", "sorttable.js");
 
@@ -359,8 +340,7 @@ void AllGroups::report_agents(const std::string &path,
     ArticleProperty *uas = NULL;
     ArticleProperty summarized_uas;
     if(summarized) {
-      useragents.summarize(summarized_uas,
-                           AllGroups::summarize);
+      useragents.summarize(summarized_uas, AllGroups::summarize);
       uas = &summarized_uas;
     } else
       uas = &useragents;
@@ -370,8 +350,8 @@ void AllGroups::report_agents(const std::string &path,
     for(unsigned n = 0; n < agents.size(); ++n) {
       os << "<tr>\n";
       os << "<td>" << HTML::Escape(agents[n]->value) << "</td>\n";
-      os << "<td sorttable_customkey=-" << fixed << agents[n]->articles
-         << ">" << agents[n]->articles << "</td>\n";
+      os << "<td sorttable_customkey=-" << fixed << agents[n]->articles << ">"
+         << agents[n]->articles << "</td>\n";
       os << "<td sorttable_customkey=-" << fixed << agents[n]->senderCount
          << ">" << agents[n]->senderCount << "</td>\n";
       os << "</tr>\n";
@@ -389,12 +369,13 @@ void AllGroups::report_charsets() {
   const string path = Config::output + "/charsets.html";
   try {
     ofstream os(path.c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
 
     os << HTML::Header("Character Encodings", "spoolstats.css", "sorttable.js");
 
     os << "<table class=sortable>\n";
-    HTML::thead(os, "Character Encoding", "Articles", "Posters", (const char *)NULL);
+    HTML::thead(os, "Character Encoding", "Articles", "Posters",
+                (const char *)NULL);
 
     vector<const ArticleProperty::PropertyValue *> charsets_o;
     charsets.order(charsets_o);
@@ -423,106 +404,107 @@ const string &AllGroups::summarize(const string &ua) {
     const std::string name;
   };
   static struct agent clients[] = {
-    { "40tude_Dialog", "40tude_Dialog" },
-    { "Alpine", "Alpine" },
-    { "alpine", "Alpine" },
-    { "Apple Mail", "Apple Mail" },
-    { "Claws Mail", "Claws Mail" },
-    { "Direct Read News", "Direct Read News" },
-    { "Emas", "Emas" },
-    { "Forte Agent", "Forte Agent" },
-    { "ForteAgent", "Forte Agent" },
-    { "Forte Free Agent", "Forte Agent" },
-    { "^G2", "Google Groups" },
-    { "Gnus", "Gnus" },
-    { "^gnus", "Gnus" },
-    { "Groundhog Newsreader for Android", "Groundhog Newsreader for Android" },
-    { "Hamster", "Hamster" },
-    { "Hogwasher", "Hogwasher" },
-    { "JetBrains Omea Reader", "JetBrains Omea Reader" },
-    { "knews", "knews" },
-    { "KNode", "KNode" },
-    { "Lotus Notes", "Lotus Notes" },
-    { "MacSOUP", "MacSOUP" },
-    { "MesNews", "MesNews" },
-    { "Messenger-Pro", "Messenger-Pro" },
-    { "Michi Buster", "Michi Buster" },
-    { "MicroPlanet Gravity", "MicroPlanet Gravity" },
-    { "MicroPlanet-Gravity", "MicroPlanet Gravity" },
-    { "Microsoft Outlook Express", "Outlook Express" },
-    { "Microsoft-Outlook-©Express", "Outlook Express" },
-    { "Microsoft Windows Mail", "Outlook Express" },
-    { "Microsoft Windows Live Mail", "Outlook Express" },
-    { "Microsoft Internet News", "Microsoft Internet News" },
-    { "Microsoft-Entourage", "Microsoft Entourage" },
-    { "NewsWatcher", "NewsWatcher" },
-    { "Mutt", "Mutt" },
-    { "Netscape", "Netscape" },
-    { "NewsHound", "NewsHound" },
-    { "NewsLeecher", "NewsLeecher" },
-    { "NewsPortal", "NewsPortal" },
-    { "NewsTap", "NewsTap" },
-    { "Noworyta News Reader", "Noworyta News Reader" },
-    { "Opera", "Opera" },
-    { "Pan", "Pan" },
-    { "^pan ", "Pan" },
-    { "Pegasus Mail", "Pegasus Mail" },
-    { "Pluto", "Pluto" },
-    { "PMINews", "PMINews" },
-    { "ProNews", "ProNews" },
-    { "SeaMonkey", "SeaMonkey" },
-    { "Iceape", "SeaMonkey" },          // Debian
-    { "slrn", "slrn" },
-    { "Sylpheed", "Sylpheed" },
-    { "Thoth", "Thoth" },
-    { "Thunderbird", "Thunderbird" },
-    { "Lanikai", "Thunderbird" },       // early 2010 preview
-    { "Shredder", "Thunderbird" },      // mid 2008 preview
-    { "Icedove", "Thunderbird" },       // Debian
-    { "^tin", "tin" },
-    { "^TIN", "tin" },
-    { "TRAVEL.com", "TRAVEL.com" },
-    { "trn", "trn" },
-    { "Turnpike", "Turnpike" },
-    { "^U <", "Turnpike" },         // wibble!
-    { "Unison", "Unison" },
-    { "XanaNews", "XanaNews" },
-    { "Xnews", "Xnews" },
-    { "XPN", "XPN" },
-    { "^NN/", "NN" },
-    { "^NN ", "NN" },
-    { "^nn/", "NN" },
-    { "^nn ", "NN" },
-    { "WinVN", "WinVN" },
-    { "News Xpress", "News Xpress" },
-    { "NewsAgent", "NewsAgent" },
-    { "PC Piggy News", "PC Piggy News" },
-    { "MATLAB Central Newsreader", "MATLAB Central Newsreader" },
-    { "Flrn", "Flrn" },
-    { "Loom", "Loom" },
-    { "iForth", "iForth" },
-    { "SquirrelMail", "SquirrelMail" },
-    { "NewsMan Pro", "NewsMan Pro" },
-    { "News Rover", "News Rover" },
-    { "AspNNTP", "AspNNTP" },
-    { "Grepler", "Grepler" },
-    { "^xrn", "xrn" },
-    { "Web-News", "Web-News" },
-    { "Marcel", "Marcel" },
-    { "Gemini", "Gemini" },
-    { "newsSync", "newsSync" },
-    { "FUDforum", "FUDforum" },
-    { "KMail", "KMail" },
-    { "Pineapple News", "Pineapple News" },
-    { "Evolution", "Evolution" },
-    { "Internet Messaging Program (IMP)", "Internet Messaging Program (IMP)" },
-    { "MR/2", "MR/2" },
-    { "postfaq", "postfaq" },
-    { "Virtual Access", "Virtual Access" },
-    { "PenguinReader", "PenguinReader" },
-    { "http://www.umailcampaign.com", "http://www.umailcampaign.com" },
-    { "YahooMailWebService", "YahooMailWebService" },
-    { "^Mozilla", "Mozilla-compatible browser" }, // everyone claims to be mozilla!
+      {"40tude_Dialog", "40tude_Dialog"},
+      {"Alpine", "Alpine"},
+      {"alpine", "Alpine"},
+      {"Apple Mail", "Apple Mail"},
+      {"Claws Mail", "Claws Mail"},
+      {"Direct Read News", "Direct Read News"},
+      {"Emas", "Emas"},
+      {"Forte Agent", "Forte Agent"},
+      {"ForteAgent", "Forte Agent"},
+      {"Forte Free Agent", "Forte Agent"},
+      {"^G2", "Google Groups"},
+      {"Gnus", "Gnus"},
+      {"^gnus", "Gnus"},
+      {"Groundhog Newsreader for Android", "Groundhog Newsreader for Android"},
+      {"Hamster", "Hamster"},
+      {"Hogwasher", "Hogwasher"},
+      {"JetBrains Omea Reader", "JetBrains Omea Reader"},
+      {"knews", "knews"},
+      {"KNode", "KNode"},
+      {"Lotus Notes", "Lotus Notes"},
+      {"MacSOUP", "MacSOUP"},
+      {"MesNews", "MesNews"},
+      {"Messenger-Pro", "Messenger-Pro"},
+      {"Michi Buster", "Michi Buster"},
+      {"MicroPlanet Gravity", "MicroPlanet Gravity"},
+      {"MicroPlanet-Gravity", "MicroPlanet Gravity"},
+      {"Microsoft Outlook Express", "Outlook Express"},
+      {"Microsoft-Outlook-©Express", "Outlook Express"},
+      {"Microsoft Windows Mail", "Outlook Express"},
+      {"Microsoft Windows Live Mail", "Outlook Express"},
+      {"Microsoft Internet News", "Microsoft Internet News"},
+      {"Microsoft-Entourage", "Microsoft Entourage"},
+      {"NewsWatcher", "NewsWatcher"},
+      {"Mutt", "Mutt"},
+      {"Netscape", "Netscape"},
+      {"NewsHound", "NewsHound"},
+      {"NewsLeecher", "NewsLeecher"},
+      {"NewsPortal", "NewsPortal"},
+      {"NewsTap", "NewsTap"},
+      {"Noworyta News Reader", "Noworyta News Reader"},
+      {"Opera", "Opera"},
+      {"Pan", "Pan"},
+      {"^pan ", "Pan"},
+      {"Pegasus Mail", "Pegasus Mail"},
+      {"Pluto", "Pluto"},
+      {"PMINews", "PMINews"},
+      {"ProNews", "ProNews"},
+      {"SeaMonkey", "SeaMonkey"},
+      {"Iceape", "SeaMonkey"}, // Debian
+      {"slrn", "slrn"},
+      {"Sylpheed", "Sylpheed"},
+      {"Thoth", "Thoth"},
+      {"Thunderbird", "Thunderbird"},
+      {"Lanikai", "Thunderbird"},  // early 2010 preview
+      {"Shredder", "Thunderbird"}, // mid 2008 preview
+      {"Icedove", "Thunderbird"},  // Debian
+      {"^tin", "tin"},
+      {"^TIN", "tin"},
+      {"TRAVEL.com", "TRAVEL.com"},
+      {"trn", "trn"},
+      {"Turnpike", "Turnpike"},
+      {"^U <", "Turnpike"}, // wibble!
+      {"Unison", "Unison"},
+      {"XanaNews", "XanaNews"},
+      {"Xnews", "Xnews"},
+      {"XPN", "XPN"},
+      {"^NN/", "NN"},
+      {"^NN ", "NN"},
+      {"^nn/", "NN"},
+      {"^nn ", "NN"},
+      {"WinVN", "WinVN"},
+      {"News Xpress", "News Xpress"},
+      {"NewsAgent", "NewsAgent"},
+      {"PC Piggy News", "PC Piggy News"},
+      {"MATLAB Central Newsreader", "MATLAB Central Newsreader"},
+      {"Flrn", "Flrn"},
+      {"Loom", "Loom"},
+      {"iForth", "iForth"},
+      {"SquirrelMail", "SquirrelMail"},
+      {"NewsMan Pro", "NewsMan Pro"},
+      {"News Rover", "News Rover"},
+      {"AspNNTP", "AspNNTP"},
+      {"Grepler", "Grepler"},
+      {"^xrn", "xrn"},
+      {"Web-News", "Web-News"},
+      {"Marcel", "Marcel"},
+      {"Gemini", "Gemini"},
+      {"newsSync", "newsSync"},
+      {"FUDforum", "FUDforum"},
+      {"KMail", "KMail"},
+      {"Pineapple News", "Pineapple News"},
+      {"Evolution", "Evolution"},
+      {"Internet Messaging Program (IMP)", "Internet Messaging Program (IMP)"},
+      {"MR/2", "MR/2"},
+      {"postfaq", "postfaq"},
+      {"Virtual Access", "Virtual Access"},
+      {"PenguinReader", "PenguinReader"},
+      {"http://www.umailcampaign.com", "http://www.umailcampaign.com"},
+      {"YahooMailWebService", "YahooMailWebService"},
+      {"^Mozilla",
+       "Mozilla-compatible browser"}, // everyone claims to be mozilla!
   };
   // By 'summarize' we mean we throw away version and platform information and
   // just identify the client.  Mostly we do substring match but for very short

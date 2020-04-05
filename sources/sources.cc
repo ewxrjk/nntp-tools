@@ -56,7 +56,7 @@ struct map_entry {
 };
 
 #define MAP_BUCKETS (60 * 24)
-#define MAP_SIZE (MAP_BUCKETS * sizeof (map_entry))
+#define MAP_SIZE (MAP_BUCKETS * sizeof(map_entry))
 #define MAP_EXTENSION ".nsdat"
 
 static struct tm start_time;
@@ -74,34 +74,28 @@ static int svg;
 static std::string index_path = "index.html";
 static double trim;
 
-static const double colors[][3]  = {
-  { 1.0, 0.0, 0.0 },
-  { 0.0, 0.0, 1.0 },
-  { 0.0, 1.0, 0.0 },
-  { 1.0, 0.0, 1.0 },
-  { 1.0, 1.0, 0.0 },
-  { 0.0, 1.0, 1.0 },
-  // TODO more; or choose intelligently for the number of peers
+static const double colors[][3] = {
+    {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0, 0.0},
+    {1.0, 0.0, 1.0}, {1.0, 1.0, 0.0}, {0.0, 1.0, 1.0},
+    // TODO more; or choose intelligently for the number of peers
 };
 
 class details;
 
-static inline bool operator<(const struct timeval &a,
-                             const struct timeval &b) {
+static inline bool operator<(const struct timeval &a, const struct timeval &b) {
   if(a.tv_sec < b.tv_sec)
     return true;
   else if(a.tv_sec == b.tv_sec)
     return a.tv_usec < b.tv_usec;
-  else return false;
+  else
+    return false;
 }
 
-static inline bool starts_with(const std::string &a,
-                               const std::string &b) {
+static inline bool starts_with(const std::string &a, const std::string &b) {
   return a.compare(0, b.size(), b) == 0;
 }
 
-static inline bool ends_with(const std::string &a,
-                             const std::string &b) {
+static inline bool ends_with(const std::string &a, const std::string &b) {
   return (a.size() >= b.size()
           && a.compare(a.size() - b.size(), b.size(), b) == 0);
 }
@@ -113,24 +107,21 @@ static void read_timestamp();
 static void update_timestamp();
 static void process_day(const std::string &day);
 static void draw_graph(const std::string &day,
-                       const std::map<std::string,map_entry *> &info);
-static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
-                      double max, double base,
-                      const std::string &title);
+                       const std::map<std::string, map_entry *> &info);
+static void draw_axes(Cairo::RefPtr<Cairo::Context> context, double max,
+                      double base, const std::string &title);
 static void fixup_html();
 
 int main(int argc, char **argv) {
-  static const struct option options[] = {
-    { "state", required_argument, 0, 's' },
-    { "output", required_argument, 0, 'o' },
-    { "type", required_argument, 0, 'T' },
-    { "index", required_argument, 0, 'i' },
-    { "size", required_argument, 0, 'S' },
-    { "trim", required_argument, 0, 't' },
-    { "help", no_argument, 0, 'h' },
-    { "version", no_argument, 0, 'V' },
-    { 0, 0, 0, 0 }
-  };
+  static const struct option options[] = {{"state", required_argument, 0, 's'},
+                                          {"output", required_argument, 0, 'o'},
+                                          {"type", required_argument, 0, 'T'},
+                                          {"index", required_argument, 0, 'i'},
+                                          {"size", required_argument, 0, 'S'},
+                                          {"trim", required_argument, 0, 't'},
+                                          {"help", no_argument, 0, 'h'},
+                                          {"version", no_argument, 0, 'V'},
+                                          {0, 0, 0, 0}};
 
   int n;
 
@@ -153,20 +144,17 @@ Options:\n\
     case 'V':
       printf("news-sources from rjk-nntp-tools version " VERSION "\n");
       return 0;
-    case 's':
-      state = optarg;
-      break;
-    case 'o':
-      output = optarg;
-      break;
+    case 's': state = optarg; break;
+    case 'o': output = optarg; break;
     case 'T':
-      if(!strcmp(optarg, "svg")) svg = 1;
-      else if(!strcmp(optarg, "png")) svg = 0;
-      else fatal(0, "unrecognized image type '%s'", optarg);
+      if(!strcmp(optarg, "svg"))
+        svg = 1;
+      else if(!strcmp(optarg, "png"))
+        svg = 0;
+      else
+        fatal(0, "unrecognized image type '%s'", optarg);
       break;
-    case 'i':
-      index_path = optarg;
-      break;
+    case 'i': index_path = optarg; break;
     case 'S':
       if(sscanf(optarg, "%lfx%lf", &width, &height) != 2)
         fatal(0, "cannot parse size '%s'", optarg);
@@ -179,8 +167,7 @@ Options:\n\
       if(trim < 0 || trim > 100)
         fatal(0, "trim value out of range");
       break;
-    default:
-      return 1;
+    default: return 1;
     }
   }
 
@@ -328,10 +315,9 @@ public:
   std::string extra;
 
   bool parse(parser &p) {
-    static const char *const months[] = {
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    };
+    static const char *const months[] = {"Jan", "Feb", "Mar", "Apr",
+                                         "May", "Jun", "Jul", "Aug",
+                                         "Sep", "Oct", "Nov", "Dec"};
     int n;
     for(n = 0; n < 12; ++n)
       if(p.is(months[n]))
@@ -393,20 +379,17 @@ static void process_line(const details &d) {
     return;
   switch(d.code) {
   case ART_ACCEPT:
-  case ART_JUNK:
-    process_accepted(d);
-    break;
+  case ART_JUNK: process_accepted(d); break;
   }
 }
 
 static map_entry *open_map(const std::string &path) {
   int fd;
-  if((fd = open(path.c_str(), O_RDWR|O_CREAT, 0666)) < 0)
+  if((fd = open(path.c_str(), O_RDWR | O_CREAT, 0666)) < 0)
     fatal(errno, "open %s", path.c_str());
   if(ftruncate(fd, MAP_SIZE) < 0)
     fatal(errno, "ftruncate %s", path.c_str());
-  void *new_map = mmap(0, MAP_SIZE, PROT_READ|PROT_WRITE,
-                       MAP_SHARED, fd, 0);
+  void *new_map = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if(new_map == (void *)-1)
     fatal(errno, "mmap %s", path.c_str());
   if(close(fd) < 0)
@@ -423,8 +406,8 @@ static void close_map(struct map_entry *map) {
 
 static void process_accepted(const details &d) {
   char day[32];
-  snprintf(day, sizeof day, "%04d-%02d-%02d",
-           d.when.tm_year + 1900, d.when.tm_mon + 1, d.when.tm_mday);
+  snprintf(day, sizeof day, "%04d-%02d-%02d", d.when.tm_year + 1900,
+           d.when.tm_mon + 1, d.when.tm_mday);
   std::string path = state + "/" + day + "-";
   for(size_t pos = 0; pos < d.peer.size(); ++pos) {
     if(d.peer.at(pos) > ' ' && d.peer.at(pos) < 0x7F)
@@ -471,31 +454,29 @@ static void update_timestamp() {
   if(!(fp = fopen("timestamp", "w")))
     fatal(errno, "opening timestamp");
   if(fprintf(fp, "%lld.%06ld\n", (long long)latest_time.tv_sec,
-             (long)latest_time.tv_usec) < 0
+             (long)latest_time.tv_usec)
+         < 0
      || fclose(fp) < 0)
     fatal(errno, "writing timestamp");
   time_counter = 0;
 }
 
 static void process_day(const std::string &day) {
-  std::map<std::string,map_entry *> info;
+  std::map<std::string, map_entry *> info;
   std::vector<std::string> names;
   list_directory(state, names);
-  std::for_each(names.begin(), names.end(),
-                [&] (std::string &name) {
-                  if(starts_with(name, day)
-                     && name[day.size()] == '-'
-                     && ends_with(name, MAP_EXTENSION)) {
-                    std::string path = state + "/" + name;
-                    std::string peer(name, day.size() + 1,
-                                     name.size() - (1 + day.size()
-                                                    + strlen(MAP_EXTENSION)));
-                    info[peer] = open_map(path);
-                  }
-               });
+  std::for_each(names.begin(), names.end(), [&](std::string &name) {
+    if(starts_with(name, day) && name[day.size()] == '-'
+       && ends_with(name, MAP_EXTENSION)) {
+      std::string path = state + "/" + name;
+      std::string peer(name, day.size() + 1,
+                       name.size() - (1 + day.size() + strlen(MAP_EXTENSION)));
+      info[peer] = open_map(path);
+    }
+  });
   draw_graph(day, info);
   std::for_each(info.begin(), info.end(),
-                [] (const std::pair<std::string,map_entry *> &m) {
+                [](const std::pair<std::string, map_entry *> &m) {
                   close_map(m.second);
                 });
 }
@@ -517,17 +498,16 @@ static Cairo::ErrorStatus cairo_writer(const unsigned char *data, unsigned len,
   return CAIRO_STATUS_SUCCESS;
 }
 
-template<typename GET_DATA>
+template <typename GET_DATA>
 void draw_one_graph(const std::string &day,
-                    const std::map<std::string,map_entry *> &info,
-                    const std::string &type,
-                    const std::string &title,
+                    const std::map<std::string, map_entry *> &info,
+                    const std::string &type, const std::string &title,
                     GET_DATA get_data) {
   double range[MAP_BUCKETS];
   memset(range, 0, sizeof range);
   for(int n = 0; n < MAP_BUCKETS; ++n) {
     std::for_each(info.begin(), info.end(),
-                  [&] (const std::pair<std::string,map_entry *> &m) {
+                  [&](const std::pair<std::string, map_entry *> &m) {
                     range[n] += get_data(m.second[n]);
                   });
   }
@@ -535,21 +515,19 @@ void draw_one_graph(const std::string &day,
   // Find the maximum size; the top trim% is excluded to avoid spikes dominating
   // the graph too much.
   double base, max;
-  max = round_scale(range[(int)floor(MAP_BUCKETS * (100-trim) / 100)], base);
+  max = round_scale(range[(int)floor(MAP_BUCKETS * (100 - trim) / 100)], base);
   Cairo::RefPtr<Cairo::Surface> surface;
   if(svg) {
     const std::string path = output + "/" + day + "-" + type + ".svg";
     FILE *file = fopen(path.c_str(), "w");
     if(!file)
       fatal(errno, "opening %s", path.c_str());
-    surface = Cairo::SvgSurface::create_for_stream
-      (sigc::bind(&cairo_writer, file, path),
-       width + 2 * margin,
-       height + 2 * margin);
+    surface = Cairo::SvgSurface::create_for_stream(
+        sigc::bind(&cairo_writer, file, path), width + 2 * margin,
+        height + 2 * margin);
   } else {
-    surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-                                          width + 2 * margin,
-                                          height + 2 * margin);
+    surface = Cairo::ImageSurface::create(
+        Cairo::FORMAT_ARGB32, width + 2 * margin, height + 2 * margin);
   }
   Cairo::RefPtr<Cairo::Context> context = Cairo::Context::create(surface);
   // White background
@@ -560,18 +538,17 @@ void draw_one_graph(const std::string &day,
     uint64_t data_below = 0;
     int npeer = 0;
     std::for_each(info.begin(), info.end(),
-                  [&] (const std::pair<std::string,map_entry *> &m) {
+                  [&](const std::pair<std::string, map_entry *> &m) {
                     uint64_t data = get_data(m.second[n]);
                     if(data) {
-                      context->set_source_rgb(colors[npeer][0],
-                                              colors[npeer][1],
-                                              colors[npeer][2]);
+                      context->set_source_rgb(
+                          colors[npeer][0], colors[npeer][1], colors[npeer][2]);
                       double y0 = data_below * height / max;
                       double y1 = (data_below + data) * height / max;
                       double x0 = n * width / MAP_BUCKETS;
                       double x1 = (n + 1) * width / MAP_BUCKETS;
                       context->rectangle(margin + x0, margin + height - y1,
-                                                  x1 - x0, y1 - y0);
+                                         x1 - x0, y1 - y0);
                       context->fill();
                       data_below += data;
                     }
@@ -588,15 +565,11 @@ void draw_one_graph(const std::string &day,
 }
 
 static void draw_graph(const std::string &day,
-                       const std::map<std::string,map_entry *> &info) {
+                       const std::map<std::string, map_entry *> &info) {
   draw_one_graph(day, info, "articles", "Articles/minute",
-                 [] (const map_entry &m) {
-                   return m.articles;
-                 });
+                 [](const map_entry &m) { return m.articles; });
   draw_one_graph(day, info, "bytes", "Bytes/minute",
-                 [] (const map_entry &m) {
-                   return m.bytes;
-                 });
+                 [](const map_entry &m) { return m.bytes; });
   // Generate an HTML wrapper
   const std::string &html = output + "/" + day + "-peers.html";
   FILE *fp;
@@ -619,13 +592,14 @@ static void draw_graph(const std::string &day,
   }
   int npeer = info.size();
   std::for_each(info.rbegin(), info.rend(),
-                  [&] (const std::pair<std::string,map_entry *> &m) {
+                [&](const std::pair<std::string, map_entry *> &m) {
                   --npeer;
-                  fprintf(fp, "<p><span class=blob style=\"background-color: #%02x%02x%02x\"></span> %s</p>\n",
+                  fprintf(fp,
+                          "<p><span class=blob style=\"background-color: "
+                          "#%02x%02x%02x\"></span> %s</p>\n",
                           (int)(255 * colors[npeer][0]),
                           (int)(255 * colors[npeer][1]),
-                          (int)(255 * colors[npeer][2]),
-                          m.first.c_str());
+                          (int)(255 * colors[npeer][2]), m.first.c_str());
                 });
   fprintf(fp, "<p>\n");
   fprintf(fp, "<span class=prev></span>\n");
@@ -635,14 +609,12 @@ static void draw_graph(const std::string &day,
     fatal(errno, "writing %s", html.c_str());
 }
 
-static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
-                      double max, double base,
-                      const std::string &title) {
+static void draw_axes(Cairo::RefPtr<Cairo::Context> context, double max,
+                      double base, const std::string &title) {
   Cairo::TextExtents te;
   Cairo::FontExtents fe;
 
-  context->select_font_face("serif",
-                            Cairo::FONT_SLANT_NORMAL,
+  context->select_font_face("serif", Cairo::FONT_SLANT_NORMAL,
                             Cairo::FONT_WEIGHT_NORMAL);
   context->set_font_size(12.0);
   context->get_font_extents(fe);
@@ -678,53 +650,52 @@ static void draw_axes(Cairo::RefPtr<Cairo::Context> context,
   }
 
   // Title
-  context->select_font_face("serif",
-                            Cairo::FONT_SLANT_NORMAL,
+  context->select_font_face("serif", Cairo::FONT_SLANT_NORMAL,
                             Cairo::FONT_WEIGHT_BOLD);
   context->set_font_size(14.0);
   context->get_text_extents(title, te);
   context->move_to((2 * margin + width - te.width) / 2,
                    (margin - te.height) / 2);
   context->show_text(title);
-
 }
 
 static void fixup_html() {
   std::vector<std::string> names;
-  list_directory(output, names, [] (const std::string &name) {
-      return ends_with(name, "-peers.html");
-    });
+  list_directory(output, names, [](const std::string &name) {
+    return ends_with(name, "-peers.html");
+  });
   std::sort(names.begin(), names.end());
   for(size_t n = 0; n < names.size(); ++n) {
     const std::string path = output + "/" + names[n];
     std::vector<std::string> lines;
     read_file(path, lines);
     bool changes = false;
-    std::for_each(lines.begin(), lines.end(),
-                  [&] (std::string &line) {
-                    const std::string oldline = line;
-                    if(line.find("class=prev") != std::string::npos) {
-                      if(n > 0)
-                        line = "<span class=prev><a href=\""+names[n-1]+"\">prev</a></span>\n";
-                      else
-                        line = "<span class=prev></span>\n";
-                    }
-                    if(line.find("class=next") != std::string::npos) {
-                      if(n < names.size() - 1)
-                        line = "<span class=next><a href=\""+names[n+1]+"\">next</a></span>\n";
-                      else
-                        line = "<span class=next></span>\n";
-                    }
-                    if(line != oldline)
-                      changes = true;
-                  });
+    std::for_each(lines.begin(), lines.end(), [&](std::string &line) {
+      const std::string oldline = line;
+      if(line.find("class=prev") != std::string::npos) {
+        if(n > 0)
+          line = "<span class=prev><a href=\"" + names[n - 1]
+                 + "\">prev</a></span>\n";
+        else
+          line = "<span class=prev></span>\n";
+      }
+      if(line.find("class=next") != std::string::npos) {
+        if(n < names.size() - 1)
+          line = "<span class=next><a href=\"" + names[n + 1]
+                 + "\">next</a></span>\n";
+        else
+          line = "<span class=next></span>\n";
+      }
+      if(line != oldline)
+        changes = true;
+    });
     if(changes)
       write_file(path, lines);
   }
   if(!names.empty() && index_path.size()) {
     const char *target;
-    std::string index_abs = index_path.at(0) == '/' ? index_path
-      : output + "/" + index_path;
+    std::string index_abs =
+        index_path.at(0) == '/' ? index_path : output + "/" + index_path;
     unlink(index_abs.c_str());
     if(index_path.find('/') != std::string::npos) {
       target = realpath((output + "/" + names.back()).c_str(), NULL);

@@ -44,7 +44,9 @@ spoolstats.default
 css.c: spoolstats.css
 	xxd -i $^ > $@.new
 	mv $@.new $@
+	clang-format -i $@
 
 sorttable.c: sorttable.js
 	xxd -i $^ > $@.new
 	mv $@.new $@
+	clang-format -i $@

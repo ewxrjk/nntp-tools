@@ -68,4 +68,3 @@ int io_vprintf(IO *io, const char *format, va_list ap);
 int io_fileno(IO *io);
 
 #endif /* IO_H */
-

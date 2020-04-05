@@ -25,7 +25,7 @@ class Article;
 
 class Group: public SenderCountingBucket {
 public:
-  std::string name;                     // name of group
+  std::string name; // name of group
 
   Group(const std::string &name_);
 
@@ -35,6 +35,5 @@ public:
   // Generate table line
   void summary(std::ostream &os);
 };
-
 
 #endif /* GROUP_H */

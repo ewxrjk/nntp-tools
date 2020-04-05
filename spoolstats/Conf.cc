@@ -38,45 +38,33 @@ string Config::user;
 // Parse command line options
 void Config::Options(int argc, char **argv) {
   int n;
-  enum {
-    opt_scan = 256,
-    opt_no_scan,
-    opt_graph,
-    opt_no_graph
-  };
+  enum { opt_scan = 256, opt_no_scan, opt_graph, opt_no_graph };
 
   // The option table
   static const struct option options[] = {
-    { "debug", no_argument, 0, 'D' },
-    { "spool", required_argument, 0, 'S' },
-    { "hierarchies", required_argument, 0, 'H' },
-    { "big8", no_argument, 0, '8' },
-    { "days", required_argument, 0, 'N' },
-    { "latency", required_argument, 0, 'L' },
-    { "output", required_argument, 0, 'O' },
-    { "scan", no_argument, 0, opt_scan },
-    { "no-scan", no_argument, 0, opt_no_scan },
-    { "graph", no_argument, 0, opt_graph },
-    { "no-graph", no_argument, 0, opt_no_graph },
-    { "help", no_argument, 0, 'h' },
-    { "quiet", no_argument, 0, 'Q' },
-    { "user", required_argument, 0, 'u' },
-    { "version", no_argument, 0, 'V' },
-    { 0, 0, 0, 0 }
-  };
+      {"debug", no_argument, 0, 'D'},
+      {"spool", required_argument, 0, 'S'},
+      {"hierarchies", required_argument, 0, 'H'},
+      {"big8", no_argument, 0, '8'},
+      {"days", required_argument, 0, 'N'},
+      {"latency", required_argument, 0, 'L'},
+      {"output", required_argument, 0, 'O'},
+      {"scan", no_argument, 0, opt_scan},
+      {"no-scan", no_argument, 0, opt_no_scan},
+      {"graph", no_argument, 0, opt_graph},
+      {"no-graph", no_argument, 0, opt_no_graph},
+      {"help", no_argument, 0, 'h'},
+      {"quiet", no_argument, 0, 'Q'},
+      {"user", required_argument, 0, 'u'},
+      {"version", no_argument, 0, 'V'},
+      {0, 0, 0, 0}};
 
   terminal = !!isatty(2);
   while((n = getopt_long(argc, argv, "DS:QhH:8VN:L:O:", options, 0)) >= 0) {
     switch(n) {
-    case 'D':
-      debug = 1;
-      break;
-    case 'S':
-      spool = optarg;
-      break;
-    case 'Q':
-      terminal = false;
-      break;
+    case 'D': debug = 1; break;
+    case 'S': spool = optarg; break;
+    case 'Q': terminal = false; break;
     case 'H': {
       vector<string> bits;
       split(bits, ',', string(optarg));
@@ -108,24 +96,12 @@ void Config::Options(int argc, char **argv) {
       if(days <= 0)
         fatal(0, "--days must be positive");
       break;
-    case 'O':
-      output = optarg;
-      break;
-    case 'u':
-      user = optarg;
-      break;
-    case opt_scan:
-      scan = true;
-      break;
-    case opt_no_scan:
-      scan = false;
-      break;
-    case opt_graph:
-      graph = true;
-      break;
-    case opt_no_graph:
-      graph = false;
-      break;
+    case 'O': output = optarg; break;
+    case 'u': user = optarg; break;
+    case opt_scan: scan = true; break;
+    case opt_no_scan: scan = false; break;
+    case opt_graph: graph = true; break;
+    case opt_no_graph: graph = false; break;
     case 'h':
       printf("Usage:\n\
   spoolstats [OPTIONS]\n\
@@ -146,8 +122,7 @@ Options:\n\
     case 'V':
       printf("spoolstats from rjk-nntp-tools version " VERSION "\n");
       exit(0);
-    default:
-      exit(1);
+    default: exit(1);
     }
   }
   time(&end_time);
@@ -165,7 +140,8 @@ void Config::hierarchy(const string &h) {
 void Config::footer(ostream &os) {
   os << "<p><a href=" << HTML::Quote(".") << ">Hierarchies</a>"
      << " | <a href=" << HTML::Quote("allgroups.html") << ">All groups</a>"
-     << " | <a href=" << HTML::Quote("agents-summary.html") << ">User agents</a>"
+     << " | <a href=" << HTML::Quote("agents-summary.html")
+     << ">User agents</a>"
      << " (<a href=" << HTML::Quote("agents.html") << ">full</a>)"
      << " | <a href=" << HTML::Quote("charsets.html") << ">Encodings</a>"
      << "</p>\n";

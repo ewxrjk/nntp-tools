@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#if ! HAVE_GETDELIM
+#if !HAVE_GETDELIM
 
 #include <stdio.h>
 #include <errno.h>
@@ -36,21 +36,22 @@ ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
   size_t size = 0, space = *n, newspace;
   char *line = *lineptr, *newline;
   int c, save_errno;
-  
+
   while((c = getc(stream)) != EOF) {
     if(size + 2 > space) {
       newspace = space ? 2 * space : 32;
       if(!(newline = realloc(line, newspace))) {
-	save_errno = errno;
-	ungetc(c, stream);
-	errno = save_errno;
-	return -1;
+        save_errno = errno;
+        ungetc(c, stream);
+        errno = save_errno;
+        return -1;
       }
       *lineptr = line = newline;
       *n = space = newspace;
     }
     line[size++] = c;
-    if(c == delimiter) break;
+    if(c == delimiter)
+      break;
   }
   if(size && !ferror(stream)) {
     line[size] = 0;

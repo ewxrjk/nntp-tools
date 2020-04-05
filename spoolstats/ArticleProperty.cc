@@ -20,48 +20,46 @@
 
 using namespace std;
 
-ArticleProperty::ArticleProperty() {
-}
+ArticleProperty::ArticleProperty() {}
 
-ArticleProperty::~ArticleProperty() {
-}
+ArticleProperty::~ArticleProperty() {}
 
-void ArticleProperty::update(const Article *article,
-                             const string &value) {
+void ArticleProperty::update(const Article *article, const string &value) {
   const string &sender = article->sender();
-  map<string,PropertyValue>::iterator it = values.find(value);
+  map<string, PropertyValue>::iterator it = values.find(value);
   if(it == values.end())
-    it = values.insert(pair<string,PropertyValue>(value,PropertyValue(value))).first;
+    it = values.insert(pair<string, PropertyValue>(value, PropertyValue(value)))
+             .first;
   ++it->second.articles;
   it->second.addSender(sender);
 }
 
 void ArticleProperty::summarize(ArticleProperty &dest,
                                 summarize_fn *summarizer) {
-  for(map<string,PropertyValue>::const_iterator it = values.begin();
-      it != values.end();
-      ++it) {
+  for(map<string, PropertyValue>::const_iterator it = values.begin();
+      it != values.end(); ++it) {
     const string sname = (*summarizer)(it->first);
-    map<string,PropertyValue>::iterator jt = dest.values.find(sname);
+    map<string, PropertyValue>::iterator jt = dest.values.find(sname);
     if(jt == dest.values.end())
-      jt = dest.values.insert(pair<string,PropertyValue>(sname,PropertyValue(sname))).first;
+      jt = dest.values
+               .insert(pair<string, PropertyValue>(sname, PropertyValue(sname)))
+               .first;
     jt->second += it->second;
   }
 }
 
 void ArticleProperty::order(std::vector<const PropertyValue *> &ordered) const {
-  for(map<string,PropertyValue>::const_iterator it = values.begin();
-      it != values.end();
-      ++it)
+  for(map<string, PropertyValue>::const_iterator it = values.begin();
+      it != values.end(); ++it)
     ordered.push_back(&it->second);
   sort(ordered.begin(), ordered.end(), PropertyValue::ptr_art_compare());
 }
 
-ArticleProperty::PropertyValue &ArticleProperty::PropertyValue::operator+=(const PropertyValue &that) {
+ArticleProperty::PropertyValue &ArticleProperty::PropertyValue::
+operator+=(const PropertyValue &that) {
   articles += that.articles;
   for(set<string>::const_iterator it = that.senders.begin();
-      it != that.senders.end();
-      ++it)
+      it != that.senders.end(); ++it)
     senders.insert(*it);
   senderCount += that.senderCount;
   return *this;
@@ -70,14 +68,11 @@ ArticleProperty::PropertyValue &ArticleProperty::PropertyValue::operator+=(const
 void ArticleProperty::logs(const string &path) {
   try {
     ofstream os(path.c_str(), ios::trunc);
-    os.exceptions(ofstream::badbit|ofstream::failbit);
-    for(map<string,PropertyValue>::const_iterator it = values.begin();
-        it != values.end();
-        ++it) {
+    os.exceptions(ofstream::badbit | ofstream::failbit);
+    for(map<string, PropertyValue>::const_iterator it = values.begin();
+        it != values.end(); ++it) {
       const PropertyValue &v = it->second;
-      os << csv_quote(v.value) 
-         << ',' << v.articles
-         << ',' << v.senderCount
+      os << csv_quote(v.value) << ',' << v.articles << ',' << v.senderCount
          << '\n';
     }
     os << flush;
@@ -87,13 +82,13 @@ void ArticleProperty::logs(const string &path) {
 }
 
 void ArticleProperty::readLogs(const string &path) {
-  vector<vector<Value> > rows;
+  vector<vector<Value>> rows;
   read_csv(path, rows);
   for(size_t n = 0; n < rows.size(); ++n) {
     const vector<Value> &row = rows.at(n);
     PropertyValue v(row[0]);
     v.articles = row[1];
     v.senderCount = row[2];
-    values.insert(pair<string,PropertyValue>(row[0], v));
+    values.insert(pair<string, PropertyValue>(row[0], v));
   }
 }

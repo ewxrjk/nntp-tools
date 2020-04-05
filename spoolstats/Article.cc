@@ -21,8 +21,8 @@
 
 using namespace std;
 
-Article::Article(const string &text, size_t bytes_): bytes(bytes_),
-                                                     cached_date(-1) {
+Article::Article(const string &text, size_t bytes_):
+    bytes(bytes_), cached_date(-1) {
   parse(text);
 }
 
@@ -43,22 +43,22 @@ void Article::parse(const string &text) {
 
   while(pos < text.size()) {
     if(eol(text, pos))
-      break;                  // end of headers
+      break; // end of headers
     string::size_type header_end = pos;
     while(header_end < text.size() && !eoh(text, header_end))
       ++header_end;
-    if(header_end >= text.size())      // truncated, skip
+    if(header_end >= text.size()) // truncated, skip
       break;
     // trim trailing whitespace
     string header(text, pos, header_end - pos); // full header
-    pos = header_end + eol(text, header_end); // after header+CRLF
+    pos = header_end + eol(text, header_end);   // after header+CRLF
     string::size_type colon = header.find(':');
     if(colon == string::npos)
-      continue;               // bad header, skip
+      continue; // bad header, skip
     string name(header, 0, colon);
     string::size_type s = header.find_first_not_of(" \t", colon + 1);
     string::size_type e = header.size();
-    while(e < colon && (header[e-1] == ' ' || header[e-1] == '\t'))
+    while(e < colon && (header[e - 1] == ' ' || header[e - 1] == '\t'))
       --e;
     if(s > e)
       s = e;
@@ -87,8 +87,7 @@ int Article::eoh(const string &text, string::size_type pos) {
   if(!n)
     return 0;
   pos += n;
-  if(pos < text.size()
-     && (text[pos] == ' ' || text[pos] == '\t'))
+  if(pos < text.size() && (text[pos] == ' ' || text[pos] == '\t'))
     return 0;
   return 1;
 }
@@ -111,7 +110,9 @@ const string &Article::useragent() const {
 const string Article::charset() const {
   // RFC2045 s5.1.  This is a rather goofy parse, but we're just totting up the
   // results, not filtering out evil.
-  static const char tokenchars[] = "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz{|}~";
+  static const char tokenchars[] =
+      "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`"
+      "abcdefghijklmnopqrstuvwxyz{|}~";
   map<string, string>::const_iterator it;
   it = headers.find("content-type");
   if(it == headers.end())

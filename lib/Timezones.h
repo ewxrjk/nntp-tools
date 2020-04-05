@@ -33,9 +33,10 @@ public:
     return timezones.find(s) != timezones.end();
   }
   static Timezones zones;
+
 private:
   Timezones();
-  std::map<std::string,int> timezones;
+  std::map<std::string, int> timezones;
 };
 
 #endif /* TIMEZONES_H */

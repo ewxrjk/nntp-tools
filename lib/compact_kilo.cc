@@ -35,4 +35,3 @@ string compact_kilo(double n) {
     ss << n / 1E9 << "G";
   return ss.str();
 }
-

@@ -36,13 +36,10 @@
 
 static void help(void);
 static void version(void);
-static int ftw_callback(const char *fpath,
-                        const struct stat *sb,
-                        int typeflag,
+static int ftw_callback(const char *fpath, const struct stat *sb, int typeflag,
                         struct FTW *ftwbuf);
-static void check_article(const char *fpath,
-                          const struct stat *sb);
-static char *load_article(const char *fpath, const struct stat *sb, 
+static void check_article(const char *fpath, const struct stat *sb);
+static char *load_article(const char *fpath, const struct stat *sb,
                           size_t *sizep);
 static void malformed(const char *fpath);
 static void action_list(const char *fpath);
@@ -54,51 +51,31 @@ static int eol = '\n';
 static int verbose = 0;
 static void (*action)(const char *) = action_list;
 
-static const struct option options[] = {
-  { "malformed", no_argument, 0, 'm' },
-  { "no-malformed", no_argument, 0, 'M' },
-  { "list", no_argument, 0, 'l' },
-  { "remove", no_argument, 0, 'r' },
-  { "null", no_argument, 0, '0' },
-  { "verbose", no_argument, 0, 'v' },
-  { "help", no_argument, 0, 'h' },
-  { "version", no_argument, 0, 'V' },
-  { 0, 0, 0, 0 }
-};
+static const struct option options[] = {{"malformed", no_argument, 0, 'm'},
+                                        {"no-malformed", no_argument, 0, 'M'},
+                                        {"list", no_argument, 0, 'l'},
+                                        {"remove", no_argument, 0, 'r'},
+                                        {"null", no_argument, 0, '0'},
+                                        {"verbose", no_argument, 0, 'v'},
+                                        {"help", no_argument, 0, 'h'},
+                                        {"version", no_argument, 0, 'V'},
+                                        {0, 0, 0, 0}};
 
 int main(int argc, char **argv) {
   int n;
   const char *pathhistory;
 
-  while((n = getopt_long(argc, argv, "hVmMrl0v",
-                         options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "hVmMrl0v", options, 0)) >= 0) {
     switch(n) {
-    case 'm':
-      list_malformed = 1;
-      break;
-    case 'M':
-      list_malformed = 0;
-      break;
-    case 'l':
-      action = action_list;
-      break;
-    case 'r':
-      action = action_remove;
-      break;
-    case '0':
-      eol = 0;
-      break;
-    case 'v':
-      ++verbose;
-      break;
-    case 'h':
-      help();
-      return 0;
-    case 'V':
-      version();
-      return 0;
-    default:
-      return 1;
+    case 'm': list_malformed = 1; break;
+    case 'M': list_malformed = 0; break;
+    case 'l': action = action_list; break;
+    case 'r': action = action_remove; break;
+    case '0': eol = 0; break;
+    case 'v': ++verbose; break;
+    case 'h': help(); return 0;
+    case 'V': version(); return 0;
+    default: return 1;
     }
   }
   if(!innconf_read(NULL))
@@ -116,20 +93,23 @@ int main(int argc, char **argv) {
 }
 
 static void help(void) {
-  if(printf("Usage:\n"
-            "  find-unhistorical [OPTIONS]\n"
-            "Options:\n"
-            "  -l, --list          List lost articles (default)\n"
-            "  -r, --remove        Remove lost articles\n"
-            "  -0, --null          Terminate filenames with \\0 instead of \\n\n"
-            "  -m, --malformed     Include malformed articles (default)\n"
-            "  -M, --no-malformed  Don't include malformed articles\n"
-            "  -v, --verbose       Write directory names to stderr\n"
-            "  -h, --help          Display usage message\n"
-            "  -V, --version       Display version string\n"
-            "\n"
-            "Lists or removes files in the news spool that aren't reflected in the history\n"
-            "file.\n") < 0)
+  if(printf(
+         "Usage:\n"
+         "  find-unhistorical [OPTIONS]\n"
+         "Options:\n"
+         "  -l, --list          List lost articles (default)\n"
+         "  -r, --remove        Remove lost articles\n"
+         "  -0, --null          Terminate filenames with \\0 instead of \\n\n"
+         "  -m, --malformed     Include malformed articles (default)\n"
+         "  -M, --no-malformed  Don't include malformed articles\n"
+         "  -v, --verbose       Write directory names to stderr\n"
+         "  -h, --help          Display usage message\n"
+         "  -V, --version       Display version string\n"
+         "\n"
+         "Lists or removes files in the news spool that aren't reflected in "
+         "the history\n"
+         "file.\n")
+     < 0)
     fatal(errno, "stdout");
 }
 
@@ -138,35 +118,24 @@ static void version(void) {
     fatal(errno, "stdout");
 }
 
-static int ftw_callback(const char *fpath,
-                        const struct stat *sb,
-                        int typeflag,
-                        struct FTW attribute((unused)) *ftwbuf) {
+static int ftw_callback(const char *fpath, const struct stat *sb, int typeflag,
+                        struct FTW attribute((unused)) * ftwbuf) {
   switch(typeflag) {
-  case FTW_F:
-    check_article(fpath, sb);
-    break;
+  case FTW_F: check_article(fpath, sb); break;
   case FTW_D:
     if(verbose)
       fprintf(stderr, "%s\n", fpath);
     break;
   case FTW_SL:
-  case FTW_SLN:
-    break;
-  case FTW_DNR:
-    error(errno, "cannot read %s", fpath);
-    break;
-  case FTW_NS:
-    error(errno, "cannot stat %s", fpath);
-    break;
-  default:
-    fatal(0, "unexpected typeflag %d for %s", typeflag, fpath);
+  case FTW_SLN: break;
+  case FTW_DNR: error(errno, "cannot read %s", fpath); break;
+  case FTW_NS: error(errno, "cannot stat %s", fpath); break;
+  default: fatal(0, "unexpected typeflag %d for %s", typeflag, fpath);
   }
   return 0;
 }
 
-static void check_article(const char *fpath,
-                          const struct stat *sb) {
+static void check_article(const char *fpath, const struct stat *sb) {
   size_t size;
   char *article, *mid, *end;
 
@@ -188,7 +157,7 @@ static void check_article(const char *fpath,
   free(article);
 }
 
-static char *load_article(const char *fpath, const struct stat *sb, 
+static char *load_article(const char *fpath, const struct stat *sb,
                           size_t *sizep) {
   int fd;
   char *article;

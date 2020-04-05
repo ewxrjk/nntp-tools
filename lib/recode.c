@@ -23,9 +23,7 @@
 #include <string.h>
 #include <errno.h>
 
-char *recode(const char *input,
-             const char *from,
-             const char *to) {
+char *recode(const char *input, const char *from, const char *to) {
   iconv_t cd;
   char *inptr, *outptr, outbuffer[256], *buffer = NULL;
   size_t inleft, outleft, len = 0, rc, outbytes;
@@ -59,8 +57,7 @@ char *recode(const char *input,
       case E2BIG:
         /* Output buffer full */
         break;
-      default:
-        fatal(errno, "iconv");
+      default: fatal(errno, "iconv");
       }
     } else
       break;

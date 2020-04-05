@@ -35,9 +35,9 @@
  * The left and right subtree positions are store in bigendian format.
  */
 struct node {
-  int64_t left;                         /* left subtree position or 0 */
-  int64_t right;                        /* right subtree position or 0 */
-  char commit[48];                      /* commit id + 0 terminator */
+  int64_t left;    /* left subtree position or 0 */
+  int64_t right;   /* right subtree position or 0 */
+  char commit[48]; /* commit id + 0 terminator */
 };
 
 /* Open tracking file */
@@ -72,7 +72,7 @@ static int64_t file_order(int64_t n) {
 /* Read a node from the tracking file.  Returns 1 on success and 0 if there is
  * no such node. */
 static int get(struct node *n, int64_t pos) {
-  D(("get %#"PRIx64, pos));
+  D(("get %#" PRIx64, pos));
   ssize_t bytes = pread(fd, n, sizeof *n, pos);
   if(bytes == 0)
     return 0;
@@ -90,13 +90,13 @@ int seen(const char *commit) {
   /* Get the root node */
   struct node n[1];
   if(!get(n, 0))
-    return 0;                           /* no root -> not seen anything */
+    return 0; /* no root -> not seen anything */
   int c;
   while((c = strcmp(commit, n->commit))) {
     int64_t branch = native_order(c < 0 ? n->left : n->right);
-    D(("%s %s %d %#"PRIx64, commit, n->commit, c, branch));
+    D(("%s %s %d %#" PRIx64, commit, n->commit, c, branch));
     if(!branch)
-      return 0;                         /* fallen off the bottom */
+      return 0; /* fallen off the bottom */
     if(!get(n, branch))
       fatal(0, "missing tracking file node");
   }
@@ -112,7 +112,7 @@ void remember(const char *commit) {
   strcpy(newnode->commit, commit);
   /* Append it to the file */
   int64_t newnodepos = lseek(fd, 0L, SEEK_END);
-  D(("newnodepos=%#"PRIx64, newnodepos));
+  D(("newnodepos=%#" PRIx64, newnodepos));
   if(newnodepos < 0)
     fatal(errno, "seeking tracking file");
   if(newnodepos % sizeof newnode != 0)
@@ -140,7 +140,7 @@ void remember(const char *commit) {
     }
     int64_t *childp = c < 0 ? &n->left : &n->right;
     int64_t child = native_order(*childp);
-    D(("%s %s %d %#"PRIx64, commit, n->commit, c, child));
+    D(("%s %s %d %#" PRIx64, commit, n->commit, c, child));
     if(child) {
       parent = child;
       /* ...and we go round again */
@@ -162,6 +162,6 @@ void init_seen(const char *path) {
     close(fd);
     fd = -1;
   }
-  if((fd = open(path, O_RDWR|O_CREAT, 0666)) < 0)
+  if((fd = open(path, O_RDWR | O_CREAT, 0666)) < 0)
     fatal(errno, "opening %s", path);
 }

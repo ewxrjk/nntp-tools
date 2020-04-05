@@ -25,8 +25,7 @@ class Hierarchy;
 
 class AllGroups: public Bucket {
 public:
-  AllGroups(): skip_lwm(0), skip_mtime(0), dirs(0) {
-  }
+  AllGroups(): skip_lwm(0), skip_mtime(0), dirs(0) {}
 
   ~AllGroups();
 

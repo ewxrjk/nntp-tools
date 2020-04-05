@@ -21,14 +21,13 @@
 
 using namespace std;
 
-Group::Group(const string &name_): name(name_) {
-}
+Group::Group(const string &name_): name(name_) {}
 
 // Visit one article
 void Group::visit(const Article *a) {
   Bucket::visit(a);
   const string &sender = a->sender();
-  map<string,int>::iterator it = senders.find(sender);
+  map<string, int>::iterator it = senders.find(sender);
   if(it == senders.end())
     senders[sender] = 1;
   else
@@ -45,11 +44,9 @@ void Group::summary(ostream &os) {
   os << "<td>" << HTML::Escape(name) << "</td>\n";
   os << "<td sorttable_customkey=-" << fixed << arts_per_day << ">"
      << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
-     << setprecision(6)
-     << "</td>\n";
+     << setprecision(6) << "</td>\n";
   os << "<td sorttable_customkey=-" << bytes_per_day << ">"
-     << round_kilo(bytes_per_day) 
-     << "</td>\n";
+     << round_kilo(bytes_per_day) << "</td>\n";
   os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   // TODO can we find a better stream state restoration idiom?
 }

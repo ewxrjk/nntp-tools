@@ -44,8 +44,8 @@ public:
 
   // Define a Y axis.  Call once or twice.  The return value increases from 0
   // (and is the 'v' parameter below).
-  int define_y(const std::string &name, double min, double max,
-               double r = -1, double g = -1, double b = -1);
+  int define_y(const std::string &name, double min, double max, double r = -1,
+               double g = -1, double b = -1);
 
   // Add a marker to the X axis.  Call any number of times.
   void marker_x(double x, const std::string &value);
@@ -70,30 +70,31 @@ public:
 
   // Save as a PNG
   void save(const std::string &path);
+
 private:
   struct Variable {
     std::string name;
     double min;
     double max;
-    std::map<double,std::string> markers;
+    std::map<double, std::string> markers;
     double r, g, b;
   };
 
   Cairo::RefPtr<Cairo::Surface> surface;
   Cairo::RefPtr<Cairo::Context> context;
-  int width, height;                    // dimensions
-  double start, end;                    // X axis range
-  std::vector<Variable> variables;      // Y axes
+  int width, height;               // dimensions
+  double start, end;               // X axis range
+  std::vector<Variable> variables; // Y axes
   double mark_size;
   double border;
   double label_space;
   std::string xname;
   std::string title;
 
-  double bleft, bright, btop, bbottom;  // border sizes
+  double bleft, bright, btop, bbottom; // border sizes
 
-  std::map<double,std::string> markers;
-  std::map<std::pair<double,double>,std::string> ranges;
+  std::map<double, std::string> markers;
+  std::map<std::pair<double, double>, std::string> ranges;
   int current_variable;
 
   inline double xc(double x) const {
@@ -101,13 +102,13 @@ private:
   }
 
   inline double yc(int v, double y) const {
-    return height - bbottom - (y - variables[v].min) * (height - btop - bbottom) /
-      (variables[v].max - variables[v].min);
+    return height - bbottom
+           - (y - variables[v].min) * (height - btop - bbottom)
+                 / (variables[v].max - variables[v].min);
   }
 
   void compute_bounds();
   void draw_axes();
-
 };
 
 #endif /* GRAPH_H */

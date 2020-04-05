@@ -53,7 +53,7 @@ public:
   Group *group(const std::string &name);
 
   // Map of group names to their objects
-  std::map<std::string,Group *> groups;
+  std::map<std::string, Group *> groups;
 };
 
 #endif /* HIERARCHY_H */

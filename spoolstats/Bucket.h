@@ -25,12 +25,10 @@ class Article;
 
 class Bucket {
 public:
-  int articles;                 // count of articles
-  intmax_t bytes;               // count of bytes
+  int articles;   // count of articles
+  intmax_t bytes; // count of bytes
 
-  inline Bucket(): articles(0),
-                   bytes(0) {
-  }
+  inline Bucket(): articles(0), bytes(0) {}
 
   virtual ~Bucket();
 
@@ -40,8 +38,7 @@ public:
     bytes += a->get_size();
   }
 
-  void graph(const std::string &title,
-             const std::string &csv, 
+  void graph(const std::string &title, const std::string &csv,
              const std::string &png);
 
 private:

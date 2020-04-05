@@ -44,7 +44,7 @@
 /* --- types --------------------------------------------------------------- */
 
 struct logentry {
-  int revno;                            /* or -1 */
+  int revno; /* or -1 */
   char *commitid;
   time_t timestamp;
   char *branch;
@@ -55,29 +55,28 @@ struct logentry {
   char *modified;
   char *renamed;
   char *diff;
-  char *encoding;                       /* or NULL to follow LC_CTYPE */
+  char *encoding; /* or NULL to follow LC_CTYPE */
 };
 
 /* --- options ------------------------------------------------------------- */
 
 const struct option options[] = {
-  { "age", required_argument, 0,  'a' },
-  { "salt", required_argument, 0, 'x' },
-  { "newsgroup", required_argument, 0, 'n' },
-  { "msggid-domain", required_argument, 0, 'M' },
-  { "server",  required_argument, 0, 's' },
-  { "port", required_argument, 0,  'p' },
-  { "debug", no_argument, 0, 'd' },
-  { "preview", no_argument, 0, 'P' },
-  { "first", required_argument, 0, 'f' },
-  { "diff", no_argument, 0, 'D' },
-  { "diffs", no_argument, 0, 'D' },     /* in case of typos */
-  { "help", no_argument, 0, 'h' },
-  { "version", no_argument, 0, 'V' },
-  { 0, 0, 0, 0 }
-};
+    {"age", required_argument, 0, 'a'},
+    {"salt", required_argument, 0, 'x'},
+    {"newsgroup", required_argument, 0, 'n'},
+    {"msggid-domain", required_argument, 0, 'M'},
+    {"server", required_argument, 0, 's'},
+    {"port", required_argument, 0, 'p'},
+    {"debug", no_argument, 0, 'd'},
+    {"preview", no_argument, 0, 'P'},
+    {"first", required_argument, 0, 'f'},
+    {"diff", no_argument, 0, 'D'},
+    {"diffs", no_argument, 0, 'D'}, /* in case of typos */
+    {"help", no_argument, 0, 'h'},
+    {"version", no_argument, 0, 'V'},
+    {0, 0, 0, 0}};
 
-static long maxage = 86400 * 7;         /* = a week */
+static long maxage = 86400 * 7; /* = a week */
 static const char *newsgroup = 0;
 static const char *msgiddomain = "tylerdurden.greenend.org.uk";
 static const char *salt = "";
@@ -98,8 +97,7 @@ static void header(const char *name, char *text, struct logentry *l) {
     l->message = xstrdup(text);
   else if(!strcmp(name, "branch nick"))
     l->branch = xstrdup(text);
-  else if(!strcmp(name, "committer")
-          || !strcmp(name, "Author"))
+  else if(!strcmp(name, "committer") || !strcmp(name, "Author"))
     l->committer = xstrdup(text);
   else if(!strcmp(name, "added"))
     l->added = xstrdup(text);
@@ -114,7 +112,7 @@ static void header(const char *name, char *text, struct logentry *l) {
   else if(!strcmp(name, "timestamp"))
     l->timestamp = bzrdate_to_time_t(text);
   else if(!strcmp(name, "Date"))
-    l->timestamp = atoll(text);         /* easy l-) */
+    l->timestamp = atoll(text); /* easy l-) */
   else if(!strcmp(name, "commit"))
     l->commitid = xstrdup(text);
   else if(!strcmp(name, "revision-id")) {
@@ -125,12 +123,13 @@ static void header(const char *name, char *text, struct logentry *l) {
     size_t n;
 
     if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
-      fatal(0, "error calling gcry_md_open: %s/%s",
-            gcry_strsource(gerr), gcry_strerror(gerr));
+      fatal(0, "error calling gcry_md_open: %s/%s", gcry_strsource(gerr),
+            gcry_strerror(gerr));
     gcry_md_write(hd, text, strlen(text));
     hash = gcry_md_read(hd, 0);
     l->commitid = xmalloc(41);
-    for(n = 0; n < 20; ++n) sprintf(l->commitid + 2 * n, "%02x", hash[n]);
+    for(n = 0; n < 20; ++n)
+      sprintf(l->commitid + 2 * n, "%02x", hash[n]);
     gcry_md_close(hd);
   } else
     D(("...unknown!"));
@@ -180,8 +179,8 @@ static void post_log(const char *dir, const struct logentry *l) {
   D(("message: %s", l->message));
   /* Knock up a message ID */
   if((gerr = gcry_md_open(&hd, GCRY_MD_SHA1, 0)))
-    fatal(0, "error calling gcry_md_open: %s/%s",
-	  gcry_strsource(gerr), gcry_strerror(gerr));
+    fatal(0, "error calling gcry_md_open: %s/%s", gcry_strsource(gerr),
+          gcry_strerror(gerr));
   gcry_md_write(hd, "bzr2news", 8);
   gcry_md_write(hd, salt, strlen(salt));
   gcry_md_write(hd, dir, strlen(dir));
@@ -190,7 +189,8 @@ static void post_log(const char *dir, const struct logentry *l) {
   else
     gcry_md_write(hd, &l->revno, sizeof l->revno);
   hash = gcry_md_read(hd, 0);
-  for(n = 0; n < 20; ++n) sprintf(itemid + 2 * n, "%02x", hash[n]);
+  for(n = 0; n < 20; ++n)
+    sprintf(itemid + 2 * n, "%02x", hash[n]);
   gcry_md_close(hd);
   if(asprintf(&msgid, "<%s@%s>", itemid, msgiddomain) < 0)
     fatal(errno, "error calling asprintf");
@@ -212,11 +212,9 @@ static void post_log(const char *dir, const struct logentry *l) {
              "MIME-Version: 1.0\n"
              "Content-Type: text/plain; charset=%s\n"
              "Content-Transfer-Encoding: 8bit\n",
-             newsgroup,
-             l->committer,
-             date822,
-             msgid,
-             l->encoding ? l->encoding : encoding) < 0)
+             newsgroup, l->committer, date822, msgid,
+             l->encoding ? l->encoding : encoding)
+     < 0)
     fatal(errno, "error constructing article");
   /* Use the first line of the message in the subject */
   subject = l->message;
@@ -233,14 +231,15 @@ static void post_log(const char *dir, const struct logentry *l) {
     if(fprintf(output,
                "X-Git-Commit: %s\n"
                "Subject: [%s] %.8s %.*s\n",
-               l->commitid,
-               l->branch, l->commitid, subject_len, subject) < 0)
+               l->commitid, l->branch, l->commitid, subject_len, subject)
+       < 0)
       fatal(errno, "error constructing article");
   } else {
     if(fprintf(output,
                "X-Bzr-Revision: %d\n"
                "Subject: [%s] %d %.*s\n",
-               l->revno, l->branch, l->revno, subject_len, subject) < 0)
+               l->revno, l->branch, l->revno, subject_len, subject)
+       < 0)
       fatal(errno, "error constructing article");
   }
   /* Exactly one blank line */
@@ -254,15 +253,23 @@ static void post_log(const char *dir, const struct logentry *l) {
     while(isspace((unsigned char)*d))
       ++d;
     if(*d) {
-      if(fprintf(output, "\n* Changes --------------------------------------------------------------\n\n%s",
-                 d) < 0)
+      if(fprintf(output,
+                 "\n* Changes "
+                 "-------------------------------------------------------------"
+                 "-\n\n%s",
+                 d)
+         < 0)
         fatal(errno, "error constructing article");
     }
   }
   /* That's it */
-  if(fclose(output) < 0) fatal(errno, "error constructing article");
+  if(fclose(output) < 0)
+    fatal(errno, "error constructing article");
   if(preview) {
-    if(printf("%s------------------------------------------------------------------------\n\n", article) < 0)
+    if(printf("%s--------------------------------------------------------------"
+              "----------\n\n",
+              article)
+       < 0)
       fatal(errno, "error writing to stdout");
   } else
     post(msgid, article);
@@ -293,41 +300,47 @@ static int read_bzr_log(FILE *fp, struct logentry *l, time_t now) {
   /* skip dividers */
   while((rc = getline(&line, &nline, fp)) >= 0 && is_bzr_divider(line))
     ;
-  if(rc < 0) goto error;
+  if(rc < 0)
+    goto error;
   do {
-    D(("line: [%.*s]", strlen(line)-1, line));
+    D(("line: [%.*s]", strlen(line) - 1, line));
     if(line[0] == ' ') {
       if(!name)
-	fatal(0, "continuation of a nonexistent header: %s", line);
-      append(&text, &ntext,  line + 2);
+        fatal(0, "continuation of a nonexistent header: %s", line);
+      append(&text, &ntext, line + 2);
     } else {
       if(text) {
-	header(name, text, l);
-	free(name);
-	name = 0;
-	free(text);
-	text = 0;
-	ntext = 0;
+        header(name, text, l);
+        free(name);
+        name = 0;
+        free(text);
+        text = 0;
+        ntext = 0;
       }
       if(!(s = strchr(line, ':')))
-	fatal(0, "bogus log line: %s", line);
+        fatal(0, "bogus log line: %s", line);
       name = xmalloc(s - line + 1);
       memcpy(name, line, s - line);
       name[s - line] = 0;
       ++s;
       while(isspace((unsigned char)*s))
-	++s;
+        ++s;
       append(&text, &ntext, s);
     }
   } while((rc = getline(&line, &nline, fp)) >= 0 && line[0] != '-');
-  if(rc < 0 && ferror(fp)) goto error;
+  if(rc < 0 && ferror(fp))
+    goto error;
   /* EOF is acceptable */
   if(text)
     header(name, text, l);
-  if(!l->revno) fatal(0, "no revno found");
-  if(!l->timestamp) fatal(0, "no timestamp found");
-  if(!l->branch) fatal(0, "no branch found");
-  if(!l->message) fatal(0, "no message found");
+  if(!l->revno)
+    fatal(0, "no revno found");
+  if(!l->timestamp)
+    fatal(0, "no timestamp found");
+  if(!l->branch)
+    fatal(0, "no branch found");
+  if(!l->message)
+    fatal(0, "no message found");
   /* Collecting the diff is expensive so only do so if we were asked for it and
    * it's within the age limit */
   if(diffs && (!maxage || now - l->timestamp <= maxage)) {
@@ -340,7 +353,7 @@ static int read_bzr_log(FILE *fp, struct logentry *l, time_t now) {
   }
   /* l->added might be 0 and that's ok with us */
   rc = 0;
- error:
+error:
   free(line);
   free(text);
   free(name);
@@ -352,7 +365,8 @@ static int read_bzr_log(FILE *fp, struct logentry *l, time_t now) {
 }
 
 /* scan a bzr archive's logs, posting new changes */
-static void process_bzr_archive(const char *dir, const char *branch, int first) {
+static void process_bzr_archive(const char *dir, const char *branch,
+                                int first) {
   FILE *fp;
   struct logentry l;
   int rc;
@@ -364,7 +378,8 @@ static void process_bzr_archive(const char *dir, const char *branch, int first) 
   time(&now);
   if(first >= 0) {
     if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward -r %d..",
-                first) < 0)
+                first)
+       < 0)
       fatal(errno, "asprintf");
   } else {
     if(asprintf(&cmd, "bzr log --show-ids --timezone=utc --forward") < 0)
@@ -380,10 +395,13 @@ static void process_bzr_archive(const char *dir, const char *branch, int first) 
       D(("too old"));
     free_log(&l);
   }
-  if(ferror(fp)) fatal(errno, "error reading from bzr log pipe");
+  if(ferror(fp))
+    fatal(errno, "error reading from bzr log pipe");
   free_log(&l);
-  if((rc = pclose(fp)) < 0) fatal(errno, "error closing bzr log pipe");
-  else if(rc) fatal(0, "bzr log exited with wstat %#x", rc);
+  if((rc = pclose(fp)) < 0)
+    fatal(errno, "error closing bzr log pipe");
+  else if(rc)
+    fatal(0, "bzr log exited with wstat %#x", rc);
 }
 
 /* --- git support --------------------------------------------------------- */
@@ -396,8 +414,7 @@ static char *stem_git_name(const char *dir) {
   return stem;
 }
 
-static void complete_git_commit(const char *dir, 
-                                char *message, 
+static void complete_git_commit(const char *dir, char *message,
                                 struct logentry *l) {
   time_t now;
   time(&now);
@@ -411,7 +428,7 @@ static void complete_git_commit(const char *dir,
       if(diffs) {
         /* Collect the diff */
         char *diff_cmd, *diff_native;
-            
+
         if(asprintf(&diff_cmd, "git show --format=format: %s", l->commitid) < 0)
           fatal(errno, "error calling asprintf");
         diff_native = capture(diff_cmd);
@@ -423,7 +440,7 @@ static void complete_git_commit(const char *dir,
       }
       l->encoding = xstrdup("UTF-8");
       D(("got commit %s", l->commitid));
-      l->revno = -1;                    /* no revision number */
+      l->revno = -1; /* no revision number */
       post_log(dir, l);
     }
   } else
@@ -431,7 +448,8 @@ static void complete_git_commit(const char *dir,
   free_log(l);
 }
 
-static void process_git_archive(const char *dir, const char *branch, int first) {
+static void process_git_archive(const char *dir, const char *branch,
+                                int first) {
   char *cmd;
   struct logentry l;
   FILE *fp;
@@ -444,10 +462,11 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
 
   memset(&l, 0, sizeof l);
   if(first >= 0)
-    fatal(0, "--first option is not supported for git archives");/*TODO*/
+    fatal(0, "--first option is not supported for git archives"); /*TODO*/
   /* We explicitly ask for UTF-8 in case i18.logoutputencoding is set */
   if(asprintf(&cmd, "git log --encoding=UTF-8 --reverse --date=raw %s",
-              branch ? branch : "") < 0)
+              branch ? branch : "")
+     < 0)
     fatal(errno, "asprintf");
   D(("in %s: [%s]", dir, cmd));
   if(!(fp = popen(cmd, "r")))
@@ -455,35 +474,35 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   free(cmd);
   while((rc = getline(&line, &linelen, fp)) >= 0) {
     /* Strip off trailing newline (and any other whitespace) */
-    while(rc > 0 && isspace((unsigned char)line[rc - 1] ))
+    while(rc > 0 && isspace((unsigned char)line[rc - 1]))
       --rc;
     line[rc] = 0;
     switch(state) {
-    case 0:                             /* initial state */
-      if(!*line)                        /* leading blank line!?! */
+    case 0:      /* initial state */
+      if(!*line) /* leading blank line!?! */
         continue;
       if(isspace((unsigned char)*line)) /* leading comment text!?! */
         continue;
-      state = 1;                        /* fall through to read a header */
+      state = 1; /* fall through to read a header */
       //-fallthrough
 
-    case 1:                             /* reading header */
+    case 1: /* reading header */
     collect_header:
       /* headers are at the start of the line */
       if(*line && !isspace((unsigned char)*line)) {
         size_t n = strcspn(line, ": ");
         if(line[n])
-          line[n++] = 0;                /* delimit the header name */
+          line[n++] = 0; /* delimit the header name */
         while(isspace((unsigned char)line[n]))
           ++n;
         header(line, &line[n], &l);
-        break;                          /* done with this line */
+        break; /* done with this line */
       }
       /* else fall through into reading comment */
       state = 2;
       //-fallthrough
 
-    case 2:                             /* reading comment */
+    case 2: /* reading comment */
       /* non-space at the start is the start of the next commit */
       if(*line && !isspace((unsigned char)*line)) {
         assert(message != NULL);
@@ -502,7 +521,8 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
       break;
     }
   }
-  if(ferror(fp)) fatal(errno, "error reading from git log pipe");
+  if(ferror(fp))
+    fatal(errno, "error reading from git log pipe");
   if(l.commitid) {
     assert(message != NULL);
     complete_git_commit(dir, message, &l);
@@ -510,8 +530,10 @@ static void process_git_archive(const char *dir, const char *branch, int first) 
   free_log(&l);
   free(line);
   free(message);
-  if((rc = pclose(fp)) < 0) fatal(errno, "error closing git log pipe");
-  else if(rc) fatal(0, "git log exited with wstat %#x", rc);
+  if((rc = pclose(fp)) < 0)
+    fatal(errno, "error closing git log pipe");
+  else if(rc)
+    fatal(0, "git log exited with wstat %#x", rc);
 }
 
 /* --- main program -------------------------------------------------------- */
@@ -541,7 +563,8 @@ static void process_archive(const char *dir, int first) {
   if(!(realdir = realpath(dir, NULL)))
     fatal(errno, "realpath %s", dir);
   /* Switch to target directory */
-  if(chdir(dir) < 0) fatal(errno, "cannot cd %s", dir);
+  if(chdir(dir) < 0)
+    fatal(errno, "cannot cd %s", dir);
   /* Open the right .seen file */
   if(asprintf(&seenfile, "%s.seen", realdir) < 0)
     fatal(errno, "asprintf");
@@ -551,12 +574,18 @@ static void process_archive(const char *dir, int first) {
   /* Try to guess what kind of revision control system we have.  First we look
    * at files, failing that we choose a default based on the name we were
    * invoked as, if even that doesn't work we default to bzr. */
-  if(fexists(".bzr"))              process_bzr_archive(dir, branch, first);
-  else if(fexists(".git"))         process_git_archive(dir, branch, first);
-  else if(fexists("HEAD"))         process_git_archive(dir, branch, first);
-  else if(strstr(progname, "bzr")) process_bzr_archive(dir, branch, first);
-  else if(strstr(progname, "git")) process_git_archive(dir, branch, first);
-  else                             process_bzr_archive(dir, branch, first);
+  if(fexists(".bzr"))
+    process_bzr_archive(dir, branch, first);
+  else if(fexists(".git"))
+    process_git_archive(dir, branch, first);
+  else if(fexists("HEAD"))
+    process_git_archive(dir, branch, first);
+  else if(strstr(progname, "bzr"))
+    process_bzr_archive(dir, branch, first);
+  else if(strstr(progname, "git"))
+    process_git_archive(dir, branch, first);
+  else
+    process_bzr_archive(dir, branch, first);
   /* Switch back */
   if(fchdir(olddir) < 0)
     fatal(errno, "cannot fchdir back to original directory");
@@ -569,7 +598,7 @@ int main(int argc, char **argv) {
   const char *port = 0;
   int pf = PF_UNSPEC;
   int first = -1;
-  
+
   if(!setlocale(LC_CTYPE, ""))
     fatal(errno, "setlocale");
   if(!(encoding = nl_langinfo(CODESET)))
@@ -580,45 +609,27 @@ int main(int argc, char **argv) {
   progname = argv[0];
   /* Force timezone to GMT */
   setenv("TZ", "UTC", 1);
-  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hPf:D",
-                         options, 0)) >= 0) {
+  while((n = getopt_long(argc, argv, "n:s:p:46dVa:M:x:hPf:D", options, 0))
+        >= 0) {
     switch(n) {
-    case 'x':
-      salt = optarg;
-      break;
-    case 'n':
-      newsgroup = optarg;
-      break;
-    case 's':
-      server = optarg;
-      break;
+    case 'x': salt = optarg; break;
+    case 'n': newsgroup = optarg; break;
+    case 's': server = optarg; break;
     case 'p':
-      if(*optarg) port = optarg;
+      if(*optarg)
+        port = optarg;
       break;
-    case '4':
-      pf = AF_INET;
-      break;
-    case '6':
-      pf = AF_INET6;
-      break;
-    case 'd':
-      debug = 1;
-      break;
-    case 'a':
-      maxage = atol(optarg);
-      break;
+    case '4': pf = AF_INET; break;
+    case '6': pf = AF_INET6; break;
+    case 'd': debug = 1; break;
+    case 'a': maxage = atol(optarg); break;
     case 'M':
-      if(*optarg) msgiddomain = optarg;
+      if(*optarg)
+        msgiddomain = optarg;
       break;
-    case 'P':
-      preview = 1;
-      break;
-    case 'f':
-      first = atoi(optarg);
-      break;
-    case 'D':
-      diffs = 1;
-      break;
+    case 'P': preview = 1; break;
+    case 'f': first = atoi(optarg); break;
+    case 'D': diffs = 1; break;
     case 'V':
       printf("bzr2news/git2news from rjk-nntp-tools version " VERSION "\n");
       exit(0);
@@ -641,8 +652,7 @@ Rarely used options:\n\
   -D, --diff                         Show diffs\n\
   -d, --debug                        Enable debug output\n");
       exit(0);
-    default:
-      exit(1);
+    default: exit(1);
     }
   }
   if(!newsgroup)

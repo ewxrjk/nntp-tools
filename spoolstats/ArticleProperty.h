@@ -35,8 +35,8 @@ public:
     long articles;
     std::set<std::string> senders;
     size_t senderCount;
-    inline PropertyValue(const std::string &value_): value(value_), articles(0), senderCount(0) {
-    }
+    inline PropertyValue(const std::string &value_):
+        value(value_), articles(0), senderCount(0) {}
     void addSender(const std::string &s) {
       senders.insert(s);
       senderCount = senders.size();
@@ -47,15 +47,15 @@ public:
         return a->articles > b->articles;
       }
     };
+
   private:
-    PropertyValue();                             // not default-constructable
+    PropertyValue(); // not default-constructable
   };
 
   ArticleProperty();
   ~ArticleProperty();
 
-  void update(const Article *article,
-              const std::string &value);
+  void update(const Article *article, const std::string &value);
 
   void logs(const std::string &path);
   void readLogs(const std::string &path);
@@ -64,11 +64,10 @@ public:
 
   typedef const std::string &summarize_fn(const std::string &);
 
-  void summarize(ArticleProperty &dest,
-                 summarize_fn *summarize);
+  void summarize(ArticleProperty &dest, summarize_fn *summarize);
 
 private:
-  std::map<std::string,PropertyValue> values;
+  std::map<std::string, PropertyValue> values;
 };
 
 #endif /* ARTICLEPROPERTY_H */

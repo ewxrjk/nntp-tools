@@ -41,17 +41,16 @@ time_t parse_date(const string &d, bool warn) {
     return 0;
   }
   time_t when = timegm(&bdt);
-  when -= zone;               // timezone adjustment
-  //cerr << d << " ---> " << ctime(&when);
+  when -= zone; // timezone adjustment
+  // cerr << d << " ---> " << ctime(&when);
   return when;
 }
 
 // Parse a date string and return it as a struct tm and a timezone offset
 static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
   static const string months[] = {
-    "jan", "feb", "mar", "apr",
-    "may", "jun", "jul", "aug",
-    "sep", "oct", "nov", "dec",
+      "jan", "feb", "mar", "apr", "may", "jun",
+      "jul", "aug", "sep", "oct", "nov", "dec",
   };
 
   // Possible date formats:
@@ -87,7 +86,7 @@ static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
   bdt.tm_mon = -1;
   for(int n = 0; n < 12; ++n)
     if(word == months[n])
-      bdt.tm_mon = n;              // NB 0-based months
+      bdt.tm_mon = n; // NB 0-based months
   if(bdt.tm_mon == -1) {
     if(debug)
       cerr << "bad month (lookup failed)" << endl;
@@ -134,9 +133,7 @@ static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
           cerr << "short zone" << endl;
         return false;
       }
-      if(!isdigit(d[pos + 1])
-         || !isdigit(d[pos + 2])
-         || !isdigit(d[pos + 3])
+      if(!isdigit(d[pos + 1]) || !isdigit(d[pos + 2]) || !isdigit(d[pos + 3])
          || !isdigit(d[pos + 4])) {
         if(debug)
           cerr << "nonnumeric zone" << endl;
@@ -163,7 +160,7 @@ static bool parse_date_std(const string &d, struct tm &bdt, int &zone) {
       zone = Timezones::zones[zonename];
     }
   } else
-    zone = 0;                 // assume UTC
+    zone = 0; // assume UTC
   return true;
 }
 

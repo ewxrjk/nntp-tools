@@ -21,22 +21,20 @@
 
 using namespace std;
 
-Hierarchy::Hierarchy(const string &name_): name(name_) {
-}
+Hierarchy::Hierarchy(const string &name_): name(name_) {}
 
 Hierarchy::~Hierarchy() {
-  for(map<string,Group *>::const_iterator it = groups.begin();
-      it != groups.end();
-      ++it)
+  for(map<string, Group *>::const_iterator it = groups.begin();
+      it != groups.end(); ++it)
     delete it->second;
 }
 
 Group *Hierarchy::group(const string &groupname) {
-  map<string,Group *>::iterator it = groups.find(groupname);
+  map<string, Group *>::iterator it = groups.find(groupname);
   if(it != groups.end())
     return it->second;
   Group *g = new Group(groupname);
-  groups.insert(pair<string,Group *>(groupname, g));
+  groups.insert(pair<string, Group *>(groupname, g));
   return g;
 }
 
@@ -53,11 +51,9 @@ void Hierarchy::summary(ostream &os) {
      << HTML::Escape(name) << ".*</a></td>\n";
   os << "<td sorttable_customkey=-" << fixed << arts_per_day << ">"
      << setprecision(arts_per_day >= 10 ? 0 : 1) << arts_per_day
-     << setprecision(6)
-     << "</td>\n";
+     << setprecision(6) << "</td>\n";
   os << "<td sorttable_customkey=-" << bytes_per_day << ">"
-     << round_kilo(bytes_per_day)
-     << "</td>\n";
+     << round_kilo(bytes_per_day) << "</td>\n";
   os << "<td sorttable_customkey=-" << posters << ">" << posters << "</td>\n";
   os << "</tr>\n";
   // TODO can we find a better stream state restoration idiom?
@@ -66,7 +62,7 @@ void Hierarchy::summary(ostream &os) {
 void Hierarchy::page() {
   try {
     ofstream os((Config::output + "/" + name + ".html").c_str());
-    os.exceptions(ofstream::badbit|ofstream::failbit);
+    os.exceptions(ofstream::badbit | ofstream::failbit);
 
     os << HTML::Header(name + ".*", "spoolstats.css", "sorttable.js");
 
@@ -84,10 +80,9 @@ void Hierarchy::page() {
     HTML::thead(os, "Group", "Articles/day", "Bytes/day", "Posters",
                 (const char *)NULL);
 
-    for(map<string,Group *>::const_iterator it = groups.begin();
-        it != groups.end();
-        ++it) {
-      Group *g = it->second;              // Summary line
+    for(map<string, Group *>::const_iterator it = groups.begin();
+        it != groups.end(); ++it) {
+      Group *g = it->second; // Summary line
       g->summary(os);
     }
 
@@ -98,10 +93,8 @@ void Hierarchy::page() {
     os << "<tfoot>\n";
     os << "<tr>\n";
     os << "<td>Total</td>\n";
-    os << "<td>"
-       << setprecision(total_arts_per_day >= 10 ? 0 : 1) << total_arts_per_day
-       << setprecision(6)
-       << "</td>\n";
+    os << "<td>" << setprecision(total_arts_per_day >= 10 ? 0 : 1)
+       << total_arts_per_day << setprecision(6) << "</td>\n";
     os << "<td>" << round_kilo(total_bytes_per_day) << "</td>\n";
     os << "<td>" << total_posters << "</td>\n";
     os << "</tr>\n";
@@ -119,30 +112,23 @@ void Hierarchy::page() {
 void Hierarchy::logs() {
   try {
     ofstream os((Config::output + "/" + name + ".csv").c_str(), ios::app);
-    os.exceptions(ofstream::badbit|ofstream::failbit);
-    os << Config::end_time
-       << ',' << Config::days * 86400
-       << ',' << bytes
-       << ',' << articles
-       << ',' << senderCount
-       << '\n'
+    os.exceptions(ofstream::badbit | ofstream::failbit);
+    os << Config::end_time << ',' << Config::days * 86400 << ',' << bytes << ','
+       << articles << ',' << senderCount << '\n'
        << flush;
   } catch(ios::failure &) {
-    fatal(errno, "writing to %s", (Config::output + "/" + name +".csv").c_str());
+    fatal(errno, "writing to %s",
+          (Config::output + "/" + name + ".csv").c_str());
   }
   const string groupdata = Config::output + "/" + name + "-groups.csv";
   try {
     ofstream os(groupdata.c_str(), ios::trunc);
-    os.exceptions(ofstream::badbit|ofstream::failbit);
-    for(map<string,Group *>::const_iterator it = groups.begin();
-        it != groups.end();
-        ++it) {
+    os.exceptions(ofstream::badbit | ofstream::failbit);
+    for(map<string, Group *>::const_iterator it = groups.begin();
+        it != groups.end(); ++it) {
       const Group *g = it->second;
-      os << csv_quote(it->first)
-         << "," << g->bytes
-         << "," << g->articles
-         << "," << g->senderCount
-         << '\n';
+      os << csv_quote(it->first) << "," << g->bytes << "," << g->articles << ","
+         << g->senderCount << '\n';
     }
     os << flush;
   } catch(ios::failure &) {
@@ -151,7 +137,7 @@ void Hierarchy::logs() {
 }
 
 void Hierarchy::readLogs() {
-  vector<vector<Value> > rows;
+  vector<vector<Value>> rows;
   read_csv(Config::output + "/" + name + ".csv", rows);
   if(rows.size()) {
     const vector<Value> &last = rows.back();
@@ -173,7 +159,6 @@ void Hierarchy::readLogs() {
 }
 
 void Hierarchy::graphs() {
-  graph(name + ".*",
-        Config::output + "/" + name + ".csv",
+  graph(name + ".*", Config::output + "/" + name + ".csv",
         Config::output + "/" + name + ".png");
 }
