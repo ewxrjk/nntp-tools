@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 sudo: required
 language: cpp
 compiler:
@@ -8,7 +8,6 @@ compiler:
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libgcrypt-dev libcurl4-gnutls-dev libexpat-dev vim-common pkg-config libcairomm-1.0-dev inn2-dev
-# NB will need xxc instead of vim-common if we move beyond trusty
 
 script:
 - ./autogen.sh
