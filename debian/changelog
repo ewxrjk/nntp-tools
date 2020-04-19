@@ -1,3 +1,9 @@
+rjk-nntp-tools (32) stable; urgency=medium
+
+  * /var/www -> /var/www/html
+
+ -- Richard Kettlewell <rjk@terraraq.org.uk>  Sun, 19 Apr 2020 12:06:11 +0100
+
 rjk-nntp-tools (31) stable; urgency=medium
 
   * More reproducible builds.

@@ -2,7 +2,7 @@
 
 # Output directory for spoolstats HTML.
 # It will not automatically run unless this directory exists.
-output=/var/www/spoolstats
+output=/var/www/html/spoolstats
 
 # Length of sample interval in days
 days=7

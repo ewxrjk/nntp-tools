@@ -66,7 +66,7 @@ build() {
   r $host "cd _builds && rm -rf ${source} ${archive} ${debs}"
   r $host "cat > _builds/${archive}" < ${archive}
   r $host "cd _builds && tar xfz ${archive}"
-  r $host "cd _builds/${source} && debian/rules build"
+  r $host "cd _builds/${source} && debian/rules -j$(nproc) build"
   r $host "cd _builds/${source} && fakeroot debian/rules binary"
   for deb in $debs; do
     r $host "cat _builds/$deb" > products/$deb
@@ -80,7 +80,7 @@ rm -rf products
 mkdir products
 
 # Build the source archive
-s make distcheck
+s make distcheck -j$(nproc)
 s fakeroot make dist
 s make -C gateways html
 s make -C spoolstats html
@@ -97,7 +97,6 @@ archive=${srcpkg}-${version}.tar.gz # tarball
 
 # Build .deb files
 s build araminta amd64          # stretch
-s build schroot:stretch32 i386  # stretch
 
 mv "$archive" products/
 
