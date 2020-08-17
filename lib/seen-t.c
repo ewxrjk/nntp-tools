@@ -23,8 +23,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-int debug;
+#include "utils.h"
 
 static const char *commits[] = {
     "d03c87db50e7679b24f69088cafa4e17b7dc9cdf",
