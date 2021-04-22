@@ -32,7 +32,9 @@ void Article::get_groups(vector<string> &groups) const {
 
 time_t Article::date() const {
   if(cached_date == -1) {
-    string datestr = headers.find("date")->second;
+    auto it = headers.find("date");
+    assert(it != headers.end());
+    string datestr = it->second;
     cached_date = parse_date(datestr, Config::terminal);
   }
   return cached_date;

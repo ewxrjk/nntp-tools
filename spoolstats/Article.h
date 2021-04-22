@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cassert>
 
 class Article {
 public:
@@ -32,8 +33,23 @@ public:
   void get_groups(std::vector<std::string> &groups) const;
   time_t date() const;
 
+  inline bool valid() const {
+    auto it = headers.find("message-id");
+    if(it == headers.end())
+      return false;
+    it = headers.find("date");
+    if(it == headers.end())
+      return false;
+    it = headers.find("from");
+    if(it == headers.end())
+      return false;
+    return true;
+  }
+
   inline const std::string &mid() const {
-    return headers.find("message-id")->second;
+    auto it = headers.find("message-id");
+    assert(it != headers.end());
+    return it->second;
   }
 
   inline size_t get_size() const {
@@ -41,7 +57,9 @@ public:
   }
 
   inline const std::string &sender() const {
-    return headers.find("from")->second;
+    auto it = headers.find("from");
+    assert(it != headers.end());
+    return it->second;
   }
 
   const std::string &useragent() const;

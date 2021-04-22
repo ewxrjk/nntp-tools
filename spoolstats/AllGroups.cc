@@ -130,6 +130,9 @@ int AllGroups::visit(const string &path) {
     cerr << "article " << path << endl;
   // Parse article
   Article a(article, sb.st_size);
+  // Reject malformed articles
+  if(!a.valid())
+    return 0;
   // Reject articles outside the sampling range
   if(a.date() < Config::start_time || a.date() >= Config::end_time)
     return 0;
