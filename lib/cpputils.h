@@ -47,9 +47,9 @@ class Value {
     t_string,
     t_integer,
   };
-  Type type;
+  Type type = t_string;
   std::string v_string;
-  intmax_t v_integer;
+  intmax_t v_integer = 0;
 
 public:
   Value(const std::string &s): type(t_string), v_string(s) {}

@@ -41,14 +41,18 @@
 void *xmalloc(size_t n) {
   void *ptr;
 
-  if(!(ptr = malloc(n)) && n)
+  if(n == 0)
+    n = 1;
+  if(!(ptr = malloc(n)))
     fatal(errno, "error calling malloc");
   return ptr;
 }
 
 /* Realloc memory, call fatal() on error */
 void *xrealloc(void *ptr, size_t n) {
-  if(!(ptr = realloc(ptr, n)) && n)
+  if(n == 0)
+    n = 1;
+  if(!(ptr = realloc(ptr, n)))
     fatal(errno, "error calling realloc");
   return ptr;
 }
