@@ -146,43 +146,9 @@ if test "x$GCC" = xyes; then
 fi
 
 if test "x$GXX" = xyes; then
-  CXXFLAGS="${CXXFLAGS} -Wall -W -Wformat=2 -Wno-format-nonliteral -Wshadow \
--Wpointer-arith -Wmissing-noreturn -Wredundant-decls"
-  CXXFLAGS="${CXXFLAGS} -Werror"
-  CXXFLAGS="${CXXFLAGS} -std=c++11"
-  # Required with Clang 3.7
-  # Won't compile with Clang 3.3, which is too stupid to turn off
-  # warnings it doesn't support(!)
-  AC_CACHE_CHECK([whether -Wno-deprecated-register is usable],
-                 [rjk_cv_ndr],[
-    old_CXXFLAGS="${CXXFLAGS}"
-    CXXFLAGS="${CXXFLAGS} -Wno-deprecated-register"
-    AC_LANG([C++])
-    AC_TRY_COMPILE([#include <cstdio>],[],
-                   [rjk_cv_ndr=yes],[rjk_cv_ndr=no])
-    CXXFLAGS="${old_CXXFLAGS}"
-  ])
-  if test $rjk_cv_ndr = yes; then
-    CXXFLAGS="${CXXFLAGS} -Wno-deprecated-register"
-  fi
-fi
-
-# sigc++ is broken, but the compiler can be persuaded to ignore it.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1576299
-# Annoyingly, Clang and GCC use different options for this.
-AC_CACHE_CHECK([whether sigc++ is broken],
-  [rjk_cv_sigcpp_broken],
-  [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <sigc++/sigc++.h>]])],
-     [rjk_cv_sigcpp_broken=no],
-     [rjk_cv_sigcpp_broken=yes])
-])
-if test $rjk_cv_sigcpp_broken = yes; then
-  # https://stackoverflow.com/questions/30752966/how-to-set-compiler-specific-flags-with-autotools
-  if `$CXX -v 2>&1 | grep 'gcc version' >/dev/null 2>&1`; then
-    CXXFLAGS="${CXXFLAGS} -Wno-cast-function-type"
-  else
-    CXXFLAGS="${CXXFLAGS} -Wno-bad-function-cast"
-  fi
+  CXX="${CXX} -Wall -W -Wformat=2 -Wno-format-y2k -Wno-format-nonliteral -Wshadow -Wpointer-arith \
+-Wmissing-noreturn -Wredundant-decls"
+  CXX="${CXX} -Werror"
 fi
 
 AH_BOTTOM([#ifdef __GNUC__

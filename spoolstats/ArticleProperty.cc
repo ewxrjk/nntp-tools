@@ -55,8 +55,8 @@ void ArticleProperty::order(std::vector<const PropertyValue *> &ordered) const {
   sort(ordered.begin(), ordered.end(), PropertyValue::ptr_art_compare());
 }
 
-ArticleProperty::PropertyValue &ArticleProperty::PropertyValue::
-operator+=(const PropertyValue &that) {
+ArticleProperty::PropertyValue &
+ArticleProperty::PropertyValue::operator+=(const PropertyValue &that) {
   articles += that.articles;
   for(set<string>::const_iterator it = that.senders.begin();
       it != that.senders.end(); ++it)

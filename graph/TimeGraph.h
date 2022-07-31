@@ -21,6 +21,7 @@
 #ifndef TIMEGRAPH_H
 #define TIMEGRAPH_H
 
+#include <config.h>
 #include "Graph.h"
 #include <ctime>
 
@@ -70,7 +71,8 @@ private:
 
   time_t compose(struct tm &dc);
 
-  std::string display(time_t t, const char *format);
+  std::string display(time_t t, const char *format)
+      attribute((format(strftime, 3, 0)));
 };
 
 #endif /* TIMEGRAPH_H */
