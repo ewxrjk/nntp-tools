@@ -19,8 +19,8 @@
 #
 bin_PROGRAMS=find-unhistorical
 find_unhistorical_SOURCES=unhistorical.c inn-includes.h
-find_unhistorical_LDADD=-linnhist -lstorage -linn ../lib/libmisc.a
-find_unhistorical_LDFLAGS=-L ${INNLIB} -Wl,-rpath,${INNLIB}
+find_unhistorical_LDADD=${INNLIBS} ../lib/libmisc.a
+find_unhistorical_LDFLAGS=-L ${INNLIBDIR} -Wl,-rpath,${INNLIBDIR}
 AM_CPPFLAGS=-I${top_srcdir}/lib
 man_MANS=find-unhistorical.1
 EXTRA_DIST=$(man_MANS)

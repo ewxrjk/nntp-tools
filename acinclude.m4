@@ -35,26 +35,46 @@ dnl with 3.
 
 AC_DEFUN([RJK_INN],[
   AC_CACHE_CHECK([for INN libraries],
-                 [rjk_cv_innlib], [
-    AC_ARG_WITH([inn-libs],
-                [AS_HELP_STRING([--with-inn-libs=DIR],
+                 [rjk_cv_innlibdir], [
+    AC_ARG_WITH([innlibdir],
+                [AS_HELP_STRING([--with-innlibdir=DIR],
                                 [location of INN libraries])],
                 [
-      rjk_cv_innlib="${withval}"
+      rjk_cv_innlibdir="${withval}"
     ],[
-      rjk_cv_innlib=no
+      rjk_cv_innlibdir=no
       for dir in /usr/lib/news /usr/local/lib/news; do
         if test -e ${dir}/libinn.a; then
-          rjk_cv_innlib="${dir}"
+          rjk_cv_innlibdir="${dir}"
         fi
       done
     ])
   ])
-  if test "${rjk_cv_innlib}" != no; then
-    INNLIB="${rjk_cv_innlib}"
+
+  AC_CACHE_CHECK([which INN libraries to include],
+                 [rjk_cv_innlibs], [
+    AC_ARG_WITH([innlibs],
+                [AS_HELP_STRING([--with-innlibs=DIR],
+                                [INN libraries to use])],
+                [
+      rjk_cv_innlibs="${withval}"
+    ],[
+      rjk_cv_innlibs=""
+      for lib in innhist storage innstorage inn; do
+        if test -e $rjk_cv_innlibdir/lib$lib.a || test -e $rjk_cv_innlibdir/lib$lib.so; then
+          rjk_cv_innlibs="$rjk_cv_innlibs -l${lib}"
+        fi
+      done
+    ])
+  ])
+
+  
+  if test "${rjk_cv_innlibdir}" != no; then
+    INNLIBDIR="${rjk_cv_innlibdir}"
+    INNLIBS="$rjk_cv_innlibs"
     AC_CACHE_CHECK([whether INN libraries require -DHAVE_SSL],
                    [rjk_cv_innssl], [
-      if grep tlscafile ${INNLIB}/libinn.a >/dev/null; then
+      if grep tlscafile ${INNLIBDIR}/libinn.a >/dev/null; then
         rjk_cv_innssl=yes
       else
         rjk_cv_innssl=no
@@ -64,5 +84,6 @@ AC_DEFUN([RJK_INN],[
       AC_DEFINE([INN_HAVE_SSL],[1],[define to 1 if INN was built with SSL support])
     fi
   fi
-  AC_SUBST([INNLIB])
+  AC_SUBST([INNLIBDIR])
+  AC_SUBST([INNLIBS])
 ])
