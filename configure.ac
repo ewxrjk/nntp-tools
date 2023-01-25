@@ -145,6 +145,11 @@ if test "x$GCC" = xyes; then
   fi    
 fi
 
+# cURL has deprecated CURLOPT_PROTOCOLS, but the replacement CURLOPT_PROTOCOLS_STR
+# isn't available in Debian stable, and these are enums not macros, so we can't
+# conveniently detect with #ifdef.
+CFLAGS="${CFLAGS} -DCURL_DISABLE_DEPRECATION"
+
 if test "x$GXX" = xyes; then
   CXX="${CXX} -Wall -W -Wformat=2 -Wno-format-y2k -Wno-format-nonliteral -Wshadow -Wpointer-arith \
 -Wmissing-noreturn -Wredundant-decls"
