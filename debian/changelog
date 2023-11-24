@@ -1,3 +1,11 @@
+rjk-nntp-tools (34) stable; urgency=medium
+
+  * Build fixes
+  * Minor internal fixes
+  * Rebuild for bookworm
+
+ -- Richard Kettlewell <rjk@terraraq.uk>  Fri, 24 Nov 2023 15:20:24 +0000
+
 rjk-nntp-tools (33) unstable; urgency=medium
 
   * fix spoolstats handling of invalid articles
