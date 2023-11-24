@@ -19,17 +19,17 @@
 # USA
 #
 
-AC_INIT([rjk-nntp-tools], [33], [rjk@greenend.org.uk])
+AC_INIT([rjk-nntp-tools],[33],[rjk@greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
 AM_INIT_AUTOMAKE([foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([gateways/lj2news.c])
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AC_SET_MAKE
+AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AM_PROG_AR
 
@@ -132,12 +132,9 @@ if test "x$GCC" = xyes; then
     old_CFLAGS="${CFLAGS}"
     CFLAGS="${CFLAGS} -Werror"
     AC_LANG([C])
-    AC_TRY_COMPILE([#include <unistd.h>
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
 		    #include <stdio.h>
-		    #include <getopt.h>],
-                   [],
- 		   [rjk_cv_werror=yes],
- 		   [rjk_cv_werror=no])
+		    #include <getopt.h>]], [[]])],[rjk_cv_werror=yes],[rjk_cv_werror=no])
     CFLAGS="${old_CFLAGS}"
   ])
   if test $rjk_cv_werror = yes; then
