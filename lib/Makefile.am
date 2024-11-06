@@ -20,7 +20,7 @@
 
 noinst_PROGRAMS=seen-t
 noinst_LIBRARIES=libmisc.a libmiscpp.a
-libmisc_a_SOURCES=getdelim.c getline.c nntp.c open_memstream.c utils.c	\
+libmisc_a_SOURCES=nntp.c open_memstream.c utils.c	\
 nntp.h utils.h capture.c io.h io.c recode.c seen.c seen.h error.h 	\
 error.c popenvp.c
 libmiscpp_a_SOURCES=cpputils.h split.cc Timezones.h Timezones.cc	\

@@ -120,7 +120,7 @@ AC_C_INLINE
 AC_C_BIGENDIAN
 
 # Checks for functions
-AC_CHECK_FUNCS([funopen open_memstream getline getdelim pipe2])
+AC_CHECK_FUNCS([funopen open_memstream pipe2])
 
 if test "x$GCC" = xyes; then
   # a reasonable default set of warnings

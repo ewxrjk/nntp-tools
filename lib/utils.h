@@ -66,14 +66,6 @@ extern int debug; /* debug output */
 FILE *open_memstream(char **ptr, size_t *sizeloc);
 #endif
 
-#if !HAVE_GETLINE
-ssize_t getline(char **lineptr, size_t *n, FILE *stream);
-#endif
-
-#if !HAVE_GETDELIM
-ssize_t getdelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
-#endif
-
 FILE *popenvp(const char *type, pid_t *pidp, const char *file,
               char *const argv[]);
 
