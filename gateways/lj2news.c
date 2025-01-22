@@ -484,15 +484,27 @@ static size_t writedata(void *buffer, size_t n, size_t count, void *userdata) {
   struct state *s = userdata;
   int bytes;
   size_t total = n * count, written = 0;
+  int fd;
+  const char *dest;
 
   /* Only return the body if we liked the headers */
-  if(s->http_state != HTTP_OK)
+  switch(s->http_state) {
+  case HTTP_OK:
+    fd = urlpipe[1];
+    dest = "internal pipe";
+    break;
+  case HTTP_ERROR:
+    fd = 2;
+    dest = "stderr";
+    break;
+  default:
     return total;
+  }
   while(written < total) {
-    bytes = write(urlpipe[1], (char *)buffer + written, total - written);
+    bytes = write(fd, (char *)buffer + written, total - written);
     if(bytes < 0) {
       if(errno != EINTR)
-        fatal(errno, "error writing to internal pipe");
+        fatal(errno, "error writing to %s", dest);
     } else
       written += bytes;
   }
