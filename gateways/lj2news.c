@@ -497,8 +497,7 @@ static size_t writedata(void *buffer, size_t n, size_t count, void *userdata) {
     fd = 2;
     dest = "stderr";
     break;
-  default:
-    return total;
+  default: return total;
   }
   while(written < total) {
     bytes = write(fd, (char *)buffer + written, total - written);
