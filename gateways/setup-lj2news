@@ -92,10 +92,10 @@ do {
     print "[$ENV{LOGNAME}] > ";
     chomp($user = <STDIN>);
     $user = $ENV{LOGNAME} if $user eq '';
-    $rc = system("wget -qO - http://$user.$site > /dev/null 2>&1");
+    $rc = system("wget -qO - https://$user.$site > /dev/null 2>&1");
     if($rc != 0) {
         print "\n";
-        print "Oh dear; http://$user.$site does not seem to work.\n";
+        print "Oh dear; https://$user.$site does not seem to work.\n";
         print "If you are you sure '$user' is right, then perhaps $site\n";
         print "is down at the moment.  In that case, hit CTRL-C now\n";
         print "and try again later.\n";
@@ -176,8 +176,8 @@ do {
 } while($newsgroup eq '');
 
 # Parameters
-my $userAgent = "http://www.greenend.org.uk/rjk/2006/newstools.html;$email";
-my $url = "http://www.$site/users/$user/rss";
+my $userAgent = "https://www.greenend.org.uk/rjk/2006/newstools.html;$email";
+my $url = "https://www.$site/users/$user/rss";
 
 # Synthesize the command.  We include the full path to lj2news to avoid
 # problems with the PATH being different in the runtime environment.

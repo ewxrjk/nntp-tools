@@ -25,7 +25,7 @@ using namespace std;
 /* --- timezone names ------------------------------------------------------ */
 
 Timezones::Timezones() {
-  // from http://www.timeanddate.com/library/abbreviations/timezones/
+  // from https://www.timeanddate.com/library/abbreviations/timezones/
   timezones["A"] = 60 * 60; // Alpha Time Zone (Military)
   timezones["ACDT"] =
       +(10 * 60 + 30) * 60; // Australian Central Daylight Time (Australia)

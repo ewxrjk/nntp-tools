@@ -146,7 +146,7 @@ void Config::footer(ostream &os) {
      << " | <a href=" << HTML::Quote("charsets.html") << ">Encodings</a>"
      << "</p>\n";
   os << "<p class=credits><a href="
-     << HTML::Quote("http://www.greenend.org.uk/rjk/2006/newstools.html")
+     << HTML::Quote("shttp://www.greenend.org.uk/rjk/2006/newstools.html")
      << ">spoolstats " VERSION "</a></p>\n";
 }
 

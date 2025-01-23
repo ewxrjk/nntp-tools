@@ -5,7 +5,7 @@ Priority: optional
 Rules-Requires-Root: no
 Standards-Version: 3.8.4.0
 Build-Depends: libgcrypt-dev, libcurl4-gnutls-dev|libcurl-dev, libexpat-dev, vim-common|xxd, pkg-config, libcairomm-1.0-dev, inn2-dev, clang-format
-Homepage: http://www.greenend.org.uk/rjk/nntptools/
+Homepage: https://www.greenend.org.uk/rjk/nntptools/
 
 Package: rjk-nntp-tools
 Architecture: any

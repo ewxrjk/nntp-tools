@@ -132,7 +132,7 @@ int isdir(const char *path) {
 
 /* --- convert a W3C date to an RFC822 date -------------------------------- */
 
-/* http://dublincore.org/documents/dces/ says:
+/* https://dublincore.org/documents/dces/ said:
  * ------------------------------------------------------------------------
  *  Typically, Date will be associated with the creation or availability
  *  of the resource. Recommended best practice for encoding the date value
@@ -140,7 +140,7 @@ int isdir(const char *path) {
  *  others) dates of the form YYYY-MM-DD."
  * ------------------------------------------------------------------------
  *
- * http://www.w3.org/TR/NOTE-datetime says:
+ * https://www.w3.org/TR/NOTE-datetime says:
  * ------------------------------------------------------------------------
  * "The formats are as follows. Exactly the components shown here must be
  * present, with exactly this punctuation. Note that the "T" appears

@@ -1,12 +1,16 @@
 # rjk-nntp-tools
 
-This package contains tools do with Usenet news.  It depends on cairo,
-libpthread, libcurl, libexpat and libgcrypt.  It runs on Linux but
+This package contains tools do with [Usenet news](https://en.wikipedia.org/wiki/Usenet).  It depends on
+[cairo](https://www.cairographics.org/),
+libpthread, [libcurl](https://curl.se/),
+[libexpat](https://libexpat.github.io/) and
+[libgcrypt](https://www.gnupg.org/software/libgcrypt/index.html).  It runs on Linux but
 should not be too hard to get going on other UNIX platforms.
 
 
 ## Installation
 
+    apt install build-essential libgcrypt20-dev libcairomm-1.0-dev libexpat1-dev inn2-dev libcurl4-gnutls-dev
     ./configure
     make
     make install
@@ -16,7 +20,7 @@ should not be too hard to get going on other UNIX platforms.
 
 ## `lj2news`
 
-`lj2news` reads the RSS feed provided by Livejournal (or Dreamwidth),
+`lj2news` reads the RSS feed provided by [Dreamwidth](https://www.dreamwidth.org/) (or Livejournal),
 formats it to plain text, and posts it to a newsgroup.
 See `man lj2news` for documentation.
 
@@ -43,13 +47,13 @@ cron job:
     set -e
     export NNTPAUTH="md5cookie1way richard"
     lj2news \
-      -a "http://www.greenend.org.uk/rjk/;rjk+ljua@greenend.org.uk" \
+      -a "https://www.greenend.org.uk/rjk/;rjk+ljua@greenend.org.uk" \
       -t ewx \
       -f "Richard Kettlewell <rjk@greenend.org.uk>" \
       -n chiark.journals \
       -s chiark-tunnel.greenend.org.uk \
       -S $HOME/.lj2news-sig.txt \
-      http://www.livejournal.com/users/ewx/rss
+      https://www.livejournal.com/users/ewx/rss
 
 Alternatively, use `setup-lj2news` which will ask you about your journal
 and figure out the required command.

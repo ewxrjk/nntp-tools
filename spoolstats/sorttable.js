@@ -2,7 +2,7 @@
   SortTable
   version 2
   7th April 2007
-  Stuart Langridge, http://www.kryogenix.org/code/browser/sorttable/
+  Stuart Langridge, https://www.kryogenix.org/code/browser/licence.html
   
   Instructions:
   Download this file
@@ -11,7 +11,7 @@
   Click on the headers to sort
   
   Thanks to many, many people for contributions and suggestions.
-  Licenced as X11: http://www.kryogenix.org/code/browser/licence.html
+  Licenced as X11: https://www.kryogenix.org/code/browser/licence.html
   This basically means: do what you want with it.
 */
 
@@ -169,7 +169,7 @@ sorttable = {
     for (var i=0; i<table.tBodies[0].rows.length; i++) {
       text = sorttable.getInnerText(table.tBodies[0].rows[i].cells[column]);
       if (text != '') {
-        if (text.match(/^-?[£$¤]?[\d,.]+%?$/)) {
+        if (text.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
           return sorttable.sort_numeric;
         }
         // check for a date: dd/mm/yyyy or dd/mm/yy 
@@ -301,7 +301,7 @@ sorttable = {
   
   shaker_sort: function(list, comp_func) {
     // A stable sort function to allow multi-level sorting of data
-    // see: http://en.wikipedia.org/wiki/Cocktail_sort
+    // see: https://en.wikipedia.org/wiki/Cocktail_sort
     // thanks to Joseph Nahmias
     var b = 0;
     var t = list.length - 1;
@@ -441,7 +441,7 @@ fixEvent.stopPropagation = function() {
 /*
 	forEach, version 1.0
 	Copyright 2006, Dean Edwards
-	License: http://www.opensource.org/licenses/mit-license.php
+	License: https://opensource.org/license/mit
 */
 
 // array-like enumeration
