@@ -32,9 +32,9 @@ endif
 
 # Install commands.  You wouldn't normally override these.
 INSTALL=install
-INSTALL_DATA=$(INSTALL) -p -o root -g root -m 644
-INSTALL_PROGRAM=$(INSTALL) -p -o root -g root -m 755
-INSTALL_SCRIPT=$(INSTALL) -p -o root -g root -m 755
+INSTALL_DATA=$(INSTALL) -p -m 644
+INSTALL_PROGRAM=$(INSTALL) -p -m 755
+INSTALL_SCRIPT=$(INSTALL) -p -m 755
 MKDIR=mkdir -p -m 755
 
 # Set DEB_BUILD_OPTIONS=nostrip to install debuggable executables.
@@ -45,8 +45,6 @@ endif
 export INSTALL_DATA
 export INSTALL_SCRIPT
 export INSTALL_PROGRAM
-
-FAKEROOT=fakeroot
 
 # ./autogen.sh is the script that generates configure etc.  It only needs to be
 # run if building from a checkout rather than a tarball.
@@ -90,9 +88,8 @@ pkg-rjk-nntp-tools:
 			| sed 's/^\.\///' \
 			| xargs md5sum > DEBIAN/md5sums
 	dpkg-gencontrol -isp -prjk-nntp-tools -Pdebian/rjk-nntp-tools -Tdebian/substvars.rjk-nntp-tools
-	chown -R root:root debian/rjk-nntp-tools
 	chmod -R g-ws debian/rjk-nntp-tools
-	dpkg --build debian/rjk-nntp-tools ..
+	dpkg-deb --root-owner-group --build debian/rjk-nntp-tools ..
 
 pkg-rjk-spoolstats:
 	rm -rf debian/rjk-spoolstats
@@ -131,9 +128,8 @@ pkg-rjk-spoolstats:
 			| sed 's/^\.\///' \
 			| xargs md5sum > DEBIAN/md5sums
 	dpkg-gencontrol -isp -prjk-spoolstats -Pdebian/rjk-spoolstats -Tdebian/substvars.rjk-spoolstats
-	chown -R root:root debian/rjk-spoolstats
 	chmod -R g-ws debian/rjk-spoolstats
-	dpkg --build debian/rjk-spoolstats ..
+	dpkg-deb --root-owner-group --build debian/rjk-spoolstats ..
 
 DEBVERSION:=$(shell dpkg-parsechangelog|awk '/Version:/ {print $$2}')
 DSC=rjk-nntp-tools_$(DEBVERSION).dsc
@@ -150,7 +146,7 @@ source:
 source-check: source
 	rm -rf rjk-nntp-tools-$(DEBVERSION)
 	unset CFLAGS CXXFLAGS;dpkg-source -x $(DSC)
-	cd rjk-nntp-tools-$(DEBVERSION) && dpkg-buildpackage -r$(FAKEROOT) -uc -us
+	cd rjk-nntp-tools-$(DEBVERSION) && dpkg-buildpackage -uc -us
 
 source-check-lintian:
 	rm -f *.deb

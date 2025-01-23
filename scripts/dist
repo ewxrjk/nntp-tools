@@ -67,7 +67,7 @@ build() {
   r $host "cat > _builds/${archive}" < ${archive}
   r $host "cd _builds && tar xfz ${archive}"
   r $host "cd _builds/${source} && debian/rules -j$(nproc) build"
-  r $host "cd _builds/${source} && fakeroot debian/rules binary"
+  r $host "cd _builds/${source} && debian/rules binary"
   for deb in $debs; do
     r $host "cat _builds/$deb" > products/$deb
   done
@@ -79,9 +79,17 @@ build() {
 rm -rf products
 mkdir products
 
+if [ ! -e configure ]; then
+  s ./autogen.sh
+fi
+
+if [ ! -e Makefile ]; then
+  s ./configure
+fi
+
 # Build the source archive
 s make distcheck -j$(nproc)
-s fakeroot make dist
+s make dist
 s make -C gateways html
 s make -C spoolstats html
 cp gateways/*.1.html products/
@@ -96,7 +104,7 @@ source=${srcpkg}-${version}     # source directory
 archive=${srcpkg}-${version}.tar.gz # tarball
 
 # Build .deb files
-s build araminta amd64          # stretch
+s build sfere amd64          # stretch
 
 mv "$archive" products/
 
