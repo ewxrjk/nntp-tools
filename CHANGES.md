@@ -1,4 +1,23 @@
 # Changes to rjk-nntp-tools
+
+Please see git history for more detailed changes.
+
+## Changes in version 34
+
+Track dependency changes.
+
+## Changes in version 33
+
+Improve spoolstats handling of invalid articles.
+
+## Changes in version 32
+
+Update output directory for spoolstats to `/var/www/html`.
+
+## Changes in version 31
+
+More reproducible builds.
+
 ## Changes in version 30
 
 Miscellaneous build fixes.
