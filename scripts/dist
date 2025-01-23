@@ -94,7 +94,7 @@ s make -C gateways html
 s make -C spoolstats html
 cp gateways/*.1.html products/
 cp spoolstats/*.1.html products/
-cp CHANGES.html products/newstools-CHANGES.html
+markdown CHANGES.md > products/newstools-CHANGES.html
 markdown README.md > products/newstools-README.html
 
 srcpkg=rjk-nntp-tools                    # source package name

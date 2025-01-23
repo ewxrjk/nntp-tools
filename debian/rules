@@ -66,7 +66,7 @@ pkg-rjk-nntp-tools:
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog
 	gzip -9n debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/changelog*
-	$(INSTALL_DATA) CHANGES.html \
+	$(INSTALL_DATA) CHANGES.md \
 		debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools/.
 	$(INSTALL_DATA) debian/override.rjk-nntp-tools \
 		debian/rjk-nntp-tools/usr/share/lintian/overrides/rjk-nntp-tools
@@ -103,7 +103,7 @@ pkg-rjk-spoolstats:
 	$(INSTALL_DATA) debian/changelog \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog
 	gzip -9n debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/changelog*
-	$(INSTALL_DATA) CHANGES.html \
+	$(INSTALL_DATA) CHANGES.md \
 		debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats/.
 	$(INSTALL_DATA) debian/override.rjk-spoolstats \
 		debian/rjk-spoolstats/usr/share/lintian/overrides/rjk-spoolstats
