@@ -19,6 +19,7 @@ Description: Miscellaneous Usenet news tools
 Package: rjk-spoolstats
 Architecture: any
 Depends: ${shlibs:Depends}
+Recommends: cron-daemon
 Description: Usenet news spool analysis
  Creates an HTML report about the contents of a news spool.
  .
