@@ -1,0 +1,12 @@
+#! /bin/sh
+set -e
+target=$1
+shift
+docker build -t $target docker/$target
+docker run \
+       -it \
+       -v "$(pwd):/src" \
+       -u "$(id -u):$(id -g)" \
+       -w /src \
+       $target:latest \
+       "$@"
