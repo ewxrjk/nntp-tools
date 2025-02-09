@@ -2,6 +2,13 @@
 
 Please see git history for more detailed changes.
 
+## Changes in version 35
+
+* http → https
+* lj2news reports http errors more verbosely
+* .deb no longer needs fakeroot to build
+* getline() and getdelim() are no longer vendored
+
 ## Changes in version 34
 
 Track dependency changes.

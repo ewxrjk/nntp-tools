@@ -1,3 +1,10 @@
+rjk-nntp-tools (35) stable; urgency=medium
+
+  * lj2news reports http errors more verbosely
+  * http → https
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 09 Feb 2025 17:01:19 +0000
+
 rjk-nntp-tools (34) stable; urgency=medium
 
   * Build fixes
