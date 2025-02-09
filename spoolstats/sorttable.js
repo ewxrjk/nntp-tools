@@ -2,7 +2,7 @@
   SortTable
   version 2
   7th April 2007
-  Stuart Langridge, https://www.kryogenix.org/code/browser/licence.html
+  Stuart Langridge, https://www.kryogenix.org/code/browser/sorttable/
   
   Instructions:
   Download this file
@@ -169,7 +169,7 @@ sorttable = {
     for (var i=0; i<table.tBodies[0].rows.length; i++) {
       text = sorttable.getInnerText(table.tBodies[0].rows[i].cells[column]);
       if (text != '') {
-        if (text.match(/^-?[ï¿½$ï¿½]?[\d,.]+%?$/)) {
+        if (text.match(/^-?[£$¤]?[\d,.]+%?$/)) {
           return sorttable.sort_numeric;
         }
         // check for a date: dd/mm/yyyy or dd/mm/yy 
