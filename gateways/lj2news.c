@@ -640,7 +640,7 @@ Rarely used options:\n\
           curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L)))
     fatal(0, "curl_easy_setopt CURLOPT_NOSIGNAL: %s", curl_easy_strerror(cerr));
-  if((cerr = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1)))
+  if((cerr = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L)))
     fatal(0, "curl_easy_setopt CURLOPT_FOLLOWLOCATION: %s",
           curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent)))
@@ -649,17 +649,17 @@ Rarely used options:\n\
   if((cerr = curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)timeout)))
     fatal(0, "curl_easy_setopt CURLOPT_TIMEOUT: %s", curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_PROTOCOLS,
-                              CURLPROTO_HTTP | CURLPROTO_HTTPS)))
+                              (long)(CURLPROTO_HTTP | CURLPROTO_HTTPS))))
     fatal(0, "curl_easy_setopt CURLOPT_PROTOCOLS: %s",
           curl_easy_strerror(cerr));
   if((cerr = curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS,
-                              CURLPROTO_HTTP | CURLPROTO_HTTPS)))
+                              (long)(CURLPROTO_HTTP | CURLPROTO_HTTPS))))
     fatal(0, "curl_easy_setopt CURLOPT_REDIR_PROTOCOLS: %s",
           curl_easy_strerror(cerr));
   if(pf != PF_UNSPEC) {
     if((cerr = curl_easy_setopt(curl, CURLOPT_IPRESOLVE,
-                                pf == AF_INET ? CURL_IPRESOLVE_V4
-                                              : CURL_IPRESOLVE_V6)))
+                                (long)(pf == AF_INET ? CURL_IPRESOLVE_V4
+                                                     : CURL_IPRESOLVE_V6))))
       fatal(0, "curl_easy_setopt CURLOPT_IPRESOLVE: %s",
             curl_easy_strerror(cerr));
   }
