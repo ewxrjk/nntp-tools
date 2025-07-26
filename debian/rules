@@ -48,15 +48,18 @@ export INSTALL_PROGRAM
 
 # ./autogen.sh is the script that generates configure etc.  It only needs to be
 # run if building from a checkout rather than a tarball.
-build:
+build: build-arch build-indep
+build-arch:
 	@set -e;if test ! -f configure; then \
 	  echo ./autogen.sh;\
 	  ./autogen.sh;\
 	fi
 	./configure ${CONFIGURE} ${CONFIGURE_EXTRA}
 	$(MAKE)
+	touch build-arch
+build-indep:
 
-pkg-rjk-nntp-tools:
+pkg-rjk-nntp-tools: build-arch
 	rm -rf debian/rjk-nntp-tools
 	$(MKDIR) debian/rjk-nntp-tools debian/rjk-nntp-tools/DEBIAN \
 		 debian/rjk-nntp-tools/usr/share/doc/rjk-nntp-tools \
@@ -91,7 +94,7 @@ pkg-rjk-nntp-tools:
 	chmod -R g-ws debian/rjk-nntp-tools
 	dpkg-deb --root-owner-group --build debian/rjk-nntp-tools ..
 
-pkg-rjk-spoolstats:
+pkg-rjk-spoolstats: build-arch
 	rm -rf debian/rjk-spoolstats
 	$(MKDIR) debian/rjk-spoolstats debian/rjk-spoolstats/DEBIAN \
 		 debian/rjk-spoolstats/usr/share/doc/rjk-spoolstats \
@@ -162,11 +165,13 @@ binary-indep:
 
 clean:
 	[ ! -f Makefile ] || $(MAKE) distclean
+	rm -f build-arch
 	rm -f config.cache
 	rm -f debian/files
 	rm -f debian/substvars.*
 	rm -rf debian/rjk-nntp-tools
 	rm -rf debian/rjk-spoolstats
 
-.PHONY: clean build pkg-rjk-nntp-tools pkg-rjk-spool-stats source source-check \
+.PHONY: clean build build-arch build-indep \
+	pkg-rjk-nntp-tools pkg-rjk-spool-stats source source-check \
 	binary binary-arch binary-indep
